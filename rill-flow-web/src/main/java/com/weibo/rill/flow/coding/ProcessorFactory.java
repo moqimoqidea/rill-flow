@@ -19,11 +19,7 @@ public abstract class ProcessorFactory {
             throw new IllegalArgumentException("Processor type not found: " + type);
         }
         Class<? extends DataProcessor<?>> processorClass = processorMap.get(type);
-        // 补全代码: 根据processorClass创建一个DataProcessor实例并返回
-        // 光标位置在这里
-        // 利用反射创建实例
-        DataProcessor<T> processor = (DataProcessor<T>) processorClass.getDeclaredConstructor().newInstance();
-        return processor;
+        // FIXME: Code Completion From Here.
     }
 }
 

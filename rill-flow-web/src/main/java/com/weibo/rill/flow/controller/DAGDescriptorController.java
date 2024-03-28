@@ -118,7 +118,7 @@ public class DAGDescriptorController {
     @RequestMapping(value = "get_ab_key.json", method = RequestMethod.GET)
     public Map<String, Object> getABConfigKey(User flowUser,
                                               @ApiParam(value = "业务ID") @RequestParam(value = "business_id") String businessId) {
-        return dagDescriptorFacade.getABConfigKey(businessId);
+        // FIXME: Code Completion From Here.
     }
 
     @ApiOperation(value = "资源灰度管理")
@@ -156,7 +156,7 @@ public class DAGDescriptorController {
                                           @ApiParam(value = "业务ID") @RequestParam(value = "business_id") String businessId,
                                           @ApiParam(value = "服务名称") @RequestParam(value = "feature_name") String featureName,
                                           @ApiParam(value = "别名") @RequestParam(value = "alias") String alias) {
-        return dagDescriptorFacade.getVersion(businessId, featureName, alias);
+        // FIXME: Code Completion From Here.
     }
 
     /**

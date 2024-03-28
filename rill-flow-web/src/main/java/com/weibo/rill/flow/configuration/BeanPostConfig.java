@@ -73,7 +73,7 @@ public class BeanPostConfig {
     public void setBusinessTimeCheckProperty(
             @Autowired BusinessTimeChecker businessTimeChecker,
             @Autowired TimeCheckRunner timeCheckRunner) {
-        businessTimeChecker.setTimeCheckRunner(timeCheckRunner);
+        // FIXME: Code Completion From Here.
     }
 
     @Autowired
@@ -94,7 +94,7 @@ public class BeanPostConfig {
                     if (StringUtils.isBlank(executionId) || notifyType == null) {
                         log.info("notify statisticLogPlugin skip, executionId:{}, notifyType:{}", executionId, notifyType);
                     } else {
-                        systemMonitorStatistic.recordNotify(executionCost, executionId, notifyType);
+                        // FIXME: Code Completion From Here.
                         if (notifyType == NotifyType.FINISH) {
                             tenantTaskStatistic.finishNotifyCount(executionId, notifyInfo);
                         } else if (notifyType == NotifyType.SUBMIT) {
@@ -125,7 +125,7 @@ public class BeanPostConfig {
                     }
 
                     long executionCost = System.currentTimeMillis() - startTime;
-                    String executionId = getParam(params, EXECUTION_ID, String.class);
+                    // FIXME: Code Completion From Here.
 
                     if (StringUtils.isBlank(executionId)) {
                         log.info("traversal statisticLogPlugin skip due to executionId empty");
@@ -164,7 +164,7 @@ public class BeanPostConfig {
                         log.info("taskCollect statisticLogPlugin skip due to executionId empty");
                     } else {
                         systemMonitorStatistic.recordDAGFinish(executionId, executionCost, dagStatus, dagInfo);
-                        tenantTaskStatistic.dagFinishCount(executionId, dagInfo);
+                        // FIXME: Code Completion From Here.
                     }
                 });
             }
@@ -228,7 +228,7 @@ public class BeanPostConfig {
                         log.info("taskRun statisticLogPlugin skip, executionId:{}, taskInfo empty:{}", executionId, taskInfo == null);
                     } else {
                         systemMonitorStatistic.recordTaskRun(executionCost, executionId, taskInfo);
-                        tenantTaskStatistic.recordTaskRun(executionCost, executionId, taskInfo);
+                        // FIXME: Code Completion From Here.
                     }
                 });
             }
@@ -258,6 +258,6 @@ public class BeanPostConfig {
             return;
         }
 
-        asyncExecution(executorService, actions);
+        // FIXME: Code Completion From Here.
     }
 }
