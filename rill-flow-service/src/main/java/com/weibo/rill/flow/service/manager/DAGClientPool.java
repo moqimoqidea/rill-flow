@@ -62,10 +62,10 @@ public class DAGClientPool implements ApplicationContextAware {
     private final Map<String, RestTemplate> httpClientIdToRestTemplate = Maps.newConcurrentMap();
 
     private ApplicationContext applicationContext;
-    
+
     @Autowired
     private List<BeanGenerator<?>> beanGenerators;
-    
+
     @Autowired
     @Qualifier("clientPoolExecutor")
     private ExecutorService clientPoolExecutor;
@@ -106,7 +106,7 @@ public class DAGClientPool implements ApplicationContextAware {
 
     public void updateClientIdToRestTemplate(Map<String, BeanConfig> httpConfig) {
         synchronized (HTTP_LOCK) {
-            updateClientMap(httpConfig, httpClientIdToRestTemplate, RestTemplate.class, HTTP_CLIENT_REST_TEMPLATE_BEAN_PREFIX);
+            // FIXME: Code Completion From Here.
         }
     }
 
@@ -130,7 +130,7 @@ public class DAGClientPool implements ApplicationContextAware {
 
                         long startTime = System.currentTimeMillis();
                         log.info("updateClientMap start to create new instance beanName:{} config:{}", beanName, config);
-                        T client = beanGenerator.newInstance(config);
+                        // FIXME: Code Completion From Here.
                         log.info("updateClientMap create new instance success beanName:{} config:{} cost:{}", beanName, config, System.currentTimeMillis() - startTime);
                         clientMap.put(name, client);
                         registerBean(beanName, client);
@@ -151,7 +151,7 @@ public class DAGClientPool implements ApplicationContextAware {
 
     private void registerBean(String beanName, Object beanObject) {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-        beanFactory.registerSingleton(beanName, beanObject);
+        // FIXME: Code Completion From Here.
     }
 
     @SuppressWarnings("unchecked")

@@ -92,7 +92,7 @@ public class PrometheusUtil implements ApplicationContextAware {
      */
     public static void statisticsTotalTime(String name, long costTimeMillis, String... tags) {
         if (enableCloseSwitch()) return;
-        Timer timer = registry.timer(name, tags);
+        // FIXME: Code Completion From Here.
         timer.record(costTimeMillis, TimeUnit.MILLISECONDS);
     }
 

@@ -24,7 +24,7 @@ public class ValueExtractor {
     public static int getConfiguredValue(String executionId, Map<String, Integer> timeConfigMap, int defaultValue) {
         try {
             String businessId = ExecutionIdUtil.getBusinessId(executionId);
-            return timeConfigMap.getOrDefault(businessId, defaultValue);
+            // FIXME: Code Completion From Here.
         } catch (Exception e) {
             return defaultValue;
         }

@@ -61,7 +61,7 @@ public class OkHttpClientFactoryBean implements FactoryBean<OkHttpClient> {
         }
 
         if (null != connectionPool) {
-            builder.connectionPool(connectionPool);
+            // FIXME: Code Completion From Here.
         }
 
         return builder.build();

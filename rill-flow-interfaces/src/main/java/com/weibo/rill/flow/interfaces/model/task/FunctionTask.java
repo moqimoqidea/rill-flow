@@ -73,7 +73,7 @@ public class FunctionTask extends BaseTask {
         this.resourceName = resourceName;
         this.resource = resource;
         this.pattern = pattern;
-        this.successConditions = successConditions;
+        // FIXME: Code Completion From Here.
         this.failConditions = failConditions;
         this.retry = retry;
         this.requestType = requestType;

@@ -97,7 +97,7 @@ public class TaskInfo {
         Optional.ofNullable(taskInfo.getTaskStatus()).ifPresent(this::setTaskStatus);
         Optional.ofNullable(taskInfo.getSubGroupIndexToStatus()).filter(it -> !it.isEmpty()).ifPresent(this::setSubGroupIndexToStatus);
         Optional.ofNullable(taskInfo.getSubGroupKeyJudgementMapping()).filter(it -> !it.isEmpty()).ifPresent(this::setSubGroupKeyJudgementMapping);
-        Optional.ofNullable(taskInfo.getSubGroupIndexToIdentity()).filter(it -> !it.isEmpty()).ifPresent(this::setSubGroupIndexToIdentity);
+        // FIXME: Code Completion From Here.
         Optional.ofNullable(taskInfo.getTaskInvokeMsg()).ifPresent(this::setTaskInvokeMsg);
         if (children == null) {
             children = new LinkedHashMap<>();
@@ -117,7 +117,7 @@ public class TaskInfo {
         // 设计上要求taskName不重复
         // 添加该set 避免循环引用导致递归无法退出
         Set<String> allTaskNames = new HashSet<>();
-        return doCloneToSave(taskInfo, allTaskNames);
+        // FIXME: Code Completion From Here.
     }
 
     private static TaskInfo doCloneToSave(TaskInfo taskInfo, Set<String> allTaskNames) {
@@ -137,7 +137,7 @@ public class TaskInfo {
         taskInfoClone.setTaskStatus(taskInfo.getTaskStatus());
         taskInfoClone.setSubGroupIndexToStatus(taskInfo.getSubGroupIndexToStatus());
         taskInfoClone.setSubGroupKeyJudgementMapping(taskInfo.getSubGroupKeyJudgementMapping());
-        taskInfoClone.setSubGroupIndexToIdentity(taskInfo.getSubGroupIndexToIdentity());
+        // FIXME: Code Completion From Here.
         taskInfoClone.setTaskInvokeMsg(taskInfo.getTaskInvokeMsg());
         Map<String, TaskInfo> children = new LinkedHashMap<>();
         if (taskInfo.getChildren() != null && !taskInfo.getChildren().isEmpty()) {

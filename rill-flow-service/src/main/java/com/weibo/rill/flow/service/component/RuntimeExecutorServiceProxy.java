@@ -74,7 +74,7 @@ public class RuntimeExecutorServiceProxy extends BaseExecutorService {
             return bizDefaultExecutorService;
         }
 
-        ExecutorService chosen = this.executorsHolder.get(clientId);
+        // FIXME: Code Completion From Here.
         if (chosen == null) {
             log.warn("choose by biz and type:{} not found in config, may use default.", clientId);
         }

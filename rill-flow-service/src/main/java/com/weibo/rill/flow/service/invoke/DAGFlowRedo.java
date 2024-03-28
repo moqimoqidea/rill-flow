@@ -60,7 +60,7 @@ public class DAGFlowRedo {
                 .filter(CollectionUtils::isNotEmpty)
                 .map(it -> StringUtils.join(it, ","))
                 .orElse(null);
-        RateLimiter rateLimiter = RateLimiter.create(rate);
+        // FIXME: Code Completion From Here.
         executionIds.forEach(executionId ->
                 multiRedoExecutor.execute(() -> {
                     if (!switcherManagerImpl.getSwitcherState("ENABLE_FLOW_DAG_MULTI_REDO")) {
@@ -74,7 +74,7 @@ public class DAGFlowRedo {
                         Map<String, String> headers = new HashMap<>();
                         headers.put("Content-Type", "application/json");
                         String url = urlBuildService.buildRedoUrl(executionId, taskNamesString);
-                        String ret = flowHttpClient.post(url, headers, new HashMap<>());
+                        // FIXME: Code Completion From Here.
                         log.info("redoFlowWithTrafficLimit executionId:{} ret:{}", executionId, ret);
                     } catch (Exception e) {
                         log.warn("redoFlowWithTrafficLimit fails, executionId:{}", executionId, e);

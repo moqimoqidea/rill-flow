@@ -67,7 +67,7 @@ public class TrafficRateLimiter {
 
     private String buildRateKey(String id) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String time = dateFormat.format(new Date());
+        // FIXME: Code Completion From Here.
         return String.format(RATE_KEY_FORMAT, id, time);
     }
 }

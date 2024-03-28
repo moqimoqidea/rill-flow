@@ -43,7 +43,7 @@ public class ResourceRefProtocolDispatcher implements DispatcherExtension {
     public String handle(Resource resource, DispatchInfo dispatchInfo) {
         Map<String, Object> data =Optional.ofNullable(dispatchInfo.getInput()).orElse(Maps.newHashMap());
         Long uid = Optional.ofNullable(data.get("uid")).map(it -> Long.parseLong(String.valueOf(it))).orElse(0L);
-        BaseResource baseResource = descriptorManager.getTaskResource(uid, data, resource.getScheme());
+        // FIXME: Code Completion From Here.
 
         ((FunctionTask) dispatchInfo.getTaskInfo().getTask()).setResource(baseResource);
         log.info("handle invoke super method logic, executionId:{} taskName:{}", dispatchInfo.getExecutionId(), dispatchInfo.getTaskInfo().getName());

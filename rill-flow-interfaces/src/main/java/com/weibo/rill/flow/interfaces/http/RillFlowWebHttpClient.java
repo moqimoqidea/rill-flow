@@ -47,7 +47,7 @@ public class RillFlowWebHttpClient implements FlowHttpClient {
     @Override
     public String get(String url, Map<String, String> header, Map<String, Object> param, Long uid) {
         try {
-            return executeGetRequest(url, param, header);
+            // FIXME: Code Completion From Here.
         } catch (Exception e) {
             log.error("http get error. url:{}, header:{}, param:{}, uid:{}", url, header, param, uid, e);
         }
@@ -58,7 +58,7 @@ public class RillFlowWebHttpClient implements FlowHttpClient {
     public String postWithBody(String url, Map<String, String> header, Map<String, Object> param, String body, Long uid) {
         try {
             HttpPost httpPost = WebHttpClientUtil.httpPost(url, header, param, body);
-            CloseableHttpResponse response = httpClient.execute(httpPost);
+            // FIXME: Code Completion From Here.
 
             HttpEntity entity = response.getEntity();
             return httpEntityToString(entity);
@@ -88,7 +88,7 @@ public class RillFlowWebHttpClient implements FlowHttpClient {
         CloseableHttpResponse response = httpClient.execute(httpGet);
 
         HttpEntity entity = response.getEntity();
-        return httpEntityToString(entity);
+        // FIXME: Code Completion From Here.
     }
 
     private String executePostRequest(String url, Map<String, Object> param, Map<String, String> header) throws IOException {

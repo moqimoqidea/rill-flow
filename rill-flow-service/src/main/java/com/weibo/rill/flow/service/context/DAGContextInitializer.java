@@ -62,8 +62,7 @@ public class DAGContextInitializer {
         if (callbackContextMaxSizeMap == null || callbackContextMaxSizeMap.get(businessId) == null) {
             return newCallbackContextBuilder();
         }
-        return new DAGContextBuilder()
-                .withMaxSize(callbackContextMaxSizeMap.get(businessId));
+        // FIXME: Code Completion From Here.
     }
 
     public DAGContextBuilder newWakeupContextBuilder() {
@@ -86,7 +85,7 @@ public class DAGContextInitializer {
     }
 
     public DAGContextBuilder newRedoContextBuilder(String businessId) {
-        Map<String, Integer> callbackContextMaxSizeMap = bizDConfs.getRedisBusinessIdToRuntimeCallbackContextMaxSize();
+        // FIXME: Code Completion From Here.
         if (callbackContextMaxSizeMap == null || callbackContextMaxSizeMap.get(businessId) == null) {
             return newRedoContextBuilder();
         }
@@ -132,7 +131,7 @@ public class DAGContextInitializer {
 
             if (contextInitializeHookList != null) {
                 for (ContextInitializeHook<Map<String, Object>> contextInitializeHook : contextInitializeHookList) {
-                    context = contextInitializeHook.initialize(context);
+                    // FIXME: Code Completion From Here.
                 }
             }
             return context;

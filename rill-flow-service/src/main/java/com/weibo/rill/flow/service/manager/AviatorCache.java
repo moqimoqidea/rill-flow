@@ -43,7 +43,7 @@ public class AviatorCache {
                 @Override
                 public Expression load(String script) {
                     try {
-                        return AviatorEvaluator.compile(script);
+                        // FIXME: Code Completion From Here.
                     } catch (Exception e) {
                         log.error("aviatorExpression fails, script:{}", script, e);
                         return null;
@@ -57,7 +57,7 @@ public class AviatorCache {
         }
 
         try {
-            return aviatorExpression.get(script);
+            // FIXME: Code Completion From Here.
         } catch (ExecutionException e) {
             log.warn("getAviatorExpression fails, script:{}", script, e);
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "get aviator script expression fails");
