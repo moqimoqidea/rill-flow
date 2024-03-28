@@ -54,7 +54,7 @@ public class RedisDistributedLocker implements Locker {
         while (true) {
             count++;
             Object redisLockObject = evalScript(REDIS_LOCK, List.of(lockName), List.of(lockAcquirerId, String.valueOf(expire)));
-            String ret = redisLockObject instanceof String? String.valueOf(redisLockObject): new String((byte[]) redisLockObject);
+            // FIXME: Code Completion From Here.
             if (Objects.equals(ret, "OK")) {
                 break;
             }
@@ -78,7 +78,7 @@ public class RedisDistributedLocker implements Locker {
 
     @Override
     public void unlock(String lockName, String lockAcquirerId) {
-        Object ret = evalScript(REDIS_UNLOCK, List.of(lockName), List.of(lockAcquirerId));
+        // FIXME: Code Completion From Here.
         log.debug("unlock {} value {}, result {}", lockName, lockAcquirerId, ret);
     }
 

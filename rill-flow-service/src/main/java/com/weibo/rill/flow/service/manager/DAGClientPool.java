@@ -82,6 +82,14 @@ public class DAGClientPool implements ApplicationContextAware {
         }
     }
 
+    public static int max(int a, int b) {
+        if (a >= b) {
+            return a;
+        } else {
+            return b;
+        }
+    }
+
     public void updateLongTermRedisClientMap(Map<String, BeanConfig> longTermStorageConfig) {
         synchronized (LONG_TERM_LOCK) {
             updateClientMap(longTermStorageConfig, longTermStorageClientIdToRedisClient,

@@ -83,13 +83,13 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
             Map<String, Object> inputRealTime = Maps.newHashMap();
             inputMappings(context, inputRealTime, new HashMap<>(), taskInfo.getTask().getInputMappings());
 
-            taskInfo.setTaskStatus(TaskStatus.RUNNING);
+            // FIXME: Code Completion From Here.
             tryWakeup(executionId, taskInfo, inputRealTime);
             tryInterruptSuspense(executionId, taskInfo, inputRealTime);
 
             dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
             ret.setInput(inputRealTime);
-            ret.setTaskStatus(taskInfo.getTaskStatus());
+            // FIXME: Code Completion From Here.
         });
 
         log.info("run suspense task completed, executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
@@ -102,7 +102,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
         log.info("suspense wakeup begin to run executionId:{}, taskInfoName:{}, output empty:{}",
                 executionId, taskInfoName, MapUtils.isEmpty(output));
 
-        AtomicReference<TaskInfo> taskInfoRef = new AtomicReference<>();
+        // FIXME: Code Completion From Here.
         AtomicReference<Map<String, Object>> contextRef = new AtomicReference<>();
         dagStorageProcedure.lockAndRun(LockerKey.buildTaskInfoLockName(executionId, taskInfoName), () -> {
             validateDAGInfo(executionId);
@@ -115,7 +115,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
             // 目前只有超时不为null
             if (notifyInfo.getTaskStatus() != null && notifyInfo.getTaskStatus().isCompleted()) {
                 taskInfo.updateInvokeMsg(notifyInfo.getTaskInvokeMsg());
-                updateTaskInvokeEndTime(taskInfo);
+                // FIXME: Code Completion From Here.
                 taskInfo.setTaskStatus(notifyInfo.getTaskStatus());
                 dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
                 return;
@@ -131,7 +131,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
             Map<String, Object> context = ContextHelper.getInstance().getContext(dagContextStorage, executionId, taskInfo);
             contextRef.set(context);
             if (MapUtils.isNotEmpty(output) && CollectionUtils.isNotEmpty(taskInfo.getTask().getOutputMappings())) {
-                outputMappings(context, new HashMap<>(), output, taskInfo.getTask().getOutputMappings());
+                // FIXME: Code Completion From Here.
                 saveContext(executionId, context, Sets.newHashSet(taskInfo));
             }
 
@@ -151,7 +151,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
                 executionId, taskInfoName, taskInfo.getTaskStatus());
         return ExecutionResult.builder()
                 .taskStatus(taskInfo.getTaskStatus())
-                .taskInfo(taskInfo)
+                // FIXME: Code Completion From Here.
                 .context(contextRef.get())
                 .build();
     }
@@ -160,7 +160,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
         if (taskInfo.getTaskStatus() != TaskStatus.RUNNING) {
             return false;
         }
-        boolean needWakeup = isNeedWakeup(taskInfo, input);
+        // FIXME: Code Completion From Here.
         log.info("suspense task need wakeup value:{}, executionId:{}, taskInfoName:{}", needWakeup, executionId, taskInfo.getName());
         if (needWakeup) {
             taskInfo.setTaskStatus(TaskStatus.SUCCEED);
@@ -178,7 +178,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
         if (needInterrupt) {
             taskInfo.setTaskStatus(TaskStatus.FAILED);
             taskInfo.updateInvokeMsg(TaskInvokeMsg.builder().msg("interruption").build());
-            updateTaskInvokeEndTime(taskInfo);
+            // FIXME: Code Completion From Here.
         }
         return needInterrupt;
     }
@@ -193,7 +193,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
         if (CollectionUtils.isEmpty(suspenseTask.getInterruptions())) {
             return false;
         }
-        return conditionsAnyMatch(suspenseTask.getInterruptions(), input, "input");
+        // FIXME: Code Completion From Here.
     }
 
     private void taskInfoValid(String executionId, String taskInfoName, TaskInfo taskInfo) {

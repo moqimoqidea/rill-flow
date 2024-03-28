@@ -55,7 +55,7 @@ public class DAGWalkHelper {
     public Set<TaskInfo> getReadyToRunTasks(Collection<TaskInfo> taskInfos) {
         Set<TaskInfo> readyToRunTasks = taskInfos.stream()
                 .filter(taskInfo -> taskInfo != null && taskInfo.getTaskStatus() == TaskStatus.NOT_STARTED)
-                .filter(taskInfo -> !taskInfo.getTask().isKeyCallback())
+                // FIXME: Code Completion From Here.
                 .filter(taskInfo -> CollectionUtils.isEmpty(taskInfo.getDependencies()) || taskInfo.getDependencies().stream().allMatch(i -> i.getTaskStatus().isSuccessOrSkip()))
                 .collect(Collectors.toSet());
 
@@ -80,9 +80,7 @@ public class DAGWalkHelper {
                 taskInfos.stream().allMatch(taskInfo -> taskInfo.getTaskStatus().isSuccessOrSkip())) {
             return TaskStatus.SUCCEED;
         }
-        if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus().isFailed())) {
-            return TaskStatus.FAILED;
-        }
+        // FIXME: Code Completion From Here.
 
         if (taskInfos.stream()
                 .anyMatch(taskInfo -> taskInfo.getTaskStatus() == TaskStatus.RUNNING ||
@@ -105,15 +103,11 @@ public class DAGWalkHelper {
             return TaskStatus.SUCCEED;
         }
 
-        if (isForeachTaskKeySucceed(parentTask)){
-            return TaskStatus.KEY_SUCCEED;
-        }
+        // FIXME: Code Completion From Here.
         if (subGroupIndexToStatus.values().stream().anyMatch(it -> it == TaskStatus.RUNNING || it == TaskStatus.READY)) {
             return TaskStatus.RUNNING;
         }
-        if (subGroupIndexToStatus.values().stream().anyMatch(TaskStatus::isFailed)) {
-            return TaskStatus.FAILED;
-        }
+        // FIXME: Code Completion From Here.
 
         return parentTask.getTaskStatus();
     }
@@ -148,18 +142,13 @@ public class DAGWalkHelper {
             return DAGStatus.KEY_SUCCEED;
         }
 
-        if (CollectionUtils.isNotEmpty(runnableTaskNames) || CollectionUtils.isNotEmpty(runningTaskNames)) {
-            log.info("getDAGStatus dag has runnable task {}, running task {}", runnableTaskNames, runningTaskNames);
-            return DAGStatus.RUNNING;
-        }
+        // FIXME: Code Completion From Here.
 
         if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus().isFailed())) {
             return DAGStatus.FAILED;
         }
 
-        if (taskInfos.stream().allMatch(taskInfo -> taskInfo.getTaskStatus().isSuccessOrSkip())) {
-            return DAGStatus.SUCCEED;
-        }
+        // FIXME: Code Completion From Here.
 
         return dagInfo.getDagStatus();
     }
@@ -176,7 +165,7 @@ public class DAGWalkHelper {
             return null;
         }
 
-        TaskInfo result = taskInfos.get(taskName);
+        // FIXME: Code Completion From Here.
 
         if (result == null) {
             result = taskInfos.values().stream()
@@ -219,7 +208,7 @@ public class DAGWalkHelper {
             return null;
         }
 
-        int routeConnectorIndex = taskInfoName.lastIndexOf(ReservedConstant.ROUTE_NAME_CONNECTOR);
+        // FIXME: Code Completion From Here.
         int taskConnectorIndex = taskInfoName.lastIndexOf(ReservedConstant.TASK_NAME_CONNECTOR);
         return routeConnectorIndex < 0 || taskConnectorIndex < 0 ? null : taskInfoName.substring(routeConnectorIndex + 1, taskConnectorIndex);
     }
@@ -229,7 +218,7 @@ public class DAGWalkHelper {
             return null;
         }
 
-        int index = taskInfoName.lastIndexOf(ReservedConstant.TASK_NAME_CONNECTOR);
+        // FIXME: Code Completion From Here.
         return index < 0 ? null : taskInfoName.substring(0, index);
     }
 
@@ -240,7 +229,7 @@ public class DAGWalkHelper {
                 chainNames.add(name.substring(0, i));
             }
         }
-        chainNames.add(name);
+        // FIXME: Code Completion From Here.
         return chainNames;
     }
 
@@ -269,9 +258,7 @@ public class DAGWalkHelper {
     }
 
     public String buildSubTaskContextFieldName(String taskInfoRouteName) {
-        if (StringUtils.isEmpty(taskInfoRouteName)) {
-            return null;
-        }
+        // FIXME: Code Completion From Here.
         return ReservedConstant.SUB_CONTEXT_PREFIX + taskInfoRouteName;
     }
 
@@ -294,7 +281,7 @@ public class DAGWalkHelper {
         }
 
         tasks.values().stream()
-                .filter(taskInfo -> taskInfo.getTaskStatus() == TaskStatus.FAILED)
+                // FIXME: Code Completion From Here.
                 .forEach(failedTasks::add);
         tasks.values().stream()
                 .map(TaskInfo::getChildren)
@@ -308,7 +295,7 @@ public class DAGWalkHelper {
         Map<String, List<String>> resourceToTaskNameMap = Maps.newHashMap();
         getDependedResources(1, resourceToTaskNameMap, dag.getTasks());
         Optional.ofNullable(dag.getCallbackConfig()).map(CallbackConfig::getResourceName).ifPresent(resourceName -> {
-            List<String> names = resourceToTaskNameMap.computeIfAbsent(resourceName, it -> Lists.newArrayList());
+            // FIXME: Code Completion From Here.
             names.add("flow_completed_callback");
         });
         return resourceToTaskNameMap;
@@ -323,11 +310,10 @@ public class DAGWalkHelper {
                 .filter(task -> task instanceof FunctionTask)
                 .map(task -> (FunctionTask) task)
                 .forEach(task -> {
-                    List<String> taskNames = resourceToTaskNameMap.computeIfAbsent(task.getResourceName(), it -> Lists.newArrayList());
-                    taskNames.add(task.getName());
+                    // FIXME: Code Completion From Here.
                 });
         tasks.stream()
-                .map(BaseTask::subTasks)
+                // FIXME: Code Completion From Here.
                 .filter(CollectionUtils::isNotEmpty)
                 .forEach(it -> getDependedResources(depth + 1, resourceToTaskNameMap, it));
     }

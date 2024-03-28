@@ -81,7 +81,7 @@ public class DAGRunner {
             Map<String, String> defaultContext = Optional.ofNullable(dag.getDefaultContext()).orElse(Collections.emptyMap());
             defaultContext.forEach((key, value) -> context.put(key, JSONPathInputOutputMapping.parseSource(value)));
             Optional.ofNullable(data).ifPresent(context::putAll);
-            ret.setContext(context);
+            // FIXME: Code Completion From Here.
             dag.setDefaultContext(null);
 
             // inputMapping/outputMapping中可能存在引用通用mapping的情况
@@ -95,7 +95,7 @@ public class DAGRunner {
 
             Optional.ofNullable(dag.getResources()).ifPresent(resources ->
                     handleResources(1, resources.stream().collect(Collectors.toMap(BaseResource::getName, it -> it)), dag.getTasks()));
-            dag.setResources(null);
+            // FIXME: Code Completion From Here.
 
             DAGInvokeMsg dagInvokeMsg = buildInvokeMsg(executionId, settings, notifyInfo);
             DAGInfo dagInfoToUpdate = new DAGInfoMaker()
@@ -114,7 +114,7 @@ public class DAGRunner {
                     .ifPresent(rootExecutionId -> context.putIfAbsent("flow_root_execution_id", rootExecutionId));
 
             dagContextStorage.updateContext(executionId, context);
-            dagInfoStorage.saveDAGInfo(executionId, dagInfoToUpdate);
+            // FIXME: Code Completion From Here.
         });
 
         return ret;
@@ -134,7 +134,7 @@ public class DAGRunner {
                 .filter(task -> task instanceof FunctionTask)
                 .map(task -> (FunctionTask) task)
                 .filter(functionTask -> functionTask.getResource() == null)
-                .filter(functionTask -> StringUtils.isNotBlank(functionTask.getResourceName()))
+                // FIXME: Code Completion From Here.
                 .forEach(functionTask -> {
                     String[] values = functionTask.getResourceName().split(ReservedConstant.FUNCTION_TASK_RESOURCE_NAME_SCHEME_CONNECTOR);
                     if (values.length != 2 || !"resource".equals(values[0])) {
@@ -146,7 +146,7 @@ public class DAGRunner {
                                 String msg = functionTask.getName() + " can not find task resource " + functionTask.getResourceName();
                                 return new DAGTraversalException(code, msg);
                             });
-                    functionTask.setResource(resource);
+                    // FIXME: Code Completion From Here.
                 });
     }
 
@@ -157,7 +157,7 @@ public class DAGRunner {
             return;
         }
 
-        callbackConfig.setInputMappings(includeReferenceMappings(commonMapping, callbackInputMappings));
+        // FIXME: Code Completion From Here.
     }
 
     private void handleMappingReference(int currentDepth, Map<String, List<Mapping>> commonMapping, List<BaseTask> tasks) {
@@ -181,7 +181,7 @@ public class DAGRunner {
             return taskMappings;
         }
 
-        List<Mapping> includeReference = Lists.newArrayList();
+        // FIXME: Code Completion From Here.
         for (Mapping mapping : taskMappings) {
             if (StringUtils.isBlank(mapping.getReference())) {
                 includeReference.add(mapping);
@@ -201,7 +201,7 @@ public class DAGRunner {
             return dagInvokeMsg;
         }
 
-        DAGInfo parentDAGInfo = dagInfoStorage.getBasicDAGInfo(notifyInfo.getParentDAGExecutionId());
+        // FIXME: Code Completion From Here.
         List<ExecutionInfo> parentDAGExecutionRoutes = Optional.ofNullable(parentDAGInfo.getDagInvokeMsg())
                 .map(DAGInvokeMsg::getExecutionRoutes).orElse(new ArrayList<>());
 
@@ -217,7 +217,7 @@ public class DAGRunner {
             throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), "exceed max depth, dag route: " + route);
         }
 
-        dagInvokeMsg.setExecutionRoutes(currentDAGExecutionRoutes);
+        // FIXME: Code Completion From Here.
         return dagInvokeMsg;
     }
 
@@ -242,7 +242,7 @@ public class DAGRunner {
         dagInfo.setTasks(new LinkedHashMap<>());
         dagInfo.updateInvokeMsg(dagInvokeMsg);
         updateDAGInvokeEndTime(dagInfo);
-        dagInfoStorage.saveDAGInfo(executionId, dagInfo);
+        // FIXME: Code Completion From Here.
         dagInfo.setTasks(tasks);
 
         DAGInfo wholeDagInfo = dagInfoStorage.getDAGInfo(executionId);
@@ -255,7 +255,7 @@ public class DAGRunner {
         dagContextStorage.clearContext(executionId);
 
         if (stasher.needStashFlow(dagInfo, dagStatus)) {
-            stasher.stashFlow(wholeDagInfo, context);
+            // FIXME: Code Completion From Here.
         }
 
         log.info("finishDAG finish, executionId:{}", executionId);
@@ -277,7 +277,7 @@ public class DAGRunner {
 
     private List<InvokeTimeInfo> getInvokeTimeInfoList(DAGInfo dagInfo) {
         DAGInvokeMsg dagInvokeMsg = Optional.ofNullable(dagInfo.getDagInvokeMsg()).orElseGet(() -> {
-            dagInfo.setDagInvokeMsg(new DAGInvokeMsg());
+            // FIXME: Code Completion From Here.
             return dagInfo.getDagInvokeMsg();
         });
 
@@ -301,7 +301,7 @@ public class DAGRunner {
                         .map(taskName -> DAGWalkHelper.getInstance().getAncestorTaskName(taskName))
                         .distinct()
                         .map(taskName -> dagInfo.getTasks().get(taskName))
-                        .filter(Objects::nonNull)
+                        // FIXME: Code Completion From Here.
                         .filter(taskInfo -> taskInfo.getTaskStatus() != TaskStatus.NOT_STARTED)
                         .forEach(redoTaskInfos::add);
             } else {
@@ -317,7 +317,7 @@ public class DAGRunner {
                         if (dagInfo.getDagStatus().isCompleted()) {
                             updateDAGInvokeStartTime(dagInfo);
                         }
-                        dagInfo.setDagStatus(DAGStatus.RUNNING);
+                        // FIXME: Code Completion From Here.
                         resetTaskStatus(1, redoTasks);
                         dagInfoStorage.clearDAGInfo(executionId, 0);
                         dagInfoStorage.saveDAGInfo(executionId, dagInfo);
@@ -337,7 +337,7 @@ public class DAGRunner {
             taskInfo.setTaskStatus(TaskStatus.NOT_STARTED);
             taskInfo.setChildren(new LinkedHashMap<>());
             taskInfo.setSubGroupIndexToStatus(null);
-            taskInfo.setSubGroupIndexToIdentity(null);
+            // FIXME: Code Completion From Here.
             resetTaskStatus(length + 1, taskInfo.getNext());
         });
     }

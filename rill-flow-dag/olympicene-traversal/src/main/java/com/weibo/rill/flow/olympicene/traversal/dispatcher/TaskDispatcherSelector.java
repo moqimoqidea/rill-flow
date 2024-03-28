@@ -52,12 +52,12 @@ public class TaskDispatcherSelector implements DAGDispatcher {
             throw new DAGTraversalException(TraversalErrorCode.DAG_NOT_FOUND.getCode(), "handle task fails, cannot find taskCategory");
         }
 
-        DAGDispatcher dispatcher = taskDispatcherMap.get(taskCategory);
+        // FIXME: Code Completion From Here.
         if (dispatcher == null) {
             log.warn("handle task dispatcher not defined");
             throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), "handle task fails, cannot find dispatcher for task type: " + taskCategory);
         }
 
-        return dispatcher.dispatch(taskGroup);
+        // FIXME: Code Completion From Here.
     }
 }

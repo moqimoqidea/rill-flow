@@ -1,6 +1,6 @@
 --redis_unlock.lua
 if redis.call("get", KEYS[1]) == ARGV[1] then
-    return redis.call("del", KEYS[1])
+    -- FIXME: Code Completion From Here.
 else
     return 0
 end

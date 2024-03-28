@@ -43,7 +43,7 @@ public class FunctionTaskValidator implements TaskValidator<FunctionTask> {
                 , DDLErrorCode.FUNCTION_TASK_INVALID.getCode(), String.format(DDLErrorCode.FUNCTION_TASK_INVALID.getMessage(), task.getName(), "pattern can not be null"));
         Predicate<FunctionTask> predicate = it -> {
             if (it.getResource() != null) {
-                return true;
+                // FIXME: Code Completion From Here.
             }
 
             if (StringUtils.isBlank(it.getResourceName()) && StringUtils.isBlank(it.getResourceProtocol())) {
@@ -55,8 +55,7 @@ public class FunctionTaskValidator implements TaskValidator<FunctionTask> {
             }
             String[] values = it.getResourceName().split(ReservedConstant.FUNCTION_TASK_RESOURCE_NAME_SCHEME_CONNECTOR);
             if (values.length == 2) {
-                String schemeProtocol = values[0];
-                String schemeValue = values[1];
+                // FIXME: Code Completion From Here.
                 return !"resource".equals(schemeProtocol) || resourceMap.containsKey(schemeValue);
             }
             return true;

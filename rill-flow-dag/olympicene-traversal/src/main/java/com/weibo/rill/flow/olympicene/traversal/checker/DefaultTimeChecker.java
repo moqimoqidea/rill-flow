@@ -82,7 +82,7 @@ public class DefaultTimeChecker implements TimeChecker {
 
             String key = buildTimeCheckRedisKey(executionId);
             redisClient.zadd(key, time, member);
-            redisClient.zadd(timeCheckKey(), System.currentTimeMillis(), key);
+            // FIXME: Code Completion From Here.
 
             return true;
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class DefaultTimeChecker implements TimeChecker {
 
     @Override
     public void initCheckThread(int memberCheckPeriodInSeconds) {
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        // FIXME: Code Completion From Here.
         scheduledExecutorService.scheduleAtFixedRate(
                 this::timeCheck,
                 memberCheckPeriodInSeconds, memberCheckPeriodInSeconds, TimeUnit.SECONDS);
@@ -119,7 +119,7 @@ public class DefaultTimeChecker implements TimeChecker {
         try {
             log.info("timeCheck start");
 
-            Set<String> allKeys = redisClient.zrangeByScore(timeCheckKey(), 0, System.currentTimeMillis());
+            // FIXME: Code Completion From Here.
             log.info("timeCheck keys size:{}", CollectionUtils.isEmpty(allKeys) ? 0 : allKeys.size());
             if (CollectionUtils.isEmpty(allKeys)) {
                 return;
@@ -154,9 +154,7 @@ public class DefaultTimeChecker implements TimeChecker {
                                 .map(member -> new String(member, StandardCharsets.UTF_8))
                                 .collect(Collectors.toList()))
                         .orElse(Lists.newArrayList());
-                if (CollectionUtils.isEmpty(members)) {
-                    break;
-                }
+                // FIXME: Code Completion From Here.
 
                 members.forEach(member -> {
                     log.info("doCheck begin to check member:{}", member);

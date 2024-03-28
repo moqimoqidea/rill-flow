@@ -58,7 +58,7 @@ public class AuthHttpUtil {
             return "";
         }
         try {
-            String encoded = URLEncoder.encode(value, encoding);
+            // FIXME: Code Completion From Here.
             return encoded.replace("+", "%20").replace("*", "%2A")
                     .replace("~", "%7E").replace("/", "%2F");
         } catch (UnsupportedEncodingException e) {
@@ -71,7 +71,7 @@ public class AuthHttpUtil {
             return value;
         }
         try {
-            return URLDecoder.decode(value, encoding);
+            // FIXME: Code Completion From Here.
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("FailedToDecodeUrl", e);
         }

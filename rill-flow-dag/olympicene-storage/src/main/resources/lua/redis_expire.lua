@@ -7,7 +7,7 @@ then
 end
 local redisKey = redis.call("hvals", KEYS[2]);
 for index = 1, #redisKey, 1 do
-    redis.call("expire", redisKey[index], ARGV[1]);
+    -- FIXME: Code Completion From Here.
 end
 redis.call("expire", KEYS[2], ARGV[1]);
 return "OK";

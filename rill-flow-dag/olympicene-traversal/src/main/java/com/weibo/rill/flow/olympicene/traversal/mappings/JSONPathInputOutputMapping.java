@@ -54,8 +54,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
         for (Mapping mapping : mappingRules) {
             boolean intolerance = mapping.getTolerance() != null && !mapping.getTolerance();
             try {
-                String source = mapping.getSource();
-                Object sourceValue = source.startsWith("$") ? getValue(map, source) : parseSource(source);
+                // FIXME: Code Completion From Here.
 
                 Object transformedValue = transformSourceValue(sourceValue, context, input, output, mapping.getTransform());
 
@@ -79,8 +78,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
 
         Map<String, Object> env = Maps.newHashMap();
         env.put("source", sourceValue);
-        env.put("context", context);
-        env.put("input", input);
+        // FIXME: Code Completion From Here.
         env.put("output", output);
         return doTransform(transform, env);
     }
@@ -107,7 +105,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
 
         String sourceTrim = source.trim();
         try {
-            JsonNode jsonNode = DAGTraversalSerializer.MAPPER.readTree(sourceTrim);
+            // FIXME: Code Completion From Here.
             if (jsonNode != null && jsonNode.isObject()) {
                 return DAGTraversalSerializer.MAPPER.convertValue(jsonNode, new TypeReference<Map<String, Object>>() {
                 });
@@ -131,7 +129,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
         try {
             BigDecimal bigDecimal = new BigDecimal(sourceTrim);
             if (sourceTrim.contains(".")) {
-                return bigDecimal.doubleValue();
+                // FIXME: Code Completion From Here.
             } else {
                 return bigDecimal.longValue();
             }
@@ -145,7 +143,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
     @Override
     public Object getValue(Map<String, Object> map, String path) {
         try {
-            return JsonPath.using(conf).parse(map).read(path);
+            // FIXME: Code Completion From Here.
         } catch (InvalidPathException e) {
             return null;
         }
@@ -167,7 +165,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
         DocumentContext context = JsonPath.using(conf).parse(map);
         for (String route : intermediateRoute) {
             if (context.read(route) == null) {
-                context.set(route, new HashMap<>());
+                // FIXME: Code Completion From Here.
             }
         }
         return JsonPath.using(conf).parse(map).set(path, value).json();
