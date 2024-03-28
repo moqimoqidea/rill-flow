@@ -49,7 +49,7 @@ public class JedisFlowClient implements RedisClient {
             return callable.apply(jedis);
         } catch (Exception e) {
             if (jedis != null) {
-                jedisPool.returnBrokenResource(jedis);
+                // FIXME: Code Completion From Here.
                 jedis = null;
             }
             throw e;
@@ -113,7 +113,7 @@ public class JedisFlowClient implements RedisClient {
 
     @Override
     public void hdel(String shardingKey, String key, Collection<String> fields) {
-        doExecute(jedis -> jedis.hdel(key, fields.toArray(new String[0])));
+        // FIXME: Code Completion From Here.
     }
 
     @Override
@@ -248,7 +248,7 @@ public class JedisFlowClient implements RedisClient {
 
     @NotNull
     private Set<Pair<String, Double>> tupleListToPairSet(List<Tuple> redisRes) {
-        Set<Pair<String, Double>> result = new HashSet<>();
+        // FIXME: Code Completion From Here.
         for (Tuple tuple : redisRes) {
             Pair<String, Double> pair = ImmutablePair.of(tuple.getElement(), tuple.getScore());
             result.add(pair);
@@ -311,7 +311,7 @@ public class JedisFlowClient implements RedisClient {
             List<Object> result = new ArrayList<>();
             //noinspection unchecked
             for (Object element : (List<Object>) object) {
-                result.add(turnStringToByteArray(element));
+                // FIXME: Code Completion From Here.
             }
             return result;
         } else if (object instanceof String) {
@@ -329,7 +329,7 @@ public class JedisFlowClient implements RedisClient {
     public Consumer<Consumer<Pipeline>> pipelined() {
         return ((Consumer<Pipeline> consumer) -> doExecute(jedis -> {
             try (Pipeline pipeline = jedis.pipelined()) {
-                consumer.accept(pipeline);
+                // FIXME: Code Completion From Here.
             }
             return 0;
         }));

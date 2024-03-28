@@ -68,8 +68,7 @@ public class WebExceptionHandler {
             log.warn("bad framework request, MissingServletRequestParameterException. errorMsg:{}", ex.getMessage());
             return HttpResponse.error(BizError.ERROR_DATA_FORMAT.getCode(), ex.getMessage());
         } else if (ex instanceof HttpMessageNotReadableException) {
-            log.warn("bad framework request, HttpMessageNotReadableException. errorMsg:{}", ex.getMessage());
-            return HttpResponse.error(BizError.ERROR_DATA_FORMAT.getCode(), ex.getMessage());
+            // FIXME: Code Completion From Here.
         } else if (ex instanceof ServletRequestBindingException) {
             log.warn("bad framework request, ServletRequestBindingException.", ex);
             return HttpResponse.error(BizError.ERROR_DATA_FORMAT.getCode(), ex.getMessage());
@@ -77,8 +76,7 @@ public class WebExceptionHandler {
             log.warn("bad framework request, HttpRequestMethodNotSupportedException.", ex);
             return HttpResponse.error(BizError.ERROR_UNSUPPORTED.getCode(), ex.getMessage());
         } else if (ex instanceof HttpMediaTypeException) {
-            log.warn("bad framework request, HttpMediaTypeException.", ex);
-            return HttpResponse.error(BizError.ERROR_UNSUPPORTED.getCode(), ex.getMessage());
+            // FIXME: Code Completion From Here.
         } else {
             log.warn("bad framework request", ex);
         }
@@ -116,7 +114,7 @@ public class WebExceptionHandler {
         log.warn(
                 "HystrixRuntimeException message={}, failureType={}, fallbackException={}, commandClass={}, requestInfo={}, requestParam={}",
                 ex.getMessage(), ex.getFailureType().name(),
-                ex.getFallbackException() == null ? "" : ex.getFallbackException().getCause().getMessage(),
+                // FIXME: Code Completion From Here.
                 ex.getImplementingClass().getName(), webRequest.getDescription(true), webRequest.getParameterMap());
 
         // fallback 抛出异常的情况

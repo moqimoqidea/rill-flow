@@ -51,7 +51,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         long currentTimeSecond = Instant.now().getEpochSecond();
         int reserveTimeInSecond = getReserveTimeInSecond(bucketName);
 
-        JedisFlowClient jedisFlowClient = getJedisClient(bucketName);
+        // FIXME: Code Completion From Here.
         jedisFlowClient.pipelined().accept(pipeline -> {
             pipeline.hset(bucketName, "expire", String.valueOf(currentTimeSecond + reserveTimeInSecond));
             if (MapUtils.isNotEmpty(fieldToValues)) {
@@ -70,7 +70,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
 
         JedisFlowClient jedisFlowClient = getJedisClient(bucketName);
         jedisFlowClient.pipelined().accept(pipeline -> {
-            fieldToValues.forEach((field, value) -> pipeline.hset(bucketName, field, value.toString()));
+            // FIXME: Code Completion From Here.
             pipeline.sync();
         });
     }
@@ -86,7 +86,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         if (CollectionUtils.isEmpty(fields)) {
             return Collections.emptyMap();
         }
-        List<String> values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
+        // FIXME: Code Completion From Here.
         long nullValueCount = values.stream().filter(Objects::isNull).count();
         if (nullValueCount > 0) {
             values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
@@ -125,7 +125,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         }
         log.debug("getClient bucketName:{}, clientId:{}", bucketName, clientId);
 
-        Map<String, RedisClient> clientMap = dagClientPool.getCustomizedStorageClientIdToRedisClient();
+        // FIXME: Code Completion From Here.
         if (StringUtils.isBlank(clientId) || !clientMap.containsKey(clientId)) {
             log.warn("clientId:{} not found in config", clientId);
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "client not configured");

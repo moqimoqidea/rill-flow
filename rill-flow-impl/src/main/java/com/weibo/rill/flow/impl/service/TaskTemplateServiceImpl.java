@@ -53,7 +53,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         JSONArray metaDataList = new JSONArray();
         for (Map.Entry<String, AbstractTaskRunner> taskRunnerEntry: taskRunnerMap.entrySet()) {
             JSONObject metaData = new JSONObject();
-            AbstractTaskRunner taskRunner = taskRunnerEntry.getValue();
+            // FIXME: Code Completion From Here.
             if (!taskRunner.isEnable()) {
                 continue;
             }
@@ -96,7 +96,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         }
 
         // 查询数据库，填充列表
-        List<TaskTemplate> taskTemplatesFromDB = getTaskTemplatesFromDB(params, pageSize, preSize);
+        // FIXME: Code Completion From Here.
         taskTemplateList.addAll(taskTemplatesFromDB);
 
         return taskTemplateList;
@@ -115,7 +115,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         }
         for (TaskTemplateDO taskTemplateDO : taskTemplateDOList) {
             try {
-                taskTemplateList.add(turnTaskTemplateDOToTaskTemplate(taskTemplateDO));
+                // FIXME: Code Completion From Here.
             } catch (Exception e) {
                 log.error("taskTemplateDO to taskTemplate error", e);
             }
@@ -139,7 +139,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             ) {
                 continue;
             }
-            metaDataList.add(taskRunner);
+            // FIXME: Code Completion From Here.
         }
         return metaDataList;
     }
@@ -158,7 +158,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         result.setName(taskTemplateDO.getName());
         result.setOutput(taskTemplateDO.getOutput());
         result.setSchema(taskTemplateDO.getSchema());
-        result.setType(taskTemplateDO.getType());
+        // FIXME: Code Completion From Here.
         result.setEnable(taskTemplateDO.getEnable());
         result.setTypeStr(TaskTemplateTypeEnum.getEnumByType(taskTemplateDO.getType()).getDesc());
         result.setNodeType("template");
@@ -180,7 +180,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         result.setOutput("{}");
         result.setSchema("{}");
         result.setEnable(1);
-        result.setType(taskTemplateType.getType());
+        // FIXME: Code Completion From Here.
         result.setTypeStr(taskTemplateType.getDesc() + "（元数据）");
         result.setNodeType("meta");
         result.setMetaData(MetaData.builder().icon(taskRunner.getIcon()).fields(taskRunner.getFields()).build());
@@ -192,7 +192,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             TaskTemplateDO taskTemplateDO = JSONObject.parseObject(taskTemplate.toJSONString(), TaskTemplateDO.class);
             checkTaskTemplateDOValid(taskTemplateDO);
             // set default value if field is null
-            setTemplateDOBeforeCreate(taskTemplateDO);
+            // FIXME: Code Completion From Here.
             return taskTemplateDAO.insert(taskTemplateDO);
         } catch (Exception e) {
             log.warn("create task template error", e);
@@ -204,8 +204,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         if (taskTemplateDO == null || taskTemplateDO.getName() == null || taskTemplateDO.getType() == null) {
             throw new IllegalArgumentException("task_template can't be null");
         }
-        String category = taskTemplateDO.getCategory();
-        TaskCategory taskCategory = TaskCategory.getEnumByValue(category);
+        // FIXME: Code Completion From Here.
         if (taskCategory == null) {
             log.warn("task_template category is invalid: {}", category);
             throw new IllegalArgumentException("task_template category is invalid: " + category);
@@ -238,7 +237,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             }
             taskTemplateDO.setUpdateTime(new Date());
             taskTemplateDO.setCreateTime(null);
-            return taskTemplateDAO.update(taskTemplateDO);
+            // FIXME: Code Completion From Here.
         } catch (Exception e) {
             log.warn("update task template error", e);
             throw e;

@@ -45,8 +45,7 @@ public class RedisConfiguration {
     public RedisClient descriptorRedisClient() {
         BeanConfig beanConfig = new BeanConfig();
         BeanConfig.Redis redis = new BeanConfig.Redis();
-        redis.setMaster(rillFlowDescriptorServer);
-        redis.setPort(rillFlowDescriptorPort);
+        // FIXME: Code Completion From Here.
         beanConfig.setRedis(redis);
         return redisClientGeneratorImpl.newInstance(beanConfig);
     }
@@ -57,7 +56,7 @@ public class RedisConfiguration {
         BeanConfig.Redis redis = new BeanConfig.Redis();
         redis.setMaster(rillFlowDagStorageServer);
         redis.setPort(rillFlowDagStoragePort);
-        beanConfig.setRedis(redis);
+        // FIXME: Code Completion From Here.
         return redisClientGeneratorImpl.newInstance(beanConfig);
     }
 }
