@@ -21,7 +21,7 @@ for k = 1, #KEYS, 1 do
         local keyPrefix = args[2]
         local filteredMapKeys = {}
 
-        -- FIXME: Code Completion From Here.
+        local mapKeys = redis.call("hkeys", key)
         for mapKeyIndex = 1, #mapKeys, 1 do
             if (string.find(mapKeys[mapKeyIndex], keyPrefix) == 1) then
                 table.insert(filteredMapKeys, mapKeys[mapKeyIndex])
@@ -34,7 +34,19 @@ for k = 1, #KEYS, 1 do
             table.insert(ret, redis.call("hmget", key, unpack(filteredMapKeys)));
         end
     else
-        -- FIXME: Code Completion From Here.
+        local hmgetContent = redis.call("hmget", key, unpack(args));
+            if (string.find(key, "dag_info_") == 1) then
+                for hmgetIndex = 1, #hmgetContent, 1 do
+                    local field = args[hmgetIndex];
+                    if (field == "dag" and string.find(value, "\"dag_descriptor_") == 1) then
+                        local descriptorKey = string.gsub(value, "\"", "");
+                        hmgetContent[hmgetIndex] = redis.call("get", descriptorKey);
+                    elseif (field == "@class_dag") then
+                        hmgetContent[hmgetIndex] = "com.weibo.rill.flow.olympicene.core.model.dag.DAG";
+                    end
+                end
+            end
+        table.insert(ret, hmgetContent);
     end
 end
 

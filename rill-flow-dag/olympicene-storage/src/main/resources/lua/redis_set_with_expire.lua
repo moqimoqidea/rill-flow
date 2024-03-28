@@ -16,6 +16,9 @@ for keyIndex = 1, #KEYS, 1 do
         end
     end
 
-    -- FIXME: Code Completion From Here.
+    if (string.find(key, "dag_descriptor_") == 1) then
+        redis.call("set", key, args[1]);
+    else
+        redis.call("hmset", key, unpack(args));
     redis.call("expire", key, expireTime)
 end
