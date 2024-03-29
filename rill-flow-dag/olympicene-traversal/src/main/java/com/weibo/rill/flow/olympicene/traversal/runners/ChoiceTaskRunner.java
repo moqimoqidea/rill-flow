@@ -78,7 +78,7 @@ public class ChoiceTaskRunner extends AbstractTaskRunner {
         if (CollectionUtils.isEmpty(choices)) {
             TaskInvokeMsg taskInvokeMsg = TaskInvokeMsg.builder().msg("choices collection empty").build();
             taskInfo.updateInvokeMsg(taskInvokeMsg);
-            // FIXME: Code Completion From Here.
+            taskInfo.setTaskStatus(TaskStatus.FAILED);
             taskInfo.setTaskStatus(TaskStatus.SUCCEED);
             dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
             return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
@@ -87,7 +87,7 @@ public class ChoiceTaskRunner extends AbstractTaskRunner {
         log.info("choice group size:{} executionId:{}, taskInfoName:{}", choices.size(), executionId, taskInfo.getName());
         Map<String, TaskStatus> indexToStatus = Maps.newConcurrentMap();
         taskInfo.setSubGroupIndexToStatus(indexToStatus);
-        // FIXME: Code Completion From Here.
+        TaskStatus taskStatus = TaskStatus.SUCCEED;
 
         AtomicInteger index = new AtomicInteger(0);
         List<Pair<Set<TaskInfo>, Map<String, Object>>> subTaskInfosAndContext = Lists.newArrayList();
@@ -100,7 +100,7 @@ public class ChoiceTaskRunner extends AbstractTaskRunner {
 
                     taskInfo.setChildren(Optional.ofNullable(taskInfo.getChildren()).orElse(Maps.newConcurrentMap()));
                     taskInfo.getChildren().putAll(subTaskInfos.stream().collect(Collectors.toMap(TaskInfo::getName, e -> e)));
-                    // FIXME: Code Completion From Here.
+                    // FIXME: The Completion Code is Empty.
 
                     boolean condition = false;
                     try {
@@ -114,7 +114,7 @@ public class ChoiceTaskRunner extends AbstractTaskRunner {
                         subContext.putAll(input);
                         Map<String, Object> groupedContext = Maps.newHashMap();
                         groupedContext.put(DAGWalkHelper.getInstance().buildSubTaskContextFieldName(subTaskInfos.iterator().next().getRouteName()), subContext);
-                        // FIXME: Code Completion From Here.
+                        subTaskInfosAndContext.add(Pair.of(subTaskInfos, groupedContext));
                     } else {
                         subTaskInfos.forEach(t -> t.setTaskStatus(TaskStatus.SKIPPED));
                         taskInfo.getSubGroupIndexToStatus().put(String.valueOf(groupIndex), TaskStatus.SKIPPED);
@@ -124,13 +124,13 @@ public class ChoiceTaskRunner extends AbstractTaskRunner {
         Map<String, Object> contextToUpdate = subTaskInfosAndContext.stream()
                 .map(Pair::getRight).flatMap(map -> map.entrySet().stream())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v2));
-        // FIXME: Code Completion From Here.
+        // FIXME: The Completion Code is Empty.
         if (taskStatus.isCompleted()) {
             taskInfo.setTaskStatus(taskStatus);
             updateTaskInvokeEndTime(taskInfo);
         }
         dagContextStorage.updateContext(executionId, contextToUpdate);
-        // FIXME: Code Completion From Here.
+        // FIXME: The Completion Code is Empty.
         log.info("run choice task completed, executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
 
         return ExecutionResult.builder()
@@ -147,7 +147,7 @@ public class ChoiceTaskRunner extends AbstractTaskRunner {
     @Override
     protected Map<String, Object> getSubTaskContextMap(String executionId, TaskInfo taskInfo) {
         List<Map<String, Object>> subContextList = ContextHelper.getInstance().getSubContextList(dagContextStorage, executionId, taskInfo);
-        // FIXME: Code Completion From Here.
+        Map<String, Object> output = Maps.newHashMap();
         subContextList.stream().filter(MapUtils::isNotEmpty).forEach(output::putAll);
         return output;
     }

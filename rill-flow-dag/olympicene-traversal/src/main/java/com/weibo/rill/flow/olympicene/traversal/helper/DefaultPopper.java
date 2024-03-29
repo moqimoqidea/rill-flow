@@ -33,7 +33,11 @@ public class DefaultPopper implements Popper {
 
     @Override
     public boolean pop(String executionId, Collection<Pair<TaskInfo, Map<String, Object>>> taskInfoToContexts) {
-        // FIXME: Code Completion From Here.
+        for (Pair<TaskInfo, Map<String, Object>> taskInfoToContext : taskInfoToContexts) {
+            TaskInfo taskInfo = taskInfoToContext.getLeft();
+            Map<String, Object> context = taskInfoToContext.getRight();
+            dagOperations.pop(executionId, taskInfo, context);
+        }
         return true;
     }
 }
