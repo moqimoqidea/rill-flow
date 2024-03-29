@@ -49,7 +49,7 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
         String apikey = input.get("apikey").toString();
         String model = Optional.ofNullable(input.get("model")).map(Object::toString).orElse(Conversation.Models.QWEN_PLUS);
 
-        // FIXME: Code Completion From Here.
+        String executionId = taskInfo.getExecutionId();
 
         HttpParameter requestParams = HttpUtil.functionRequestParams(executionId, taskInfoName, input);
 
@@ -64,7 +64,7 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
                 prompt = prompt + messageSuffix;
             }
 
-            // FIXME: Code Completion From Here.
+            GenerationResult result = tokenizer(prompt, apikey, model);
 
             return JsonUtils.toJson(result);
         } catch (Exception e) {
@@ -119,6 +119,6 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
                 .prompt(prompt)
                 .apiKey(apikey)
                 .build();
-        // FIXME: Code Completion From Here.
+        GenerationResult result = generation.generate(param);
     }
 }

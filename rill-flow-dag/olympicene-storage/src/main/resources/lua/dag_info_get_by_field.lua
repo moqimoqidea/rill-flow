@@ -24,7 +24,7 @@ for k = 1, #KEYS, 1 do
         local mapKeys = redis.call("hkeys", key)
         for mapKeyIndex = 1, #mapKeys, 1 do
             if (string.find(mapKeys[mapKeyIndex], keyPrefix) == 1) then
-                -- FIXME: Code Completion From Here.
+                table.insert(filteredMapKeys, mapKeys[mapKeyIndex]);
             end
         end
 
@@ -37,7 +37,7 @@ for k = 1, #KEYS, 1 do
         local hmgetContent = redis.call("hmget", key, unpack(args));
         if (string.find(key, "dag_info_") == 1) then
             for hmgetIndex = 1, #hmgetContent, 1 do
-                -- FIXME: Code Completion From Here.
+                local field = args[hmIndex];
                 if (field == "dag" and string.find(value, "\"dag_descriptor_") == 1) then
                     local descriptorKey = string.gsub(value, "\"", "");
                     hmgetContent[hmgetIndex] = redis.call("get", descriptorKey);
