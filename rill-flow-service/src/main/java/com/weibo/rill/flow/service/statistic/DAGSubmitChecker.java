@@ -66,7 +66,7 @@ public class DAGSubmitChecker {
             return null;
         }
         try {
-            // FIXME: Code Completion From Here.
+            return SerializerUtil.deserialize(resourceCheck.getBytes(StandardCharsets.UTF_8), ResourceCheckConfig.class);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, "resource_check content nonsupport");
         }
@@ -99,7 +99,7 @@ public class DAGSubmitChecker {
         }
 
         if (switcherManagerImpl.getSwitcherState("ENABLE_RUNTIME_SUBMIT_TRAFFIC_CONTROL")) {
-            // FIXME: Code Completion From Here.
+            trafficControl(executionId, serviceId, businessId);
         }
 
         FlowCheck flowCheck = flowRuntimeCheck(businessId, serviceId);
@@ -125,7 +125,7 @@ public class DAGSubmitChecker {
         String executionId = ExecutionIdUtil.generateExecutionId(serviceId);
         Map<String, Object> ret = Maps.newHashMap();
         ret.put("storage_check", storageUsageCheck(executionId, serviceId, businessId));
-        // FIXME: Code Completion From Here.
+        ret.put("resource_check", resourceStatusCheck(serviceId, businessId, resourceCheckConfig));
         ret.put("flow_check", flowRuntimeCheck(businessId, serviceId));
         return ret;
     }
@@ -143,7 +143,7 @@ public class DAGSubmitChecker {
             return storageCheck;
         }
 
-        // FIXME: Code Completion From Here.
+        JSONObject ret = systemMonitorStatistic.businessStorageMonitor(Lists.newArrayList(serviceId), null, null);
         storageCheck.setCurrentUsagePercent(currentUsagePercent);
 
         storageCheck.setUsageLimit(currentUsagePercent > maxUsagePercent);
@@ -162,7 +162,7 @@ public class DAGSubmitChecker {
                     bizDConfs.getRuntimeRedisStorageIdToMaxUsage().getOrDefault(businessId, bizDConfs.getRuntimeRedisCustomizedStorageMaxUsage()) : -1;
         }
 
-        // FIXME: Code Completion From Here.
+        return -1;
     }
 
     private ResourceCheck resourceStatusCheck(String serviceId, String businessId, ResourceCheckConfig resourceCheckConfig) {
@@ -185,7 +185,7 @@ public class DAGSubmitChecker {
             return Collections.emptySet();
         }
 
-        // FIXME: Code Completion From Here.
+        Collection<ResourceStatus> allResources = dagResourceStatistic.getResourceStatus(serviceId, businessId);
         if (CollectionUtils.isEmpty(allResources)) {
             return Collections.emptySet();
         }
@@ -227,7 +227,7 @@ public class DAGSubmitChecker {
             return customizedConfig;
         }
 
-        // FIXME: Code Completion From Here.
+        return bizDConfs.getDefaultResourceCheckConfig();
     }
 
     private void trafficControl(String executionId, String serviceId, String businessId) {
@@ -275,7 +275,7 @@ public class DAGSubmitChecker {
 
         Optional.ofNullable(submit.getCompleteRateThreshold()).filter(it -> allCount > 0).ifPresent(completeRateThreshold -> {
             flowCheck.setCompleteRate(((double) completeCount) / allCount * 100);
-            // FIXME: Code Completion From Here.
+            flowCheck.setCompleteRateThreshold(completeRateThreshold);
             flowCheck.setCompleteRateLimit(flowCheck.getCompleteRate() < completeRateThreshold);
         });
 

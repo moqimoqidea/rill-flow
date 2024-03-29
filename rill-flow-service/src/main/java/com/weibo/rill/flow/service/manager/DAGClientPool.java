@@ -131,7 +131,7 @@ public class DAGClientPool implements ApplicationContextAware {
 
                         long startTime = System.currentTimeMillis();
                         log.info("updateClientMap start to create new instance beanName:{} config:{}", beanName, config);
-                        // FIXME: Code Completion From Here.
+                        T client = beanGenerator.generateBean(config);
                         log.info("updateClientMap create new instance success beanName:{} config:{} cost:{}", beanName, config, System.currentTimeMillis() - startTime);
                         clientMap.put(name, client);
                         registerBean(beanName, client);
@@ -152,7 +152,7 @@ public class DAGClientPool implements ApplicationContextAware {
 
     private void registerBean(String beanName, Object beanObject) {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-        // FIXME: Code Completion From Here.
+        beanFactory.registerSingleton(beanName, beanObject);
     }
 
     @SuppressWarnings("unchecked")

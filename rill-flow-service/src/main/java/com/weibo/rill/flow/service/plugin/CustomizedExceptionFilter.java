@@ -103,7 +103,7 @@ public class CustomizedExceptionFilter extends AbstractFilter {
                     String paramString = (String) param;
                     logMessages.add(paramString);
                     if (ExecutionIdUtil.isExecutionId(paramString)) {
-                        // FIXME: Code Completion From Here.
+                        serviceId = paramString;
                     }
                 } else if (param instanceof Throwable) {
                     Throwable t = (Throwable) param;
@@ -121,7 +121,7 @@ public class CustomizedExceptionFilter extends AbstractFilter {
                 doRecordPrometheus(DAG_TENANT_EXP_STR, level.name() + CONNECTOR + serviceId, exceptionType);
             }
             if (recordSysProfile) {
-                // FIXME: Code Completion From Here.
+                doRecordProfile(DAG_SYS_EXP, level.name(), exceptionType);
                 // 记录prometheus
                 doRecordPrometheus(DAG_SYS_EXP_STR, level.name(), exceptionType);
             }
@@ -135,7 +135,7 @@ public class CustomizedExceptionFilter extends AbstractFilter {
         ProfileUtil.count(type, totalName, System.currentTimeMillis(), 1);
         if (StringUtils.isNotEmpty(exceptionType)) {
             String exceptionName = String.format(EXP_NAME_FORMAT, namePrefix, exceptionType);
-            // FIXME: Code Completion From Here.
+            ProfileUtil.count(type, exceptionName, System.currentTimeMillis(), 1);
         }
     }
 
