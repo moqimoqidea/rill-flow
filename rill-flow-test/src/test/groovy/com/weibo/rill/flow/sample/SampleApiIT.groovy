@@ -39,7 +39,7 @@ class SampleApiIT extends Specification {
 
         then:
         submitResponseJson.status == 200
-        // FIXME: Code Completion From Here.
+        submitResponseJson.content.ret == true
 
         expect:
         assert checkDagStatus(submitResponseJson.content.execution_id)
@@ -57,7 +57,7 @@ class SampleApiIT extends Specification {
         def submitResponseJson = sendPostRequest(domain + "/flow/submit.json?descriptor_id=rillFlowSample:callApiSample", "application/json", "{\"input_num\":10}")
 
         then:
-        // FIXME: Code Completion From Here.
+        submitResponseJson.status == 200
         submitResponseJson.content.execution_id != ""
 
         expect:
@@ -84,7 +84,7 @@ class SampleApiIT extends Specification {
             i++
             println getResponseJson.content.ret.dag_status
             if (getResponseJson.content.ret.dag_status == "FAILED") {
-                // FIXME: Code Completion From Here.
+                return false
             }
             Thread.sleep(1000)
         }
@@ -103,7 +103,7 @@ class SampleApiIT extends Specification {
             HttpResponse response = httpClient.execute(httpPost)
             HttpEntity entity = response.getEntity()
 
-            // FIXME: Code Completion From Here.
+            int statusCode = response.getStatusLine().getStatusCode()
             def responseContent = new JsonSlurper().parse(entity.content)
             result.status = statusCode
             result.content = responseContent
@@ -127,7 +127,7 @@ class SampleApiIT extends Specification {
             int statusCode = response.getStatusLine().getStatusCode()
             def responseContent = new JsonSlurper().parse(entity.content)
             result.status = statusCode
-            // FIXME: Code Completion From Here.
+            result.content = responseContent
             result as Map<String, Object>
         } catch (Exception e) {
             e.printStackTrace()

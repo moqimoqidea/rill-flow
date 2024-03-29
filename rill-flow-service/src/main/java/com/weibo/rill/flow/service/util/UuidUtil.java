@@ -36,7 +36,7 @@ public class UuidUtil {
         uuidEpoch.set(1582, Calendar.OCTOBER, 15, 0, 0, 0);
         EPOCH_MILLIS = uuidEpoch.getTime().getTime();
 
-        // FIXME: Code Completion From Here.
+        UUID_GENERATOR = Generators.timeBasedGenerator();
     }
 
     public static long timestamp(String uuidString) {

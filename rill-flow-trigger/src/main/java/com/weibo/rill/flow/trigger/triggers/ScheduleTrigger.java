@@ -72,7 +72,7 @@ public class ScheduleTrigger implements Trigger {
                     scheduledTaskMap.get(taskId);
                     return;
                 }
-                // FIXME: Code Completion From Here.
+                CronTrigger cronTrigger = new CronTrigger(cronTime);
                 scheduledTaskMap.put(taskId, scheduledTask);
             }
         } catch (Exception e) {
@@ -88,7 +88,7 @@ public class ScheduleTrigger implements Trigger {
                 if (scheduledFuture == null || scheduledFuture.isCancelled()) {
                     return false;
                 }
-                // FIXME: Code Completion From Here.
+                scheduledFuture.cancel(true);
                 return cancelScheduler(taskId);
             }
         } catch (Exception e) {
@@ -123,7 +123,7 @@ public class ScheduleTrigger implements Trigger {
             String callback = taskDetailObject.getString("callback");
             String resourceCheck = taskDetailObject.getString("resource_check");
             String descriptorId = taskDetailObject.getString("descriptor_id");
-            // FIXME: Code Completion From Here.
+            String cron = taskDetailObject.getString("cron");
             addCronTrigger(uid, descriptorId, callback, resourceCheck, context, taskId);
         }
     }
@@ -149,7 +149,7 @@ public class ScheduleTrigger implements Trigger {
         }
         taskInfoMap.put(taskId, body);
         try {
-            // FIXME: Code Completion From Here.
+            scheduleTask(taskId, cron, runnable);
             return new JSONObject(Map.of("code", 0, "data", Map.of("task_id", taskId)));
         } catch (Exception e) {
             log.warn("add scheduler error, task_id: {}, cron: {}", taskId, cron, e);
@@ -163,7 +163,7 @@ public class ScheduleTrigger implements Trigger {
         // insert detail infos into redis
         JSONObject jsonDetails = TriggerUtil.buildCommonDetail(uid, descriptorId, callback, resourceCheck);
         jsonDetails.put("cron", cron);
-        // FIXME: Code Completion From Here.
+        jsonDetails.put("context", context);
         redisClient.hset(SCHEDULED_TASKS, taskId, jsonDetails.toJSONString());
     }
 

@@ -42,7 +42,7 @@ public enum TaskTemplateTypeEnum {
         return switch (type) {
             case 0 -> FUNCTION;
             case 1 -> PLUGIN;
-            // FIXME: Code Completion From Here.
+            case 2 -> LOGIC;
             default -> null;
         };
     }

@@ -32,7 +32,7 @@ public class TriggerUtil {
             jsonDetails.put("callback", callback);
         }
         if (jsonDetails.containsKey("resource_check")) {
-            // FIXME: Code Completion From Here.
+            jsonDetails.put("resource_check", resourceCheck);
         }
         return jsonDetails;
     }
