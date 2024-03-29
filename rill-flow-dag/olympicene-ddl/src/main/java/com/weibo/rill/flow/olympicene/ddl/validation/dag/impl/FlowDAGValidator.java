@@ -66,7 +66,7 @@ public class FlowDAGValidator implements DAGValidator {
             }
 
             if (CollectionUtils.isEmpty(dag.getTasks())) {
-                // FIXME: Code Completion From Here.
+                throw new DDLException(DDLErrorCode.TASK_INVALID.getCode(), "tasks empty");
             }
 
             validateTaskDepth(1, dag.getTasks(), Lists.newArrayList());
@@ -78,7 +78,7 @@ public class FlowDAGValidator implements DAGValidator {
             Map<String, BaseResource> resourceMap = Optional.ofNullable(dag.getResources())
                     .map(resources -> resources.stream().collect(Collectors.toMap(BaseResource::getName, it -> it)))
                     .orElse(Collections.emptyMap());
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
         } catch (DDLException e) {
             log.warn("validate not pass, dag:{}", dag, e);
             throw e;
@@ -90,7 +90,7 @@ public class FlowDAGValidator implements DAGValidator {
      */
     private void validateNames(DAG dag) {
         validateName(dag.getWorkspace());
-        // FIXME: Code Completion From Here.
+        validateName(dag.getDagName());
 
         validateTaskNames(dag.getTasks(), Sets.newHashSet(dag.getWorkspace(), dag.getDagName()));
     }
@@ -114,7 +114,7 @@ public class FlowDAGValidator implements DAGValidator {
                 throw new ValidationException(DDLErrorCode.NAME_DUPLICATED.getCode(), "task name duplicated: " + taskName);
             }
 
-            // FIXME: Code Completion From Here.
+            allNames.add(taskName);
             validateTaskNames(task.subTasks(), allNames);
         });
     }
@@ -133,7 +133,7 @@ public class FlowDAGValidator implements DAGValidator {
 
         tasks.forEach(task -> {
             List<String> currentRoute = Lists.newArrayList(route);
-            // FIXME: Code Completion From Here.
+            currentRoute.add(task.getName());
             validateTaskDepth(currentDepth + 1, task.subTasks(), currentRoute);
         });
     }
@@ -156,7 +156,7 @@ public class FlowDAGValidator implements DAGValidator {
     private void validateTaskRoute(String taskName, List<String> route, Map<String, BaseTask> taskMap) {
         List<String> currentRoute = Lists.newArrayList(route);
         if (currentRoute.contains(taskName)) {
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
             throw new ValidationException(DDLErrorCode.TASK_INVALID.getCode(), "circle found: " + StringUtils.join(currentRoute, "->"));
         }
         currentRoute.add(taskName);
@@ -179,7 +179,7 @@ public class FlowDAGValidator implements DAGValidator {
         }
 
         tasks.forEach(task -> taskValidators.stream()
-                // FIXME: Code Completion From Here.
+                .filter(validator -> validator.match(task))
                 .forEach(validator -> validator.validate(task, resourceMap))
         );
         tasks.forEach(task -> {
@@ -189,7 +189,7 @@ public class FlowDAGValidator implements DAGValidator {
 
             List<String> mappingReferences = allMappings.stream()
                     .map(Mapping::getReference)
-                    // FIXME: Code Completion From Here.
+                    .collect(Collectors
                     .toList();
 
             mappingReferences.forEach(mappingReference -> {
@@ -209,7 +209,7 @@ public class FlowDAGValidator implements DAGValidator {
                     && !Objects.equals(task.getCategory(), TaskCategory.FOREACH.getValue())) {
                 throw new ValidationException(DDLErrorCode.TASK_INVALID.getCode(), task.getName() + " category invalid");
             }
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
         });
     }
 }

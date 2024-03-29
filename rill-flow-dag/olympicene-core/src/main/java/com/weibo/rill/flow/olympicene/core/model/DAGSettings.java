@@ -31,6 +31,6 @@ public class DAGSettings {
 
     public static final DAGSettings DEFAULT = DAGSettings.builder()
             .ignoreExist(false)
-            // FIXME: Code Completion From Here.
+            .dagMaxDepth(3)
             .build();
 }

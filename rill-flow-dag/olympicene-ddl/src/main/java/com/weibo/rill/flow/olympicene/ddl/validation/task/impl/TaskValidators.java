@@ -44,6 +44,6 @@ public class TaskValidators {
     }
 
     private TaskValidators(List<TaskValidator<?>> validators) {
-        // FIXME: Code Completion From Here.
+        Optional.ofNullable(validators).ifPresent(this.validators::addAll);
     }
 }

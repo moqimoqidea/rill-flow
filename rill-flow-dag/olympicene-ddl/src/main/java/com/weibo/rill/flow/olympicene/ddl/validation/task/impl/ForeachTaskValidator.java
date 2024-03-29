@@ -37,7 +37,7 @@ public class ForeachTaskValidator implements TaskValidator<ForeachTask> {
         ForeachTask foreachTask = (ForeachTask) task;
         assertTask(foreachTask, t -> "foreach".equals(t.getCategory())
                 , DDLErrorCode.FOREACH_TASK_INVALID.getCode(), String.format(DDLErrorCode.FOREACH_TASK_INVALID.getMessage(), task.getName(), "category is invalid"));
-        // FIXME: Code Completion From Here.
+        // FIXME: The Completion Code is Empty.
         assertTask(foreachTask, t -> !StringUtils.isEmpty(t.getIterationMapping().getCollection())
                 , DDLErrorCode.FOREACH_TASK_INVALID.getCode(), String.format(DDLErrorCode.FOREACH_TASK_INVALID.getMessage(), task.getName(), "iterationMapping collection is empty"));
         assertTask(foreachTask, t -> CollectionUtils.isNotEmpty(t.getTasks())

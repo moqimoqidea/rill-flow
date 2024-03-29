@@ -17,7 +17,7 @@ class RedisDistributedLockerTest extends Specification {
         redisDistributedLocker.lock("lockName", "instanceId", 500)
 
         then:
-        // FIXME: Code Completion From Here.
+        1 * redisClient.eval("return redis.call('set', KEYS[1], ARGV[1], 'PX', ARGV[2], 'NX')", 1, "lockName", "instanceId", 500) >> "OK".getBytes()
         noExceptionThrown()
 
         where:
@@ -33,6 +33,6 @@ class RedisDistributedLockerTest extends Specification {
 
         then:
         (_ .. 30) * redisClient.eval(*_) >> "FAIL".getBytes()
-        // FIXME: Code Completion From Here.
+        def e = thrown(RuntimeException)
     }
 }

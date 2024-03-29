@@ -35,7 +35,7 @@ public class BaseTaskValidator implements TaskValidator<BaseTask> {
 
         assertTask(task, t -> !StringUtils.isEmpty(t.getName())
                 , DDLErrorCode.TASK_INVALID.getCode(), String.format(DDLErrorCode.TASK_INVALID.getMessage(), task.getName(), "name is empty"));
-        // FIXME: Code Completion From Here.
+        // FIXME: The Completion Code is Empty.
     }
 
 }

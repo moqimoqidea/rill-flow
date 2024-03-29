@@ -32,7 +32,7 @@ class ResourceLoaderTest extends Specification {
         JSONObject jsonObject = JSONObject.parseObject(text, Feature.OrderedField)
         then:
         new ArrayList<>(jsonObject.keySet()).get(0) == "name"
-        // FIXME: Code Completion From Here.
+        new ArrayList<>(jsonObject.keySet()).get(1) == "resource_type"
         new ArrayList<>(jsonObject.keySet()).get(2) == "resource_protocol"
     }
 
@@ -46,7 +46,7 @@ class ResourceLoaderTest extends Specification {
 
     def "test loadResourceAsText with null resource name"() {
         when:
-        // FIXME: Code Completion From Here.
+        ResourceLoader.loadResourceAsText(null)
 
         then:
         thrown(NullPointerException)

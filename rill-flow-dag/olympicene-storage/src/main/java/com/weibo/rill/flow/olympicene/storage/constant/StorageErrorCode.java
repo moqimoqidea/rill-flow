@@ -34,7 +34,7 @@ public enum StorageErrorCode {
 
     StorageErrorCode(final int code, final String message) {
         this.code = code;
-        // FIXME: Code Completion From Here.
+        this.message = message;
     }
 
     public int getCode() {
