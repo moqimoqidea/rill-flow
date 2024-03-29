@@ -57,7 +57,7 @@ public class DagStorageSerializer {
 
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         try {
-            // FIXME: Code Completion From Here.
+            return MAPPER.readValue(bytes, type);
         } catch (IOException e) {
             throw new SerializationException(StorageErrorCode.SERIALIZATION_FAIL.getCode(), e);
         }
@@ -79,7 +79,7 @@ public class DagStorageSerializer {
                     return;
                 }
 
-                // FIXME: Code Completion From Here.
+                String className = getString(stringByteContent.get(buildTypeKeyPrefix(field)));
                 Class<?> klass = className != null ? Class.forName(className) : Object.class;
                 map.put(field, MAPPER.readValue(value, klass));
             } catch (Exception e) {
@@ -98,7 +98,7 @@ public class DagStorageSerializer {
         Map<String, String> serializedContent = Maps.newHashMap();
         content.forEach((field, value) -> {
             try {
-                // FIXME: Code Completion From Here.
+                serializedContent.put(field, serializeToString(value));
                 serializedContent.put(buildTypeKeyPrefix(field), value.getClass().getName());
             } catch (Exception e) {
                 log.warn("serializeHash fails, field:{}, value:{}", field, value, e);
@@ -111,7 +111,8 @@ public class DagStorageSerializer {
     public static List<String> serializeHashToList(Map<String, ?> content) {
         List<String> ret = Lists.newArrayList();
         serializeHash(content).forEach((key, value) -> {
-            // FIXME: Code Completion From Here.
+            ret.add(key);
+            ret.add(value);
         });
         return ret;
     }

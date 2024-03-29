@@ -46,7 +46,13 @@ public class LocalStorageProcedure implements DAGStorageProcedure {
                 throw new StorageException(StorageErrorCode.LOCK_TIMEOUT.getCode(), "lock fails");
             }
         } finally {
-            // FIXME: Code Completion From Here.
+            if (lock != null) {
+                try {
+                    lock.unlock();
+                } catch (Exception e) {
+                    log.warn("unlock {} failed. ", lockName, e);
+                }
+            }
             if (lock != null) {
                 try {
                     lock.unlock();
@@ -62,7 +68,7 @@ public class LocalStorageProcedure implements DAGStorageProcedure {
             return lock.tryLock(30, TimeUnit.SECONDS);
         } catch (Exception e) {
             log.warn("tryLock fails, lockName:{}", lockName, e);
-            // FIXME: Code Completion From Here.
+            return false;
         }
     }
 }
