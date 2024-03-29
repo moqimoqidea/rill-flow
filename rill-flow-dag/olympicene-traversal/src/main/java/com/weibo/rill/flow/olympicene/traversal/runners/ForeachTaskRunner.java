@@ -81,7 +81,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
     protected ExecutionResult doRun(String executionId, TaskInfo taskInfo, Map<String, Object> input) {
         log.info("foreach task begin to run executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
         ForeachTask foreachTask = (ForeachTask) taskInfo.getTask();
-        // FIXME: Code Completion From Here.
+        IterationMapping iterationMapping = foreachTask.getIterationMapping();
 
         Collection<Object> collection = (Collection<Object>) jsonPath.getValue(ImmutableMap.of("input", input), iterationMapping.getCollection());
         if (CollectionUtils.isEmpty(collection) || CollectionUtils.isEmpty(foreachTask.getTasks())) {
@@ -89,7 +89,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             taskInfo.updateInvokeMsg(taskInvokeMsg);
             updateTaskInvokeEndTime(taskInfo);
             taskInfo.setTaskStatus(TaskStatus.SUCCEED);
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
             return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
         }
 
@@ -98,7 +98,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
         Map<String, TaskStatus> indexToStatus = Maps.newConcurrentMap();
         taskInfo.setSubGroupIndexToStatus(indexToStatus);
         Map<String, Boolean> indexToKey = Maps.newConcurrentMap();
-        // FIXME: Code Completion From Here.
+        taskInfo.setSubGroupIndexToKey(indexToKey);
         taskInfo.setTaskStatus(TaskStatus.RUNNING);
         taskInfo.setChildren(Optional.ofNullable(taskInfo.getChildren()).orElse(Maps.newConcurrentMap()));
         jsonPath.delete(ImmutableMap.of("input", input), iterationMapping.getCollection());
@@ -112,7 +112,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             Set<TaskInfo> subTaskInfos = new HashSet<>(taskInfoMap.values());
 
             Map<String, Object> subContext = Maps.newConcurrentMap();
-            // FIXME: Code Completion From Here.
+            subContext.putAll(input);
             subContext.put(iterationMapping.getItem(), item);
             // record whether the subtask is key
             if (existKeyExp(taskInfo)) {
@@ -131,7 +131,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
             Map<String, Object> groupedContext = Maps.newHashMap();
             groupedContext.put(DAGWalkHelper.getInstance().buildSubTaskContextFieldName(subTaskInfos.iterator().next().getRouteName()), subContext);
-            // FIXME: Code Completion From Here.
+            contextToUpdate.putAll(groupedContext);
             if (maxConcurrentGroups <= 0 || groupIndex < maxConcurrentGroups) {
                 readyToRun.add(Pair.of(subTaskInfos, groupedContext));
                 indexToStatus.put(String.valueOf(groupIndex), TaskStatus.RUNNING);
@@ -170,7 +170,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
             Map<String, Object> output = Maps.newHashMap();
             Mapping mapping = new Mapping(synchronization.getMaxConcurrency(), "$.output.maxConcurrency");
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
             int maxConcurrency = Optional.ofNullable(output.get("maxConcurrency"))
                     .map(String::valueOf)
                     .map(Integer::valueOf)
@@ -194,7 +194,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             input.put("element", item);
             Map<String, Object> output = Maps.newHashMap();
             Mapping mapping = new Mapping(identity.replace("$.iteration.element", "$.input.element"), "$.output.identity");
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
             String identityString = Optional.ofNullable(output.get("identity")).map(String::valueOf).orElse(null);
 
             if (StringUtils.isNotBlank(identityString)) {
@@ -209,7 +209,46 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
     @Override
     public ExecutionResult finish(String executionId, NotifyInfo notifyInfo, Map<String, Object> output) {
-        // FIXME: Code Completion From Here.
+        TaskInfo taskInfo = notifyInfo.getTaskInfo();
+        if (taskInfo.getTaskStatus() == TaskStatus.SUCCEED) {
+            return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
+        }
+
+        Map<String, TaskStatus> indexToStatus = taskInfo.getSubGroupIndexToStatus();
+        Map<String, Boolean> indexToKey = taskInfo.getSubGroupIndexToKey();
+        if (indexToStatus == null || indexToStatus.isEmpty()) {
+            return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
+        }
+
+        boolean allSucceed = indexToStatus.values().stream().allMatch(it -> it == TaskStatus.SUCCEED);
+        if (allSucceed) {
+            taskInfo.setTaskStatus(TaskStatus.SUCCEED);
+            return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
+        }
+
+        boolean allFailed = indexToStatus.values().stream().allMatch(it -> it == TaskStatus.FAILED);
+        if (allFailed) {
+            taskInfo.setTaskStatus(TaskStatus.FAILED);
+            return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
+        }
+
+        boolean allRunning = indexToStatus.values().stream().allMatch(it -> it == TaskStatus.RUNNING);
+        if (allRunning) {
+            return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
+        }
+
+        boolean allReady = indexToStatus.values().stream().allMatch(it -> it == TaskStatus.READY);
+        if (allReady) {
+            return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
+        }
+
+        boolean allKey = indexToKey.values().stream().allMatch(it -> it);
+        if (allKey) {
+            taskInfo.setTaskStatus(TaskStatus.SUCCEED);
+            return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
+        }
+
+        return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
     }
 
 }

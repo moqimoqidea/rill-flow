@@ -106,7 +106,8 @@ public class DAGClientPool implements ApplicationContextAware {
 
     public void updateClientIdToRestTemplate(Map<String, BeanConfig> httpConfig) {
         synchronized (HTTP_LOCK) {
-            // FIXME: Code Completion From Here.
+            updateClientMap(httpConfig, httpClientIdToRestTemplate,
+                    RestTemplate.class, HTTP_CLIENT_REST_TEMPLATE_BEAN_PREFIX);
         }
     }
 

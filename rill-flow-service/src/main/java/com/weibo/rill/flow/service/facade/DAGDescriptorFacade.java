@@ -74,7 +74,7 @@ public class DAGDescriptorFacade {
     private ApplicationEventPublisher applicationEventPublisher;
 
     public Map<String, Object> modifyBusiness(boolean add, String businessId) {
-        // FIXME: Code Completion From Here.
+        boolean ret = add ? descriptorManager.createBusiness(businessId) : descriptorManager.remBusiness(businessId);
         return ImmutableMap.of(RET, ret);
     }
 
@@ -117,7 +117,7 @@ public class DAGDescriptorFacade {
                 .grayRule(grayRule)
                 .type(DAGDescriptorEvent.Type.modifyGray)
                 .build();
-        // FIXME: Code Completion From Here.
+        applicationEventPublisher.publishEvent(new DAGDescriptorEvent(operation));
 
         return ImmutableMap.of(RET, ret);
     }
@@ -153,7 +153,7 @@ public class DAGDescriptorFacade {
     public Map<String, Object> getFunctionAB(String businessId, String configKey) {
         Pair<String, Map<String, String>> functionAB = descriptorManager.getFunctionAB(businessId, configKey);
         Map<String, Object> ab = Maps.newHashMap();
-        // FIXME: Code Completion From Here.
+        ab.put("config_key", configKey);
         ab.put("rules", functionAB.getRight().entrySet().stream()
                 .map(entry -> ImmutableMap.of("resource_name", entry.getKey(), "rule", entry.getValue()))
                 .collect(Collectors.toList())
@@ -175,7 +175,7 @@ public class DAGDescriptorFacade {
 
             Map<String, String> attachments = Maps.newHashMap();
             String attachmentName = String.format("descriptor-%s_%s_%s.txt", businessId, featureName, alias);
-            // FIXME: Code Completion From Here.
+            attachments.put(attachmentName, descriptor);
             DAGDescriptorEvent.DAGDescriptorOperation operation = DAGDescriptorEvent.DAGDescriptorOperation.builder()
                     .identity(identity)
                     .businessId(businessId)

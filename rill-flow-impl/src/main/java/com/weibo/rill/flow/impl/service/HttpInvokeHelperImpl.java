@@ -57,7 +57,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         if (task != null && task.getTask() instanceof FunctionTask functionTask) {
             if (FunctionPattern.TASK_SCHEDULER.equals(functionTask.getPattern())
                     || FunctionPattern.TASK_ASYNC.equals(functionTask.getPattern())) {
-                // FIXME: Code Completion From Here.
+                httpHeaders.add("X-Callback-Url", task.getCallbackUrl());
             }
         }
     }
@@ -93,7 +93,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
             } else if (key.startsWith("request_config_") && value instanceof Map) {
                 body.putAll((Map<String, Object>) value);
             } else if (key.startsWith("request_callback_") && value instanceof Map) {
-                // FIXME: Code Completion From Here.
+                callback.putAll((Map<String, Object>) value);
             } else if (key.startsWith("request_header_") && value instanceof Map) {
                 header.putAll((Map<String, String>) value);
             } else {
@@ -110,7 +110,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                             functionInput.remove("query");
                             break;
                         case "header":
-                            // FIXME: Code Completion From Here.
+                            header.putAll((Map<String, String>) value);
                             break;
                         case "body":
                             body.putAll((Map<String, Object>) value);
@@ -138,7 +138,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         }
 
         try {
-            // FIXME: Code Completion From Here.
+            URI uri = new URI(originalUrl);
             Optional.ofNullable(queryParams).ifPresent(params ->
                     params.forEach((key, value) -> uriBuilder.addParameter(key, String.valueOf(value))));
             String url = uriBuilder.toString();
@@ -160,7 +160,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                 if (method == HttpMethod.GET) {
                     result = restTemplate.getForObject(url, String.class);
                 } else {
-                    // FIXME: Code Completion From Here.
+                    result = restTemplate.exchange(url, method, requestEntity, String.class).getBody();
                 }
                 return result;
             } catch (RestClientResponseException e) {

@@ -72,7 +72,7 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
             flowUser.setUid(127001L);
             return flowUser;
         }
-        // FIXME: Code Completion From Here.
+        // FIXME: The Completion Code is Empty.
         if (Objects.isNull(request)) {
             throw new AuthException(FlowErrorCode.AUTH_FAILED.getCode(), FlowErrorCode.AUTH_FAILED.getMessage());
         }
@@ -88,14 +88,14 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
             throw new AuthException(FlowErrorCode.NO_SIGN.getCode(), FlowErrorCode.NO_SIGN.getMessage());
         }
         try {
-            // FIXME: Code Completion From Here.
+            String serverSign = AuthHttpUtil.addSignToParam(paramsMap, authSecret);
             if (serverTimestamp - clientTimestamp > ONE_DAY_MS) {
                 throw new AuthException(FlowErrorCode.AUTH_EXPIRED.getCode(), FlowErrorCode.AUTH_EXPIRED.getMessage());
             }
 
             String clientSign = paramsMap.get(SIGN);
             paramsMap.remove(SIGN);
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
             if (!StringUtils.equals(clientSign, serverSign)) {
                 log.warn("auth failed, invalid sign, clientSign:{}, serverSign:{}, paramMap:{}", clientSign, serverSign, requestParamsMap);
                 throw new AuthException(FlowErrorCode.AUTH_FAILED.getCode(), FlowErrorCode.AUTH_FAILED.getMessage());

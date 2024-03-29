@@ -35,7 +35,7 @@ public class BeanInitCost implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        // FIXME: Code Completion From Here.
+        BEAN_INIT_START_TIME.put(beanName, System.currentTimeMillis());
         return bean;
     }
 

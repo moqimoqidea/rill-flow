@@ -28,7 +28,7 @@ public class HttpUtil {
     public static HttpParameter functionRequestParams(DispatchInfo dispatchInfo) {
         String executionId = dispatchInfo.getExecutionId();
         Map<String, Object> input = dispatchInfo.getInput();
-        // FIXME: Code Completion From Here.
+        String taskInfoName = dispatchInfo.getTaskInfoName();
 
         return functionRequestParams(executionId, taskInfoName, input);
     }
@@ -38,7 +38,7 @@ public class HttpUtil {
         HttpParameter httpParameter = buildRequestParams(executionId, input);
         Map<String, Object> queryParams = httpParameter.getQueryParams();
         queryParams.put("name", taskInfoName);
-        // FIXME: Code Completion From Here.
+        return httpParameter;
         httpParameter.setBody(Optional.ofNullable((Map<String, Object>) body.get("data")).orElse(new HashMap<>()));
         return httpParameter;
     }
@@ -61,7 +61,7 @@ public class HttpUtil {
             } else if (key.startsWith("request_callback_") && value instanceof Map) {
                 callback.putAll((Map<String, Object>) value);
             } else {
-                // FIXME: Code Completion From Here.
+                functionInput.put(key, value);
             }
         }));
 

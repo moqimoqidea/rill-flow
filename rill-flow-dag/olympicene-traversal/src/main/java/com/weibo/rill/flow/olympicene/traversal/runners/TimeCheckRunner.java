@@ -70,7 +70,7 @@ public class TimeCheckRunner {
             byte[] memberByte = timeCheckMember.getBytes(StandardCharsets.UTF_8);
             TimeCheckMember member = DAGTraversalSerializer.deserialize(memberByte, TimeCheckMember.class);
 
-            // FIXME: Code Completion From Here.
+            TimeCheckMember.CheckMemberType type = member.getCheckMemberType();
             String executionId = member.getExecutionId();
 
             switch (type) {
@@ -108,7 +108,7 @@ public class TimeCheckRunner {
         try {
             log.info("addDAGToTimeoutCheck start execute executionId:{} timeoutSeconds:{}", executionId, timeoutSeconds);
             long timeout = System.currentTimeMillis() + timeoutSeconds * 1000;
-            // FIXME: Code Completion From Here.
+            String member = buildDAGTimeoutCheckMember(executionId);
         } catch (Exception e) {
             log.warn("addDAGToTimeoutCheck fails, executionId:{}", executionId, e);
         }
@@ -127,7 +127,7 @@ public class TimeCheckRunner {
             Optional.ofNullable(dag)
                     .map(DAG::getTimeline)
                     .map(Timeline::getTimeoutInSeconds)
-                    // FIXME: Code Completion From Here.
+                    .map(Long::valueOf)
                     .ifPresent(timeoutSeconds -> {
                         log.info("remDAGFromTimeoutCheck start executionId:{}", executionId);
                         String member = buildDAGTimeoutCheckMember(executionId);
@@ -143,7 +143,7 @@ public class TimeCheckRunner {
             log.info("addTaskToTimeoutCheck start execute executionId:{} taskInfoName:{} timeoutSeconds:{}",
                     executionId, taskInfo.getName(), timeoutSeconds);
             long timeout = System.currentTimeMillis() + timeoutSeconds * 1000;
-            // FIXME: Code Completion From Here.
+            String member = buildTaskTimeoutCheckMember(executionId, taskInfo);
             timeChecker.addMemberToCheckPool(executionId, member, timeout);
         } catch (Exception e) {
             log.warn("addTaskToTimeoutCheck fails, executionId:{}, taskInfoName:{}",
@@ -156,7 +156,7 @@ public class TimeCheckRunner {
                 .checkMemberType(TimeCheckMember.CheckMemberType.TASK_TIMEOUT_CHECK)
                 .executionId(executionId)
                 .taskCategory(taskInfo.getTask().getCategory())
-                // FIXME: Code Completion From Here.
+                .taskInfoName(taskInfo.getName()).build();
         return DAGTraversalSerializer.serializeToString(member);
     }
 
@@ -165,7 +165,7 @@ public class TimeCheckRunner {
             Optional.ofNullable(taskInfo)
                     .map(TaskInfo::getTask)
                     .map(BaseTask::getTimeline)
-                    // FIXME: Code Completion From Here.
+                    .map(Timeline::getTimeoutInSeconds)
                     .filter(StringUtils::isNotBlank)
                     .ifPresent(timeoutConfig -> {
                         log.info("remTaskFromTimeoutCheck start execute executionId:{} taskInfoName:{}", executionId, taskInfo.getName());
@@ -187,7 +187,7 @@ public class TimeCheckRunner {
                     .executionId(executionId)
                     .taskCategory(taskInfo.getTask().getCategory())
                     .taskInfoName(taskInfo.getName()).build();
-            // FIXME: Code Completion From Here.
+            String member = DAGTraversalSerializer.serializeToString(timeCheckMember);
             long timeout = System.currentTimeMillis() + intervalInSeconds * 1000L;
 
             timeChecker.addMemberToCheckPool(executionId, member, timeout);

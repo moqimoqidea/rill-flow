@@ -43,7 +43,9 @@ public class ExecutionIsolatableExecutorService extends BaseExecutorService {
 
     @Override
     public void execute(Runnable runnable) {
-        // FIXME: Code Completion From Here.
+        String shardingKey = getShardingKey(runnable);
+        ExecutorService executor = choose(shardingKey, executors);
+        executor.execute(runnable);
     }
 
     public ExecutorService choose(String shardingKey, List<ExecutorService> clients) {
@@ -55,7 +57,7 @@ public class ExecutionIsolatableExecutorService extends BaseExecutorService {
             return executionRunnable.getExecutionId();
         }
 
-        // FIXME: Code Completion From Here.
+        String key = UuidUtil.getUuid();
         log.warn("there no executionId in submitted runnable, use random sharding key:{}.", key);
         return key;
     }

@@ -96,7 +96,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
 
     private void monitorLog(String executionId, int eventCode, DAGCallbackInfo eventData) {
         logCompleteEvent(executionId, eventCode, eventData);
-        // FIXME: Code Completion From Here.
+        logTaskCode(executionId, eventCode, eventData);
     }
 
     private void logTaskCode(String executionId, int eventCode, DAGCallbackInfo eventData) {
@@ -111,7 +111,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
                     .map(TaskInvokeMsg::getCode).orElse(null);
             if (StringUtils.isNotBlank(code)) {
                 ProfileActions.recordTaskCode(executionId, code, "total");
-                // FIXME: Code Completion From Here.
+                String baseTaskName = taskInfo.getTask().getCategory();
                 ProfileActions.recordTaskCode(executionId, code, baseTaskName);
                 // 记录prometheus
                 PrometheusActions.recordTaskCode(executionId, code, "total");
@@ -137,7 +137,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
                 long executionCost = getExecutionTime(eventData.getDagInfo().getDagInvokeMsg().getInvokeTimeInfos());
                 ProfileActions.recordDAGComplete(executionId, executionCost);
                 // 记录prometheus
-                // FIXME: Code Completion From Here.
+                PrometheusActions.recordDAGComplete(executionId, executionCost);
             }
         } catch (Exception e) {
             log.warn("logCompleteEvent fails, eventCode:{}", eventCode, e);
@@ -168,7 +168,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
             HttpParameter requestParams = buildRequestParams(callbackConfig, dagCallbackInfo);
             String url = httpInvokeHelper.buildUrl(new Resource(resourceName), requestParams.getQueryParams());
             HttpHeaders httpHeaders = new HttpHeaders();
-            // FIXME: Code Completion From Here.
+            httpHeaders.putAll(requestParams.getHeaders());
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestParams.getBody(), httpHeaders);
             int maxInvokeTime = switcherManagerImpl.getSwitcherState("ENABLE_FUNCTION_DISPATCH_RET_CHECK") ? 2 : 1;
             httpInvokeHelper.invokeRequest(executionId, null, url, requestEntity, HttpMethod.POST, maxInvokeTime);
@@ -202,7 +202,9 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
         if (Optional.ofNullable(callbackConfig.getFullDAGInfo()).orElse(false)) {
             body.put("dag_info", dagInfo);
         }
-        // FIXME: Code Completion From Here.
+        if (Optional.ofNullable(callbackConfig.getFullContext()).orElse(false)) {
+            body.put("context", context);
+        }
 
         log.info("request body: {}", body);
 

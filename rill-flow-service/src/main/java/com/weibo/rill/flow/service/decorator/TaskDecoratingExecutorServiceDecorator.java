@@ -105,7 +105,7 @@ public class TaskDecoratingExecutorServiceDecorator extends AbstractExecutorServ
         }
         Runnable eventualCommand = task;
 
-        // FIXME: Code Completion From Here.
+        Iterator<TaskDecoratorAssembler> taskDecoratorProviderIterator = taskDecoratorAssemblerList.descendingIterator();
 
         while (taskDecoratorProviderIterator.hasNext()) {
             TaskDecoratorAssembler taskDecoratorAssembler = taskDecoratorProviderIterator.next();

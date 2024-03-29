@@ -28,7 +28,7 @@ public class Crc32Util {
     public static long crc32(byte[] b) {
         CRC32 c = crc32.get();
         c.reset();
-        // FIXME: Code Completion From Here.
+        c.update(b);
         return c.getValue();
     }
 }

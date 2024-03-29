@@ -115,7 +115,7 @@ class OlympiceneFacadeTest extends Specification {
         runtimeStorage.getDAGInfo(_) >> null
         longTermStorage.getDAGInfo(_) >> null
         when:
-        // FIXME: Code Completion From Here.
+        facade.redo("testExecutionId", ["testTask"], null)
         then:
         thrown DAGTraversalException
     }
@@ -174,7 +174,7 @@ class OlympiceneFacadeTest extends Specification {
         DAG dag = Mock(DAG)
         BaseTask task = Mock(BaseTask)
         task.getName() >> "testTaskName"
-        // FIXME: Code Completion From Here.
+        dag.getTasks() >> [task]
         runtimeStorage.getDAGDescriptor(_) >> dag
         runtimeStorage.updateDAGDescriptor(*_) >> null
         expect:
@@ -190,7 +190,7 @@ class OlympiceneFacadeTest extends Specification {
         runtimeStorage.getDAGDescriptor(_) >> dag
         runtimeStorage.updateDAGDescriptor(*_) >> null
         when:
-        // FIXME: Code Completion From Here.
+        facade.taskDegrade("testExecutionId", "testTaskName", true, false)
         then:
         thrown TaskException
     }
@@ -235,7 +235,7 @@ class OlympiceneFacadeTest extends Specification {
         systemMonitorStatistic.getExecutionIdsByStatus(*_) >> [pair1]
         systemMonitorStatistic.getExecutionIdsByCode(*_) >> [pair2]
         when:
-        // FIXME: Code Completion From Here.
+        var result = facade.getExecutionIds("testBusiness:testServiceName", null, "0", 0L, 0, 1)
         then:
         result.get("execution_ids") == [["execution_id": "testExecutionId2", "submit_time": 456L]]
         result.get("type") == "0"
@@ -317,7 +317,7 @@ class OlympiceneFacadeTest extends Specification {
 
     def "test remove"() {
         given:
-        // FIXME: Code Completion From Here.
+        customizedStorage.remove(*_) >> true
         expect:
         ["ret": true] == facade.remove("testBucketName")
         ["ret": true] == facade.remove("testBucketName", ["testField"])
