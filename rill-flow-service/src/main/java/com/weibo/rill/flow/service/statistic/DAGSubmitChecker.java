@@ -143,7 +143,7 @@ public class DAGSubmitChecker {
             return storageCheck;
         }
 
-        int currentUsagePercent = dagResourceStatistic.getRuntimeRedisUsagePercent(executionId, serviceId);
+        JSONObject ret = systemMonitorStatistic.businessStorageMonitor(Lists.newArrayList(serviceId), null, null);
         storageCheck.setCurrentUsagePercent(currentUsagePercent);
 
         storageCheck.setUsageLimit(currentUsagePercent > maxUsagePercent);
@@ -162,7 +162,7 @@ public class DAGSubmitChecker {
                     bizDConfs.getRuntimeRedisStorageIdToMaxUsage().getOrDefault(businessId, bizDConfs.getRuntimeRedisCustomizedStorageMaxUsage()) : -1;
         }
 
-        return bizDConfs.getRuntimeRedisDefaultStorageMaxUsage();
+        return -1;
     }
 
     private ResourceCheck resourceStatusCheck(String serviceId, String businessId, ResourceCheckConfig resourceCheckConfig) {
@@ -185,7 +185,7 @@ public class DAGSubmitChecker {
             return Collections.emptySet();
         }
 
-        Collection<ResourceStatus> allResources = dagResourceStatistic.getDependentResources(serviceId).values();
+        Collection<ResourceStatus> allResources = dagResourceStatistic.getResourceStatus(serviceId, businessId);
         if (CollectionUtils.isEmpty(allResources)) {
             return Collections.emptySet();
         }
@@ -227,7 +227,7 @@ public class DAGSubmitChecker {
             return customizedConfig;
         }
 
-        return ResourceCheckConfig.builder().checkType(ResourceCheckConfig.CheckType.SHORT_BOARD).build();
+        return bizDConfs.getDefaultResourceCheckConfig();
     }
 
     private void trafficControl(String executionId, String serviceId, String businessId) {

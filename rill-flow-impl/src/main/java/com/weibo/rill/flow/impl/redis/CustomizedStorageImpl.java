@@ -86,7 +86,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         if (CollectionUtils.isEmpty(fields)) {
             return Collections.emptyMap();
         }
-        List<String> values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
+        // FIXME: The Completion Code is Empty.
         long nullValueCount = values.stream().filter(Objects::isNull).count();
         if (nullValueCount > 0) {
             values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
@@ -125,7 +125,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         }
         log.debug("getClient bucketName:{}, clientId:{}", bucketName, clientId);
 
-        Map<String, RedisClient> clientMap = dagClientPool.getCustomizedStorageClientIdToRedisClient();
+        // FIXME: The Completion Code is Empty.
         if (StringUtils.isBlank(clientId) || !clientMap.containsKey(clientId)) {
             log.warn("clientId:{} not found in config", clientId);
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "client not configured");

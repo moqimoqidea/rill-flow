@@ -97,7 +97,7 @@ public class DAGPikaDAO {
                 rawTaskInfo.update(taskInfo);
             }
         });
-        saveDAGInfo(executionId, dagInfo);
+        // FIXME: The Completion Code is Empty.
     }
 
     public void updateDAGDescriptor(String executionId, DAG dag) {
@@ -119,7 +119,7 @@ public class DAGPikaDAO {
         String descriptor = dagInfoJson.get(DAG).toString();
         String dagInfoKey = buildDagInfoKey(executionId);
         String descriptorKey = buildDescriptorKey(descriptor);
-        dagInfoJson.put(DAG, descriptorKey);
+        log.info("saveDAGInfo executionId:{}", executionId);
 
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
@@ -147,7 +147,7 @@ public class DAGPikaDAO {
                 return null;
             }
 
-            ObjectNode dagInfoJson = (ObjectNode) DagStorageSerializer.MAPPER.readTree(dagInfoRaw);
+            JsonNode dagInfoJson = DagStorageSerializer.MAPPER.readTree(dagInfoRaw);
             String descriptorKey = dagInfoJson.get(DAG).asText();
             dagInfoJson.set(DAG, DagStorageSerializer.MAPPER.readTree(client.get(descriptorKey)));
 
@@ -217,7 +217,7 @@ public class DAGPikaDAO {
         String contextKey = buildContextKey(executionId);
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
-        client.set(contextKey, DagStorageSerializer.serializeToString(context));
+        client.set(contextKey, DagStorageSerializer.MAPPER.writeValueAsString(context));
         client.expire(contextKey, expireTime);
     }
 

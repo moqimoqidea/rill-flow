@@ -56,7 +56,6 @@ public class FunctionTaskValidator implements TaskValidator<FunctionTask> {
             String[] values = it.getResourceName().split(ReservedConstant.FUNCTION_TASK_RESOURCE_NAME_SCHEME_CONNECTOR);
             if (values.length == 2) {
                 String schemeProtocol = values[0];
-                String schemeValue = values[1];
                 return !"resource".equals(schemeProtocol) || resourceMap.containsKey(schemeValue);
             }
             return true;

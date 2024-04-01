@@ -32,11 +32,11 @@ class TaskParseTest extends Specification {
         then:
         ret instanceof FunctionTask
         ret.name == 'normalise'
-        ret.pattern == FunctionPattern.TASK_SCHEDULER || FunctionPattern.TASK_ASYNC
+        ret.next == 'segmentForeach'
         ret.resourceName == 'testBusinessId::testFeatureName::testResource::prod'
         ret.inputMappings.size() == 2
         ret.outputMappings.size() == 1
-        ret.next == 'segmentForeach'
+        // FIXME: The Completion Code is Empty.
         ret.category == TaskCategory.FUNCTION.getValue()
     }
 

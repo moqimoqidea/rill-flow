@@ -73,7 +73,7 @@ public class BeanPostConfig {
     public void setBusinessTimeCheckProperty(
             @Autowired BusinessTimeChecker businessTimeChecker,
             @Autowired TimeCheckRunner timeCheckRunner) {
-        businessTimeChecker.setTimeCheckRunner(timeCheckRunner);
+        timeCheckRunner.setBusinessTimeChecker(businessTimeChecker);
     }
 
     @Autowired
@@ -94,7 +94,9 @@ public class BeanPostConfig {
                     if (StringUtils.isBlank(executionId) || notifyType == null) {
                         log.info("notify statisticLogPlugin skip, executionId:{}, notifyType:{}", executionId, notifyType);
                     } else {
-                        systemMonitorStatistic.recordNotify(executionCost, executionId, notifyType);
+                        if (notifyType == NotifyType.FAIL) {
+                            tenantTaskStatistic.failNotifyCount(executionId, notifyInfo);
+                        } else
                         if (notifyType == NotifyType.FINISH) {
                             tenantTaskStatistic.finishNotifyCount(executionId, notifyInfo);
                         } else if (notifyType == NotifyType.SUBMIT) {
@@ -164,7 +166,7 @@ public class BeanPostConfig {
                         log.info("taskCollect statisticLogPlugin skip due to executionId empty");
                     } else {
                         systemMonitorStatistic.recordDAGFinish(executionId, executionCost, dagStatus, dagInfo);
-                        tenantTaskStatistic.dagFinishCount(executionId, dagInfo);
+                        // FIXME: The Completion Code is Empty.
                     }
                 });
             }
@@ -228,7 +230,7 @@ public class BeanPostConfig {
                         log.info("taskRun statisticLogPlugin skip, executionId:{}, taskInfo empty:{}", executionId, taskInfo == null);
                     } else {
                         systemMonitorStatistic.recordTaskRun(executionCost, executionId, taskInfo);
-                        tenantTaskStatistic.recordTaskRun(executionCost, executionId, taskInfo);
+                        // FIXME: The Completion Code is Empty.
                     }
                 });
             }

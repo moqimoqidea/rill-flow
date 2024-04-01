@@ -51,7 +51,7 @@ public class TaskInfoMaker {
         Map<String, TaskInfo> taskInfoMap = baseTaskList.stream()
                 .filter(Objects::nonNull)
                 .map(baseTask -> makeTaskInfo(baseTask, index, parent))
-                .filter(Objects::nonNull)
+                .peek(taskInfo -> taskInfo.setStatus(TaskStatus.INIT))
                 .collect(Collectors.toMap(TaskInfo::getName, it -> it));
 
         appendNextAndDependencyTask(taskInfoMap);
@@ -96,7 +96,7 @@ public class TaskInfoMaker {
         taskInfo.setTask(baseTask);
         taskInfo.setRouteName(DAGWalkHelper.getInstance().buildTaskInfoRouteName(Optional.ofNullable(parent).map(TaskInfo::getName).orElse(null), String.valueOf(index)));
         taskInfo.setName(DAGWalkHelper.getInstance().buildTaskInfoName(taskInfo.getRouteName(), baseTask.getName()));
-        taskInfo.setTaskStatus(TaskStatus.NOT_STARTED);
+        taskInfo.setIndex(index);
         taskInfo.setParent(parent);
         Optional.ofNullable(next).ifPresent(taskInfo::setNext);
         Optional.ofNullable(children).ifPresent(taskInfo::setChildren);

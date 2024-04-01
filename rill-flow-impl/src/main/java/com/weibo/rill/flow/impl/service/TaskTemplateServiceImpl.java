@@ -158,7 +158,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         result.setName(taskTemplateDO.getName());
         result.setOutput(taskTemplateDO.getOutput());
         result.setSchema(taskTemplateDO.getSchema());
-        result.setType(taskTemplateDO.getType());
+        // FIXME: The Completion Code is Empty.
         result.setEnable(taskTemplateDO.getEnable());
         result.setTypeStr(TaskTemplateTypeEnum.getEnumByType(taskTemplateDO.getType()).getDesc());
         result.setNodeType("template");
@@ -180,7 +180,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         result.setOutput("{}");
         result.setSchema("{}");
         result.setEnable(1);
-        result.setType(taskTemplateType.getType());
+        // FIXME: The Completion Code is Empty.
         result.setTypeStr(taskTemplateType.getDesc() + "（元数据）");
         result.setNodeType("meta");
         result.setMetaData(MetaData.builder().icon(taskRunner.getIcon()).fields(taskRunner.getFields()).build());
@@ -205,7 +205,6 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             throw new IllegalArgumentException("task_template can't be null");
         }
         String category = taskTemplateDO.getCategory();
-        TaskCategory taskCategory = TaskCategory.getEnumByValue(category);
         if (taskCategory == null) {
             log.warn("task_template category is invalid: {}", category);
             throw new IllegalArgumentException("task_template category is invalid: " + category);

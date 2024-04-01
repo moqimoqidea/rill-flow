@@ -7,7 +7,7 @@ for rootIndex = 1, #rootHGetAll, 2 do
     local rootValue = rootHGetAll[rootIndex + 1];
 
     if (rootField == "dag" and string.find(rootValue, "\"dag_descriptor_") == 1) then
-        local descriptorKey = string.gsub(rootValue, "\"", "");
+        local descriptorKey = rootValue;
         rootHGetAll[rootIndex + 1] = redis.call("get", descriptorKey);
     elseif (rootField == "@class_dag") then
         rootHGetAll[rootIndex + 1] = "com.weibo.rill.flow.olympicene.core.model.dag.DAG";
@@ -24,7 +24,6 @@ end
 local contentNameToContentRedisKey = redis.call("hgetall", KEYS[2])
 for index = 1, #contentNameToContentRedisKey, 2 do
     local contentName = contentNameToContentRedisKey[index];
-    local contentRedisKey = contentNameToContentRedisKey[index + 1];
     local subContent = {};
     table.insert(subContent, { "name", contentName});
     table.insert(subContent, redis.call("hgetall", contentRedisKey));

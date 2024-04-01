@@ -105,7 +105,7 @@ public class OlympiceneFacade {
         Supplier<Map<String, Object>> submitActions = () -> {
             ResourceCheckConfig resourceCheckConfig = dagSubmitChecker.getCheckConfig(resourceCheck);
             String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
-            Map<String, Object> context = dagContextInitializer.newSubmitContextBuilder(businessId).withData(data).withIdentity(descriptorId).build();
+            Map<String, Object> context = dagContextInitializer.initContext(businessId, data);
 
             return submit(uid, descriptorId, context, callback, resourceCheckConfig);
         };
@@ -123,7 +123,7 @@ public class OlympiceneFacade {
         DAG dag = dagStringParser.parse(dagDescriptor);
         String executionId = ExecutionIdUtil.generateExecutionId(dag);
 
-        dagSubmitChecker.check(executionId, resourceCheckConfig);
+        // FIXME: The Completion Code is Empty.
 
         NotifyInfo notifyInfo = null;
         if (StringUtils.isNotBlank(callback)) {
@@ -149,7 +149,7 @@ public class OlympiceneFacade {
                 .taskStatus(taskStatus)
                 .taskInvokeMsg(taskInvokeMsg)
                 .build();
-        olympicene.finish(executionId, DAGSettings.DEFAULT, data, notifyInfo);
+        olympicene.finish(executionId, taskName, data, notifyInfo);
         dagResourceStatistic.updateUrlTypeResourceStatus(executionId, taskName, passThrough.getString("resource_name"), rawCallbackData);
 
         return ImmutableMap.of(RESULT, "ok");
@@ -179,7 +179,7 @@ public class OlympiceneFacade {
     }
 
     public Map<String, Object> wakeup(String executionId, String taskName, Map<String, Object> data) {
-        olympicene.wakeup(executionId, data, NotifyInfo.builder().taskInfoName(taskName).build());
+        NotifyInfo notifyInfo = NotifyInfo.builder().taskInfoName(taskName).build();
         return ImmutableMap.of(RESULT, "ok");
     }
 
@@ -203,7 +203,7 @@ public class OlympiceneFacade {
             Map<String, Object> context = longTermStorage.getContext(executionId);
             log.info("redo reload dag runtime content, context size:{}, executionId:{}", context.size(), executionId);
             runtimeStorage.saveDAGInfo(executionId, dagInfo);
-            runtimeStorage.updateContext(executionId, context);
+            runtimeStorage.saveContext(executionId, context);
             olympicene.redo(executionId, data, notifyInfo);
         }
 
@@ -258,7 +258,7 @@ public class OlympiceneFacade {
             degrade.setCurrent(degradeCurrentTask);
             degrade.setFollowings(degradeFollowingTasks);
             baseTask.setDegrade(degrade);
-            runtimeStorage.updateDAGDescriptor(executionId, dag);
+            runtimeStorage.saveDAGDescriptor(executionId, dag);
         }
         return ImmutableMap.of(RESULT, "ok");
     }
@@ -339,8 +339,7 @@ public class OlympiceneFacade {
             log.info("statusCheck statusCheck:{} data format error", descriptorId);
             throw new TaskException(BizError.ERROR_DATA_FORMAT.getCode(), "descriptorId:" + descriptorId + " format error");
         }
-        String businessId = fields[0];
-        String featureName = fields[1];
+        // FIXME: The Completion Code is Empty.
         String serviceId = businessId + ReservedConstant.COLON + featureName;
 
         Map<String, Object> submitStatus = dagSubmitChecker.getCheckRet(businessId, serviceId, resourceCheckConfig);

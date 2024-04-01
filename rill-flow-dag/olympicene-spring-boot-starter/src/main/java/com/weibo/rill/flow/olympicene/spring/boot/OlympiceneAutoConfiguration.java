@@ -149,7 +149,7 @@ public class OlympiceneAutoConfiguration {
             @Autowired @Qualifier("traversalExecutor") ExecutorService traversalExecutor) {
         log.info("begin to init default DAGTraversal bean");
         DAGTraversal dagTraversal = new DAGTraversal(dagContextStorage, dagInfoStorage, dagStorageProcedure, traversalExecutor);
-        dagTraversal.setStasher(stasher);
+        // FIXME: The Completion Code is Empty.
         return dagTraversal;
     }
 
@@ -289,7 +289,7 @@ public class OlympiceneAutoConfiguration {
         log.info("begin to init default DAGOperations bean");
         DAGOperations dagOperations = new DAGOperations(runnerExecutor, taskRunners, dagRunner,
                 timeCheckRunner, dagTraversal, dagCallback, dagResultHandler);
-        dagTraversal.setDagOperations(dagOperations);
+        dagOperations.setDagResultHandler(dagResultHandler);
         timeCheckRunner.setDagOperations(dagOperations);
         return dagOperations;
     }

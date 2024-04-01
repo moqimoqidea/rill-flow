@@ -38,7 +38,6 @@ for k = 1, #KEYS, 1 do
         if (string.find(key, "dag_info_") == 1) then
             for hmgetIndex = 1, #hmgetContent, 1 do
                 local field = args[hmgetIndex];
-                local value = hmgetContent[hmgetIndex];
                 if (field == "dag" and string.find(value, "\"dag_descriptor_") == 1) then
                     local descriptorKey = string.gsub(value, "\"", "");
                     hmgetContent[hmgetIndex] = redis.call("get", descriptorKey);

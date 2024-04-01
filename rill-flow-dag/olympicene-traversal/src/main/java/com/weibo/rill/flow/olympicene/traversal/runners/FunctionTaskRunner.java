@@ -115,7 +115,7 @@ public class FunctionTaskRunner extends AbstractTaskRunner {
                     break;
                 case FLOW_SYNC:
                 case FLOW_ASYNC:
-                    executionRef.set(dispatchTask(executionId, taskInfo, input, functionPattern, t -> !t.isFailed()));
+                    executionRef.set(dispatchTask(executionId, taskInfo, input, functionPattern, TaskStatus::isSuccessOrSkip));
                     break;
                 default:
                     throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), String.format("%s not supported", functionPattern));
@@ -147,7 +147,7 @@ public class FunctionTaskRunner extends AbstractTaskRunner {
                     .taskInvokeMsg(taskInvokeMsg)
                     .build();
 
-            return executionCallback(executionId, taskInfo, notifyInfo, output, needUpdateContext);
+            return handleNormalCallback(executionId, taskInfo, notifyInfo, output, needUpdateContext);
         } catch (Exception e) {
             log.error("dispatchTask fails, executionId:{}, taskName:{}, functionPattern:{}, errorMsg:{}",
                     executionId, taskInfo.getName(), functionPattern, e.getMessage());
@@ -155,7 +155,12 @@ public class FunctionTaskRunner extends AbstractTaskRunner {
             Retry retry = ((FunctionTask) taskInfo.getTask()).getRetry();
             RetryContext retryContext = RetryContext.builder().retryConfig(retry).taskStatus(TaskStatus.FAILED).taskInfo(taskInfo).build();
             if (retryPolicy.needRetry(retryContext)) {
-                NotifyInfo notifyInfo = NotifyInfo.builder().retryContext(retryContext).build();
+                NotifyInfo notifyInfo = NotifyInfo.builder()
+                        .taskInfoName(taskInfo.getName())
+                        .taskStatus(TaskStatus.READY)
+                        .taskInvokeMsg(TaskInvokeMsg.builder().msg(e.getMessage()).build())
+                        .retryContext(retryContext)
+                        .build();
                 if (Optional.ofNullable(taskInfo.getTaskInvokeMsg()).map(TaskInvokeMsg::getMsg).isEmpty()) {
                     notifyInfo.setTaskInvokeMsg(TaskInvokeMsg.builder().msg(e.getMessage()).build());
                 }

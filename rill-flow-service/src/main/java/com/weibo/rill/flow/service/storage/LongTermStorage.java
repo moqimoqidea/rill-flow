@@ -118,7 +118,7 @@ public class LongTermStorage {
 
         try {
             String businessId = ExecutionIdUtil.getBusinessId(executionId);
-            return bizDConfs.getLongTermStorageBusinessIdToClientId().containsKey(businessId);
+            return bizDConfs.getStorageConfig().contains(businessId);
         } catch (Exception e) {
             log.warn("storageExist fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
             return false;

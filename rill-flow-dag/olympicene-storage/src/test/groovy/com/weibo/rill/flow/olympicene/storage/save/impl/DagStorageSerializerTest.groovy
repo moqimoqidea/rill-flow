@@ -25,6 +25,6 @@ class DagStorageSerializerTest extends Specification {
         Map<String, Object> ret = DagStorageSerializer.deserializeHash(serial)
 
         then:
-        ret.get("key") in TaskInfo
+        ret.get("key").getClass() == TaskInfo.class
     }
 }

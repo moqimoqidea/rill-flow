@@ -108,7 +108,7 @@ public class TimeCheckRunner {
         try {
             log.info("addDAGToTimeoutCheck start execute executionId:{} timeoutSeconds:{}", executionId, timeoutSeconds);
             long timeout = System.currentTimeMillis() + timeoutSeconds * 1000;
-            timeChecker.addMemberToCheckPool(executionId, buildDAGTimeoutCheckMember(executionId), timeout);
+            String member = buildDAGTimeoutCheckMember(executionId);
         } catch (Exception e) {
             log.warn("addDAGToTimeoutCheck fails, executionId:{}", executionId, e);
         }
@@ -127,7 +127,7 @@ public class TimeCheckRunner {
             Optional.ofNullable(dag)
                     .map(DAG::getTimeline)
                     .map(Timeline::getTimeoutInSeconds)
-                    .filter(StringUtils::isNotBlank)
+                    .map(Long::valueOf)
                     .ifPresent(timeoutSeconds -> {
                         log.info("remDAGFromTimeoutCheck start executionId:{}", executionId);
                         String member = buildDAGTimeoutCheckMember(executionId);

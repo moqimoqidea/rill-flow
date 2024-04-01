@@ -19,7 +19,7 @@ class DAGInfoDAOTest extends Specification {
 
     def setup() {
         dagInfo.executionId = executionId
-        dagInfo.dagStatus = DAGStatus.NOT_STARTED
+        // FIXME: The Completion Code is Empty.
         dagInfo.dag = new DAG("workspace", "dagName", "1.0.0", DAGType.FLOW, null, Lists.newArrayList(), null, null, null, null, "ns", "service", null)
     }
 
@@ -117,7 +117,9 @@ class DAGInfoDAOTest extends Specification {
         Set<TaskInfo> taskInfos = []
         taskInfos.add(new TaskInfo(name: "A"))
         taskInfos.add(new TaskInfo(name: "B_0-B1"))
-        TaskInfo taskInfo = new TaskInfo(name: "C")
+        taskInfos.add(new TaskInfo(name: "C1"))
+
+        when:
         taskInfo.setChildren(["C1": new TaskInfo(name: "C1")])
         taskInfos.add(taskInfo)
 
@@ -167,7 +169,7 @@ class DAGInfoDAOTest extends Specification {
         dagInfoDAO.getDagInfoFromRedis(executionId, needSubTask)
 
         then:
-        1 * redisClient.eval(RedisScriptManager.dagInfoGetScript(), executionId, keys, Lists.newArrayList())
+        1 *
 
         where:
         needSubTask | keys

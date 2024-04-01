@@ -85,7 +85,7 @@ public class IpUtils {
     public static String intToIpv4(int ipInInt) {
         ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(ipInInt);
-        final byte[] array = buffer.array();
+        byte[] array = buffer.array();
         try {
             final InetAddress byAddress = InetAddress.getByAddress(array);
             return byAddress.getHostAddress();

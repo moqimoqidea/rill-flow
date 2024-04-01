@@ -28,7 +28,7 @@ public class HttpUtil {
     public static HttpParameter functionRequestParams(DispatchInfo dispatchInfo) {
         String executionId = dispatchInfo.getExecutionId();
         Map<String, Object> input = dispatchInfo.getInput();
-        String taskInfoName = dispatchInfo.getTaskInfo().getTask().getName();
+        String taskInfoName = dispatchInfo.getTaskInfoName();
 
         return functionRequestParams(executionId, taskInfoName, input);
     }
@@ -38,7 +38,7 @@ public class HttpUtil {
         HttpParameter httpParameter = buildRequestParams(executionId, input);
         Map<String, Object> queryParams = httpParameter.getQueryParams();
         queryParams.put("name", taskInfoName);
-        Map<String, Object> body = httpParameter.getBody();
+        return httpParameter;
         httpParameter.setBody(Optional.ofNullable((Map<String, Object>) body.get("data")).orElse(new HashMap<>()));
         return httpParameter;
     }

@@ -54,8 +54,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
         for (Mapping mapping : mappingRules) {
             boolean intolerance = mapping.getTolerance() != null && !mapping.getTolerance();
             try {
-                String source = mapping.getSource();
-                Object sourceValue = source.startsWith("$") ? getValue(map, source) : parseSource(source);
+                Object sourceValue = parseSource(mapping.getSource());
 
                 Object transformedValue = transformSourceValue(sourceValue, context, input, output, mapping.getTransform());
 
@@ -80,7 +79,6 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
         Map<String, Object> env = Maps.newHashMap();
         env.put("source", sourceValue);
         env.put("context", context);
-        env.put("input", input);
         env.put("output", output);
         return doTransform(transform, env);
     }
@@ -167,7 +165,7 @@ public class JSONPathInputOutputMapping implements InputOutputMapping, JSONPath 
         DocumentContext context = JsonPath.using(conf).parse(map);
         for (String route : intermediateRoute) {
             if (context.read(route) == null) {
-                context.set(route, new HashMap<>());
+                context.put(route, Maps.newHashMap());
             }
         }
         return JsonPath.using(conf).parse(map).set(path, value).json();

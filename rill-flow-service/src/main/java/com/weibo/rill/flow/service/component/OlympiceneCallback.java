@@ -98,7 +98,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
         logCompleteEvent(executionId, eventCode, eventData);
         logTaskCode(executionId, eventCode, eventData);
     }
-    
+
     private void logTaskCode(String executionId, int eventCode, DAGCallbackInfo eventData) {
         try {
             if (eventCode != DAGEvent.TASK_FAILED.getCode() &&
@@ -111,7 +111,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
                     .map(TaskInvokeMsg::getCode).orElse(null);
             if (StringUtils.isNotBlank(code)) {
                 ProfileActions.recordTaskCode(executionId, code, "total");
-                String baseTaskName = DAGWalkHelper.getInstance().getBaseTaskName(taskInfo.getName());
+                String baseTaskName = taskInfo.getTask().getCategory();
                 ProfileActions.recordTaskCode(executionId, code, baseTaskName);
                 // 记录prometheus
                 PrometheusActions.recordTaskCode(executionId, code, "total");
@@ -168,7 +168,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
             HttpParameter requestParams = buildRequestParams(callbackConfig, dagCallbackInfo);
             String url = httpInvokeHelper.buildUrl(new Resource(resourceName), requestParams.getQueryParams());
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpInvokeHelper.appendRequestHeader(httpHeaders, executionId, null);
+            httpHeaders.putAll(requestParams.getHeaders());
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestParams.getBody(), httpHeaders);
             int maxInvokeTime = switcherManagerImpl.getSwitcherState("ENABLE_FUNCTION_DISPATCH_RET_CHECK") ? 2 : 1;
             httpInvokeHelper.invokeRequest(executionId, null, url, requestEntity, HttpMethod.POST, maxInvokeTime);
@@ -203,7 +203,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
             body.put("dag_info", dagInfo);
         }
         if (Optional.ofNullable(callbackConfig.getFullContext()).orElse(false)) {
-            body.put("data", context);
+            body.put("context", context);
         }
 
         log.info("request body: {}", body);

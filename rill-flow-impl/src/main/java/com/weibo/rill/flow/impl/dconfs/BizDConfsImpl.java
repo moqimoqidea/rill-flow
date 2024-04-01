@@ -159,7 +159,8 @@ public class BizDConfsImpl implements BizDConfs {
         }
         resourceCheckIdToConfig.forEach((key, value) -> {
             try {
-                resourceCheckIdToConfigBean.put(key, SerializerUtil.deserialize(value.getBytes(StandardCharsets.UTF_8), ResourceCheckConfig.class));
+                ResourceCheckConfig resourceCheckConfig = SerializerUtil.deserialize(value.getBytes(StandardCharsets.UTF_8), ResourceCheckConfig.class);
+                resourceCheckIdToConfigBean.put(key, resourceCheckConfig);
             } catch (Exception e) {
                 log.warn("BizDConfs resourceCheckIdToConfigBean fails, key:{}, value:{}", key, value);
             }

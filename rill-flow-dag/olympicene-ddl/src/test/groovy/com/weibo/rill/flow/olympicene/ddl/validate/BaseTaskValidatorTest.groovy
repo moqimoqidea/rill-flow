@@ -95,7 +95,7 @@ class BaseTaskValidatorTest extends Specification {
         dagParser.parse(text)
 
         then:
-        def e = thrown(DDLException.class)
+        def e = thrown(ValidationException)
         e.errorCode == DDLErrorCode.DAG_DESCRIPTOR_INVALID.getCode()
     }
 

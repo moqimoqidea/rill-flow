@@ -40,7 +40,7 @@ public class TriggerController {
     private void initTriggers() {
         for (Map.Entry<String, Trigger> triggerEntry: triggerMap.entrySet()) {
             try {
-                triggerEntry.getValue().initTriggerTasks();
+                triggerEntry.getValue().init();
             } catch (Exception e) {
                 log.warn("init trigger error, trigger type: {}, ", triggerEntry.getKey(), e);
             }
@@ -58,7 +58,7 @@ public class TriggerController {
         if (trigger == null) {
             throw new TaskException(BizError.ERROR_PROCESS_FAIL, "do not support type: " + type);
         }
-        return trigger.addTriggerTask(uid, descriptorId, callback, resourceCheck, body);
+        String taskId = trigger.addTriggerTask(uid, descriptorId, callback, resourceCheck, body);
     }
 
     @PostMapping("/cancel_trigger.json")

@@ -190,7 +190,7 @@ public class DescriptorManager {
             }
             String descriptorRedisKey;
             if (thirdField.startsWith(MD5_PREFIX)) {
-                descriptorRedisKey = buildDescriptorRedisKey(businessId, featureName, thirdField.replaceFirst(MD5_PREFIX, StringUtils.EMPTY));
+                descriptorRedisKey = buildDescriptorRedisKey(businessId, featureName, thirdField);
             } else {
                 String alias = thirdField;
                 descriptorRedisKey = useCache ?
@@ -265,7 +265,7 @@ public class DescriptorManager {
                         Map<String, Object> env = Maps.newHashMap();
                         env.put("uid", aviatorUid);
                         env.put("input", aviatorInput);
-                        Expression expression = aviatorCache.getAviatorExpression(entry.getValue());
+                        env.put("alias", entry.getKey());
                         return (boolean) expression.execute(env);
                     } catch (Exception e) {
                         log.warn("getValueFromRuleMap execute fail, key:{}, value:{}", entry.getKey(), entry.getValue(), e);
@@ -439,7 +439,6 @@ public class DescriptorManager {
         Map<String, String> resourceNameToABRules = Maps.newHashMap();
         for (Map.Entry<String, String> resourceToRule : redisRet.entrySet()) {
             String resourceName = resourceToRule.getKey();
-            String rule = resourceToRule.getValue();
             if (StringUtils.isNotEmpty(rule) && rule.equals(DEFAULT)) {
                 defaultResourceName = resourceName.replaceFirst(DEFAULT, StringUtils.EMPTY);
             } else {
@@ -453,7 +452,7 @@ public class DescriptorManager {
     public String calculateResourceName(Long uid, Map<String, Object> input, String executionId, String configKey) {
         String businessId = ExecutionIdUtil.getBusinessId(executionId);
         Pair<String, Map<String, String>> functionAB = getFunctionAB(businessId, configKey);
-        String resourceName = getValueFromRuleMap(uid, input, functionAB.getRight(), functionAB.getLeft());
+        String defaultResourceName = functionAB.getLeft();
         log.info("calculateResourceName result resourceName:{} executionId:{} configKey:{}", resourceName, executionId, configKey);
         return resourceName;
     }
@@ -539,7 +538,9 @@ public class DescriptorManager {
 
     private String buildDescriptorId(String businessId, String featureName, String thirdPart) {
         List<String> ids = Lists.newArrayList(businessId, featureName);
-        Optional.ofNullable(thirdPart).ifPresent(ids::add);
+        if (StringUtils.isNotEmpty(thirdPart)) {
+            ids.add(thirdPart);
+        }
         return StringUtils.join(ids, ReservedConstant.COLON);
     }
 }

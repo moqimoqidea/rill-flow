@@ -169,7 +169,9 @@ public class BgController {
                 return;
             }
             Map<String, Object> context = (Map<String, Object>) result.get("context");
-            String traceId = new TraceableContextWrapper(context).getTraceId();
+            if (context == null) {
+                return;
+            }
             result.put("trace_url", traceQueryHost + "/trace/" + traceId);
         } catch (Exception e) {
             log.warn("append Trace Info error, original result:{}", result);
@@ -242,7 +244,7 @@ public class BgController {
     @RequestMapping(value = "get_business_options.json", method = RequestMethod.GET)
     public Map<String, Object> getBusinessOptions() {
         @SuppressWarnings("unchecked")
-        Set<String> businessIds = (Set<String>) dagDescriptorFacade.getBusiness().get(BUSINESS_IDS);
+        Set<String> businessIds = descriptorManager.getBusiness();
         return ImmutableMap.of(BUSINESS_IDS, businessIds.stream().map(item -> ImmutableMap.of("id", item, "name", item)).collect(Collectors.toList()));
     }
 }

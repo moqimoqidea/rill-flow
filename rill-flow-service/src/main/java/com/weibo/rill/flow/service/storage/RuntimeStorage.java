@@ -320,7 +320,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
     private boolean swapExist(String executionId) {
         try {
             String businessId = ExecutionIdUtil.getBusinessId(executionId);
-            return bizDConfs.getSwapBusinessIdToClientId().containsKey(businessId);
+            return bizDConfs.getStorageConfig().contains(businessId);
         } catch (Exception e) {
             log.warn("swapExist fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
             return false;

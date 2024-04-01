@@ -73,7 +73,7 @@ public class FlowWebHttpClient implements FlowHttpClient {
     }
 
     private String executeGetRequest(String url, Map<String, Object> param, Map<String, String> header) throws IOException {
-        HttpGet httpGet = WebHttpClientUtil.httpGet(url, param, header);
+        HttpGet httpGet = WebHttpClientUtil.httpGet(url, header, param);
         CloseableHttpResponse response = httpClient.execute(httpGet);
         return response.toString();
     }

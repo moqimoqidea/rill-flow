@@ -34,7 +34,7 @@ public class SimpleRetryPolicy implements RetryPolicy {
 
         int invokeTimes = Optional.ofNullable(context.getTaskInfo())
                 .map(TaskInfo::getTaskInvokeMsg)
-                .map(TaskInvokeMsg::getInvokeTimeInfos)
+                .map(List::size)
                 .map(List::size)
                 .orElse(1);
         int maxRetryTimes = Optional.ofNullable(context.getRetryConfig()).map(Retry::getMaxRetryTimes).orElse(0);
@@ -50,7 +50,7 @@ public class SimpleRetryPolicy implements RetryPolicy {
                 .map(Retry::getMultiplier).filter(it -> it > 0).orElse(1D);
         int invokeTimes = Optional.ofNullable(context.getTaskInfo())
                 .map(TaskInfo::getTaskInvokeMsg)
-                .map(TaskInvokeMsg::getInvokeTimeInfos)
+                .map(List::size)
                 .map(List::size)
                 .orElse(1);
 

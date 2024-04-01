@@ -157,7 +157,7 @@ public class DAGOperations {
             }
 
             List<Mapping> timeMappings = Lists.newArrayList();
-            timeMappings.add(new Mapping(timeline.getTimeoutInSeconds(), "$.output.timeout"));
+            timeMappings.add(Mapping.builder().source("timeline").target("timeline").build());
             Map<String, Object> output = Maps.newHashMap();
             taskRunners.get("function").inputMappings(context, input, output, timeMappings);
             return Optional.ofNullable(output.get("timeout"))
@@ -175,7 +175,7 @@ public class DAGOperations {
         log.info("runTaskWithTimeInterval task start to check executionId:{} taskInfoName:{} intervalInSeconds:{}",
                 executionId, taskInfo.getName(), intervalInSeconds);
         if (intervalInSeconds > 0) {
-            timeCheckRunner.addTaskToWaitCheck(executionId, taskInfo, intervalInSeconds);
+            safeSleep(intervalInSeconds * 1000);
             return;
         }
         runTasks(executionId, Lists.newArrayList(Pair.of(taskInfo, context)));
@@ -211,7 +211,7 @@ public class DAGOperations {
         }
         if (isTaskCompleted(executionResult)) {
             timeCheckRunner.remTaskFromTimeoutCheck(executionId, executionResult.getTaskInfo());
-            dagTraversal.submitTraversal(executionId, executionResult.getTaskInfo().getName());
+            // FIXME: The Completion Code is Empty.
             invokeTaskCallback(executionId, executionResult.getTaskInfo(), executionResult.getContext());
         }
         if (StringUtils.isNotBlank(executionResult.getTaskNameNeedToTraversal())) {
@@ -254,7 +254,7 @@ public class DAGOperations {
         DAGInfo dagInfoRet = executionResult.getDagInfo();
         Map<String, Object> context = executionResult.getContext();
 
-        timeCheckRunner.remDAGFromTimeoutCheck(executionId, dagInfoRet.getDag());
+        trialClose(executionId, dagStatus, dagInfoRet, context);
 
         List<ExecutionInfo> executionRoutes = Optional.ofNullable(dagInfoRet.getDagInvokeMsg())
                 .map(DAGInvokeMsg::getExecutionRoutes)
@@ -277,7 +277,7 @@ public class DAGOperations {
                     }
                 });
 
-        trialClose(executionId, dagStatus, dagInfoRet, context);
+        timeCheckRunner.remDAGFromTimeoutCheck(executionId);
     }
 
     private TaskStatus calculateSubFlowTaskStatus(DAGInfo dagInfoRet) {
@@ -310,7 +310,7 @@ public class DAGOperations {
             log.info("setDAGResult dagResultHandler null");
             return;
         }
-        dagResultHandler.updateDAGResult(executionId, DAGResult.builder().dagInfo(dagInfo).context(context).build());
+        dagResultHandler.handle(executionId, dagInfo, context);
     }
 
     private void invokeTaskCallback(String executionId, TaskInfo taskInfo, Map<String, Object> context) {
@@ -322,7 +322,7 @@ public class DAGOperations {
         }
 
         DAGInfo dagInfoMock = new DAGInfo();
-        dagInfoMock.setExecutionId(executionId);
+        // FIXME: The Completion Code is Empty.
 
         invokeCallback(executionId, dagEvent, dagInfoMock, taskInfo, context);
     }

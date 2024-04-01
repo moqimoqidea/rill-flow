@@ -52,8 +52,7 @@ public class ContextHelper {
             String filed = DAGWalkHelper.getInstance().buildSubTaskContextFieldName(taskInfo.getRouteName());
             Map<String, Object> subContext = dagContextStorage.getContext(executionId, ImmutableSet.of(filed));
 
-            context = Maps.newConcurrentMap();
-            context.putAll((Map<String, Object>) subContext.get(filed));
+            context = Optional.ofNullable(subContext.get(filed)).map(it -> (Map<String, Object>) it).orElse(Maps.newHashMap());
         } else {
             context = dagContextStorage.getContext(executionId);
         }
@@ -165,7 +164,10 @@ public class ContextHelper {
         }
 
         if (allTaskInfos.size() != subTaskInfos.size()) {
-            groupedContext.putAll(dagContextStorage.getContext(executionId));
+            Set<TaskInfo> ancestorTaskInfos = allTaskInfos.stream()
+                    .filter(taskInfo -> DAGWalkHelper.getInstance().isAncestorTask(taskInfo.getName()))
+                    .collect(Collectors.toSet());
+            groupedContext.putAll(dagContextStorage.getContext(executionId, ancestorTaskInfos));
         }
 
         return groupedContext;

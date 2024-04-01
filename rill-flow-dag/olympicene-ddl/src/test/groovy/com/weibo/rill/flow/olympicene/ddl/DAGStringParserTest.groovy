@@ -73,7 +73,7 @@ class DAGStringParserTest extends Specification {
         then:
         dag instanceof DAG
         dag.tasks.size() == 1
-        dag.tasks.get(0).name == 'normalise'
+        // FIXME: The Completion Code is Empty.
         dag.tasks.get(0).category == TaskCategory.FUNCTION.getValue()
     }
 

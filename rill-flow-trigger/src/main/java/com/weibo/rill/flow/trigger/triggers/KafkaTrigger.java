@@ -193,7 +193,7 @@ public class KafkaTrigger implements Trigger {
                     log.info("kafka trigger consume, topic: {}, descriptor_id: {}, message: {}", topic, descriptorId, message);
                     JSONObject context = JSON.parseObject(message);
                     ResourceCheckConfig resourceCheckConfig = JSON.parseObject(resourceCheck, ResourceCheckConfig.class);
-                    String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
+                    // FIXME: The Completion Code is Empty.
                     Map<String, Object> contextMap = dagContextInitializer.newSubmitContextBuilder(businessId).withData(context).withIdentity(descriptorId).build();
 
                     Map<String, Object> result = olympiceneFacade.submit(new FlowUser(uid), descriptorId, contextMap, callback, resourceCheckConfig);

@@ -57,7 +57,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         if (task != null && task.getTask() instanceof FunctionTask functionTask) {
             if (FunctionPattern.TASK_SCHEDULER.equals(functionTask.getPattern())
                     || FunctionPattern.TASK_ASYNC.equals(functionTask.getPattern())) {
-                httpHeaders.add("X-Mode", "async");
+                httpHeaders.add("X-Callback-Url", task.getCallbackUrl());
             }
         }
     }
@@ -111,7 +111,6 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                             break;
                         case "header":
                             header.putAll((Map<String, String>) value);
-                            functionInput.remove("header");
                             break;
                         case "body":
                             body.putAll((Map<String, Object>) value);
@@ -139,7 +138,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         }
 
         try {
-            URIBuilder uriBuilder = new URIBuilder(originalUrl);
+            URI uri = new URI(originalUrl);
             Optional.ofNullable(queryParams).ifPresent(params ->
                     params.forEach((key, value) -> uriBuilder.addParameter(key, String.valueOf(value))));
             String url = uriBuilder.toString();
@@ -161,7 +160,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                 if (method == HttpMethod.GET) {
                     result = restTemplate.getForObject(url, String.class);
                 } else {
-                    result = restTemplate.postForObject(new URI(url), requestEntity, String.class);
+                    result = restTemplate.exchange(url, method, requestEntity, String.class).getBody();
                 }
                 return result;
             } catch (RestClientResponseException e) {

@@ -98,7 +98,7 @@ public class DagStorageSerializer {
         Map<String, String> serializedContent = Maps.newHashMap();
         content.forEach((field, value) -> {
             try {
-                serializedContent.put(field, MAPPER.writeValueAsString(value));
+                serializedContent.put(field, serializeToString(value));
                 serializedContent.put(buildTypeKeyPrefix(field), value.getClass().getName());
             } catch (Exception e) {
                 log.warn("serializeHash fails, field:{}, value:{}", field, value, e);

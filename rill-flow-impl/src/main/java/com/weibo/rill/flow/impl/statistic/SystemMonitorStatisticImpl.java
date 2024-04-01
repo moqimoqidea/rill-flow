@@ -80,7 +80,6 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
                 updateExecutionStatus(executionId);
             } else if (notifyType == NotifyType.REDO) {
                 initExecutionStatus(executionId, serviceId);
-                updateExecutionStatus(executionId);
             }
 
             ProfileActions.recordDagTotalExecutionTime(executionCost, serviceId);
@@ -110,7 +109,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
     public void recordTaskCompliance(String executionId, TaskInfo taskInfo, boolean reached, long percentage) {
         String serviceId = ExecutionIdUtil.getServiceId(executionId);
         String categoryName = Optional.ofNullable(taskInfo).map(TaskInfo::getTask).map(BaseTask::getCategory).orElse(UNKNOWN);
-        String taskName = Optional.ofNullable(taskInfo).map(TaskInfo::getName).orElse(UNKNOWN);
+        String taskName = Optional.ofNullable(taskInfo).map(TaskInfo::getTask).map(BaseTask::getName).orElse(UNKNOWN);
         ProfileActions.recordTaskCompliance(serviceId, categoryName, taskName, reached, percentage);
         // 记录prometheus
         PrometheusActions.recordTaskCompliance(serviceId, categoryName, taskName, reached, percentage);
@@ -189,7 +188,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         }
 
         String totalCodeKey = totalCodeKey(serviceId);
-        Set<String> allCodes = runtimeRedisClients.zrange(totalCodeKey, totalCodeKey, 0, -1);
+        Set<String> allCodes = runtimeRedisClients.zrange(totalCodeKey, 0, -1);
         if (CollectionUtils.isEmpty(allCodes)) {
             return ret;
         }
@@ -231,7 +230,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.SUCCEED), executionId);
         runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.FAILED), executionId);
         String serviceKey = executionServiceKey(serviceId, ExecutionIdUtil.getSubmitTime(executionId));
-        String failCode = getRuntimeClient(serviceKey).hget(serviceKey, executionId);
+        String failCode = runtimeRedisClients.hget(serviceKey, executionId);
         if (StringUtils.isNotBlank(failCode)) {
             runtimeRedisClients.zrem(executionCodeKey(serviceId, failCode), executionId);
             runtimeRedisClients.hdel(serviceKey, executionId);
@@ -261,8 +260,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
             if (dagStatus != DAGStatus.RUNNING) {
                 runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.RUNNING), executionId);
             }
-            String statusKey = executionStatusKey(serviceId, dagStatus);
-            JedisFlowClient jedisFlowClient = getRuntimeClient(statusKey);
+            runtimeRedisClients.zadd(executionStatusKey(serviceId, dagStatus), submitTime, executionId);
             jedisFlowClient.pipelined().accept(pipeline -> {
                 pipeline.zadd(statusKey, submitTime, executionId);
                 pipeline.zremrangeByScore(statusKey, 0, minTime);
@@ -373,7 +371,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         public static void recordTaskCompliance(String serviceId, String category, String taskName, boolean reached, long percentage) {
             String countName = String.format(TASK_COMPLIANCE_FORMAT, category, serviceId, taskName);
             String percentageName = String.format(TASK_COMPLIANCE_PERCENTAGE_FORMAT, category, serviceId, taskName);
-            ProfileUtil.accessStatistic(DAG_TASK_COMPLIANCE, percentageName, System.currentTimeMillis(), percentage);
+            ProfileUtil.count(DAG_TASK_COMPLIANCE, countName, System.currentTimeMillis(), 1);
             ProfileUtil.count(DAG_TASK_COMPLIANCE, countName + "_" + (reached ? REACHED : NOT_REACHED), System.currentTimeMillis(), 1);
         }
 

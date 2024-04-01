@@ -46,7 +46,13 @@ public class LocalStorageProcedure implements DAGStorageProcedure {
                 throw new StorageException(StorageErrorCode.LOCK_TIMEOUT.getCode(), "lock fails");
             }
         } finally {
-            lockers.remove(lockName);
+            if (lock != null) {
+                try {
+                    lock.unlock();
+                } catch (Exception e) {
+                    log.warn("unlock {} failed. ", lockName, e);
+                }
+            }
             if (lock != null) {
                 try {
                     lock.unlock();

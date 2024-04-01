@@ -54,7 +54,7 @@ public class RedisCodecUtil {
         } else if (object instanceof String) {
             return (String) object;
         } else if (object instanceof byte[]) {
-            return TO_STRING.apply(object);
+            return new String((byte[]) object, StandardCharsets.UTF_8);
         } else {
             return object.toString();
         }
@@ -94,7 +94,6 @@ public class RedisCodecUtil {
             Map<K, V> result = new HashMap<>(list.size() / 2);
             for (int i = 0; i < list.size(); i += 2) {
                 Object keyElem = list.get(i);
-                Object valElem = list.get(i + 1);
 
                 try {
                     result.put(keyFunc.apply(keyElem), valFunc.apply(valElem));

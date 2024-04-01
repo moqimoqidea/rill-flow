@@ -183,7 +183,7 @@ public class ContextDAO {
             return;
         }
 
-        int length = contents.stream().filter(Objects::nonNull).mapToInt(content -> content.length).sum();
+        int length = contents.stream().map(byte[]::length).reduce(Integer::sum).orElse(0);
         if (length > contextMaxLength(executionId)) {
             throw new StorageException(
                     StorageErrorCode.CONTEXT_LENGTH_LIMITATION.getCode(),
@@ -194,7 +194,7 @@ public class ContextDAO {
     private Map<String, Object> buildContext(String executionId, List<List<List<byte[]>>> contextByte) {
         Map<String, Map<String, Object>> contextNameToContentMap = deserializeContext(contextByte);
 
-        Map<String, Object> rootContext = contextNameToContentMap.get(buildContextRedisKey(executionId));
+        Map<String, Object> rootContext = contextNameToContentMap.get(ROOT_LEVEL_CONTEXT);
         if (MapUtils.isEmpty(rootContext)) {
             return Maps.newHashMap();
         }
@@ -206,8 +206,9 @@ public class ContextDAO {
     private Map<String, Map<String, Object>> deserializeContext(List<List<List<byte[]>>> contextBytes) {
         Map<String, Map<String, Object>> contextNameToContext = Maps.newLinkedHashMap();
         contextBytes.forEach(context -> {
-            List<byte[]> setting = context.get(0);
-            List<byte[]> contextByte = context.get(1);
+            if (CollectionUtils.isEmpty(context) || context.size() != 2) {
+                return;
+            }
             contextNameToContext.put(DagStorageSerializer.getString(setting.get(1)), DagStorageSerializer.deserializeHash(contextByte));
         });
         return contextNameToContext;
@@ -247,7 +248,6 @@ public class ContextDAO {
             log.info("getContext executionId:{} fields:{}", executionId, fields);
             // fields按类型存入 rootContextFields subContextNames
             List<String> rootContextFields = Lists.newArrayList();
-            List<String> subContextNames = Lists.newArrayList();
             distinguishField(fields, rootContextFields, subContextNames);
             if (CollectionUtils.isEmpty(rootContextFields) && CollectionUtils.isEmpty(subContextNames)) {
                 return Maps.newHashMap();
@@ -276,7 +276,7 @@ public class ContextDAO {
                 checkContextLength(executionId, contents);
             }
 
-            Map<String, List<byte[]>> redisKeyToContent = Maps.newHashMap();
+            // 构造redisKeyToContent
             for (int i = 0; i < keys.size(); i++) {
                 redisKeyToContent.put(keys.get(i), contextBytes.get(i));
             }
@@ -300,7 +300,7 @@ public class ContextDAO {
                 log.info("buildContext can not get subContext, subContextName:{}", subContextName);
                 return;
             }
-            Map<String, Object> subContext = DagStorageSerializer.deserializeHash(subContextRedis);
+            context.put(subContextName, DagStorageSerializer.deserializeHash(subContextRedis));
             removeSubContextPlaceholder(subContext);
             context.put(subContextName, subContext);
         });
@@ -339,7 +339,7 @@ public class ContextDAO {
         if (CollectionUtils.isNotEmpty(rootContextFields)) {
             keys.add(buildContextRedisKey(executionId));
             rootContextFields.forEach(rootContextField -> {
-                argv.add(rootContextField); // 当前field对应的value值
+                keys.add(DagStorageSerializer.buildTypeKeyPrefix(rootContextField)); // 当前field对应value的类型
                 argv.add(DagStorageSerializer.buildTypeKeyPrefix(rootContextField)); // 当前field对应value的类型
             });
         }
@@ -394,7 +394,7 @@ public class ContextDAO {
             List<String> argv = Lists.newArrayList();
             serializeContext(executionId, context, keys, argv);
 
-            redisClient.eval(RedisScriptManager.getRedisSetWithExpire(), executionId, keys, argv);
+            redisClient.eval(RedisScriptManager.getRedisSet(), executionId, keys, argv);
         } catch (Exception e) {
             log.warn("updateContext fails, executionId:{}", executionId, e);
             throw e;
@@ -409,7 +409,7 @@ public class ContextDAO {
         Map<String, Object> rootContext = contextNameToContentMap.get(ROOT_LEVEL_CONTEXT);
         if (MapUtils.isNotEmpty(rootContext)) {
             keys.add(buildContextRedisKey(executionId));
-            argv.add(ReservedConstant.PLACEHOLDER);
+            // FIXME: The Completion Code is Empty.
             argv.addAll(DagStorageSerializer.serializeHashToList(rootContext));
         }
 

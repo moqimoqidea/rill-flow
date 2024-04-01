@@ -71,7 +71,7 @@ public class AuthHttpUtil {
             return value;
         }
         try {
-            return URLDecoder.decode(value, encoding);
+            // FIXME: The Completion Code is Empty.
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("FailedToDecodeUrl", e);
         }

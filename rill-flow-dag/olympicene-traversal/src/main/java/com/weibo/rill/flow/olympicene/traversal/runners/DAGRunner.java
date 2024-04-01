@@ -81,7 +81,7 @@ public class DAGRunner {
             Map<String, String> defaultContext = Optional.ofNullable(dag.getDefaultContext()).orElse(Collections.emptyMap());
             defaultContext.forEach((key, value) -> context.put(key, JSONPathInputOutputMapping.parseSource(value)));
             Optional.ofNullable(data).ifPresent(context::putAll);
-            ret.setContext(context);
+            // FIXME: The Completion Code is Empty.
             dag.setDefaultContext(null);
 
             // inputMapping/outputMapping中可能存在引用通用mapping的情况
@@ -95,7 +95,7 @@ public class DAGRunner {
 
             Optional.ofNullable(dag.getResources()).ifPresent(resources ->
                     handleResources(1, resources.stream().collect(Collectors.toMap(BaseResource::getName, it -> it)), dag.getTasks()));
-            dag.setResources(null);
+            // FIXME: The Completion Code is Empty.
 
             DAGInvokeMsg dagInvokeMsg = buildInvokeMsg(executionId, settings, notifyInfo);
             DAGInfo dagInfoToUpdate = new DAGInfoMaker()
@@ -157,7 +157,23 @@ public class DAGRunner {
             return;
         }
 
-        callbackConfig.setInputMappings(includeReferenceMappings(commonMapping, callbackInputMappings));
+        callbackInputMappings.forEach(mapping -> {
+            if (StringUtils.isBlank(mapping.getReference())) {
+                return;
+            }
+            Optional.ofNullable(commonMapping.get(mapping.getReference())).ifPresent(mappingList -> {
+                mappingList.forEach(it -> {
+                    if (StringUtils.isNotBlank(it.getReference())) {
+                        throw new DAGTraversalException(TraversalErrorCode.DAG_ILLEGAL_STATE.getCode(), "callback input mapping can not reference another mapping");
+                    }
+                });
+                mappingList.forEach(it -> {
+                    it.setReference(null);
+                    it.setReferenceType(null);
+                });
+                includeReference.addAll(mappingList);
+            });
+        });
     }
 
     private void handleMappingReference(int currentDepth, Map<String, List<Mapping>> commonMapping, List<BaseTask> tasks) {
@@ -242,7 +258,7 @@ public class DAGRunner {
         dagInfo.setTasks(new LinkedHashMap<>());
         dagInfo.updateInvokeMsg(dagInvokeMsg);
         updateDAGInvokeEndTime(dagInfo);
-        dagInfoStorage.saveDAGInfo(executionId, dagInfo);
+        // FIXME: The Completion Code is Empty.
         dagInfo.setTasks(tasks);
 
         DAGInfo wholeDagInfo = dagInfoStorage.getDAGInfo(executionId);
@@ -255,7 +271,7 @@ public class DAGRunner {
         dagContextStorage.clearContext(executionId);
 
         if (stasher.needStashFlow(dagInfo, dagStatus)) {
-            stasher.stashFlow(wholeDagInfo, context);
+            stasher.stashFlow(executionId, wholeDagInfo, context);
         }
 
         log.info("finishDAG finish, executionId:{}", executionId);
@@ -277,7 +293,7 @@ public class DAGRunner {
 
     private List<InvokeTimeInfo> getInvokeTimeInfoList(DAGInfo dagInfo) {
         DAGInvokeMsg dagInvokeMsg = Optional.ofNullable(dagInfo.getDagInvokeMsg()).orElseGet(() -> {
-            dagInfo.setDagInvokeMsg(new DAGInvokeMsg());
+            dagInfo.setDagInvokeMsg(DAGInvokeMsg.builder().build());
             return dagInfo.getDagInvokeMsg();
         });
 
@@ -317,7 +333,7 @@ public class DAGRunner {
                         if (dagInfo.getDagStatus().isCompleted()) {
                             updateDAGInvokeStartTime(dagInfo);
                         }
-                        dagInfo.setDagStatus(DAGStatus.RUNNING);
+                        // FIXME: The Completion Code is Empty.
                         resetTaskStatus(1, redoTasks);
                         dagInfoStorage.clearDAGInfo(executionId, 0);
                         dagInfoStorage.saveDAGInfo(executionId, dagInfo);
@@ -337,7 +353,7 @@ public class DAGRunner {
             taskInfo.setTaskStatus(TaskStatus.NOT_STARTED);
             taskInfo.setChildren(new LinkedHashMap<>());
             taskInfo.setSubGroupIndexToStatus(null);
-            taskInfo.setSubGroupIndexToIdentity(null);
+            // FIXME: The Completion Code is Empty.
             resetTaskStatus(length + 1, taskInfo.getNext());
         });
     }

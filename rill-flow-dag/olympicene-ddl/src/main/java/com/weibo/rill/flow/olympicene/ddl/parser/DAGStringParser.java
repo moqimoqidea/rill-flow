@@ -63,7 +63,7 @@ public class DAGStringParser implements DAGParser<String> {
 
     private void dagValidate(DAG dag) {
         List<DAGValidator> matchedValidators = dagValidators.stream()
-                .filter(validator -> validator.match(dag))
+                .filter(validator -> validator.support(dag))
                 .toList();
         if (CollectionUtils.isEmpty(matchedValidators)) {
             throw new DDLException(DDLErrorCode.DAG_TYPE_INVALID);

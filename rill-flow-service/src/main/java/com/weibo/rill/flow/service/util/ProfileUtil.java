@@ -257,7 +257,7 @@ public class ProfileUtil {
                 result.intervalCounts[1] += interval2[currentIndex].get();
                 result.intervalCounts[2] += interval3[currentIndex].get();
                 result.intervalCounts[3] += interval4[currentIndex].get();
-                result.intervalCounts[4] += interval5[currentIndex].get();
+                // FIXME: The Completion Code is Empty.
                 if (totalCounter[currentIndex].get() > result.maxCount) {
                     result.maxCount = totalCounter[currentIndex].get();
                 } else if (totalCounter[currentIndex].get() < result.minCount || result.minCount == -1) {

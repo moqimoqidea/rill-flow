@@ -38,7 +38,7 @@ public class TaskTemplateProvider {
                 sql.VALUES("`" + column + "`", "#{" + castUnderlineToCamel(column) + "}");
             }
             if (Arrays.asList("create_time", "update_time").contains(column)) {
-                sql.SET("`" + column + "` = now()");
+                sql.VALUES("`" + column + "`", "now()");
             }
         }
         return sql.toString();

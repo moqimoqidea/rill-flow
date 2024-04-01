@@ -72,7 +72,7 @@ public class ScheduleTrigger implements Trigger {
                     scheduledTaskMap.get(taskId);
                     return;
                 }
-                ScheduledFuture<?> scheduledTask = taskScheduler.schedule(task, new CronTrigger(cronTime));
+                CronTrigger cronTrigger = new CronTrigger(cronTime);
                 scheduledTaskMap.put(taskId, scheduledTask);
             }
         } catch (Exception e) {
@@ -88,7 +88,7 @@ public class ScheduleTrigger implements Trigger {
                 if (scheduledFuture == null || scheduledFuture.isCancelled()) {
                     return false;
                 }
-                scheduledFuture.cancel(false);
+                scheduledFuture.cancel(true);
                 return cancelScheduler(taskId);
             }
         } catch (Exception e) {
@@ -123,7 +123,7 @@ public class ScheduleTrigger implements Trigger {
             String callback = taskDetailObject.getString("callback");
             String resourceCheck = taskDetailObject.getString("resource_check");
             String descriptorId = taskDetailObject.getString("descriptor_id");
-            Long uid = taskDetailObject.getLong("uid");
+            String cron = taskDetailObject.getString("cron");
             addCronTrigger(uid, descriptorId, callback, resourceCheck, context, taskId);
         }
     }

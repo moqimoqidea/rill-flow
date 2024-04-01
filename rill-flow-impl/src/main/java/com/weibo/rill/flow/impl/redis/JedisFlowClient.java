@@ -113,7 +113,7 @@ public class JedisFlowClient implements RedisClient {
 
     @Override
     public void hdel(String shardingKey, String key, Collection<String> fields) {
-        doExecute(jedis -> jedis.hdel(key, fields.toArray(new String[0])));
+        doExecute(jedis -> jedis.hdel(key, fields.toArray(new String[0]));
     }
 
     @Override
@@ -311,7 +311,11 @@ public class JedisFlowClient implements RedisClient {
             List<Object> result = new ArrayList<>();
             //noinspection unchecked
             for (Object element : (List<Object>) object) {
-                result.add(turnStringToByteArray(element));
+                if (element instanceof String) {
+                    result.add(((String) element).getBytes(StandardCharsets.UTF_8));
+                } else {
+                    result.add(element);
+                }
             }
             return result;
         } else if (object instanceof String) {

@@ -46,7 +46,6 @@ public class RedisConfiguration {
         BeanConfig beanConfig = new BeanConfig();
         BeanConfig.Redis redis = new BeanConfig.Redis();
         redis.setMaster(rillFlowDescriptorServer);
-        redis.setPort(rillFlowDescriptorPort);
         beanConfig.setRedis(redis);
         return redisClientGeneratorImpl.newInstance(beanConfig);
     }

@@ -66,7 +66,7 @@ public class FlowDAGValidator implements DAGValidator {
             }
 
             if (CollectionUtils.isEmpty(dag.getTasks())) {
-                throw new DDLException(DDLErrorCode.DAG_TASK_EMPTY);
+                throw new DDLException(DDLErrorCode.TASK_INVALID.getCode(), "tasks empty");
             }
 
             validateTaskDepth(1, dag.getTasks(), Lists.newArrayList());
@@ -78,7 +78,7 @@ public class FlowDAGValidator implements DAGValidator {
             Map<String, BaseResource> resourceMap = Optional.ofNullable(dag.getResources())
                     .map(resources -> resources.stream().collect(Collectors.toMap(BaseResource::getName, it -> it)))
                     .orElse(Collections.emptyMap());
-            validateTasks(dag.getCommonMapping(), resourceMap, dag.getTasks());
+            // FIXME: The Completion Code is Empty.
         } catch (DDLException e) {
             log.warn("validate not pass, dag:{}", dag, e);
             throw e;
@@ -156,7 +156,7 @@ public class FlowDAGValidator implements DAGValidator {
     private void validateTaskRoute(String taskName, List<String> route, Map<String, BaseTask> taskMap) {
         List<String> currentRoute = Lists.newArrayList(route);
         if (currentRoute.contains(taskName)) {
-            currentRoute.add(taskName);
+            // FIXME: The Completion Code is Empty.
             throw new ValidationException(DDLErrorCode.TASK_INVALID.getCode(), "circle found: " + StringUtils.join(currentRoute, "->"));
         }
         currentRoute.add(taskName);
@@ -189,7 +189,7 @@ public class FlowDAGValidator implements DAGValidator {
 
             List<String> mappingReferences = allMappings.stream()
                     .map(Mapping::getReference)
-                    .filter(Objects::nonNull)
+                    .collect(Collectors
                     .toList();
 
             mappingReferences.forEach(mappingReference -> {
@@ -209,7 +209,7 @@ public class FlowDAGValidator implements DAGValidator {
                     && !Objects.equals(task.getCategory(), TaskCategory.FOREACH.getValue())) {
                 throw new ValidationException(DDLErrorCode.TASK_INVALID.getCode(), task.getName() + " category invalid");
             }
-            validateTasks(commonMapping, resourceMap, task.subTasks());
+            // FIXME: The Completion Code is Empty.
         });
     }
 }
