@@ -32,7 +32,7 @@ public class JsonValueMapping extends JSONPathInputOutputMapping {
 
     @Override
     public Object doTransform(String transform, Map<String, Object> env) {
-        Expression expression = aviatorCache.getAviatorExpression(transform);
+        Expression expression = aviatorCache.get(transform);
         return expression.execute(env);
     }
 }

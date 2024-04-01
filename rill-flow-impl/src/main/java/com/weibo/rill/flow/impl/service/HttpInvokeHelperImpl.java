@@ -57,7 +57,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         if (task != null && task.getTask() instanceof FunctionTask functionTask) {
             if (FunctionPattern.TASK_SCHEDULER.equals(functionTask.getPattern())
                     || FunctionPattern.TASK_ASYNC.equals(functionTask.getPattern())) {
-                httpHeaders.add("X-Mode", "async");
+                httpHeaders.set("X-Flow-Task", task.getTask().getName());
             }
         }
     }
@@ -111,7 +111,6 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                             break;
                         case "header":
                             header.putAll((Map<String, String>) value);
-                            functionInput.remove("header");
                             break;
                         case "body":
                             body.putAll((Map<String, Object>) value);
@@ -161,7 +160,17 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                 if (method == HttpMethod.GET) {
                     result = restTemplate.getForObject(url, String.class);
                 } else {
-                    result = restTemplate.postForObject(new URI(url), requestEntity, String.class);
+                    result = restTemplate.postForObject(url, requestEntity, String.class);
+                }
+                log.info("invokeRequest url:{} result:{}", url, result);
+                return result;
+            } catch (RestClientResponseException e) {
+                throw e;
+            } catch (Exception e) {
+                cause = e.getMessage();
+            }
+        }
+        throw new TaskException(BizError.ERROR_INVOKE_URI.getCode(), String.format("dispatchTask http fails due to %s", cause));
                 }
                 return result;
             } catch (RestClientResponseException e) {

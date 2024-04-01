@@ -60,7 +60,7 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
         MultiValueMap<String, String> header = dispatchInfo.getHeaders();
 
         try {
-            HttpParameter requestParams = httpInvokeHelper.functionRequestParams(executionId, taskInfoName, resource, input);
+            HttpParameter requestParams = new HttpParameter();
             Optional.of(requestParams)
                     .map(it -> requestParams.getHeader())
                     .ifPresent(header::setAll);

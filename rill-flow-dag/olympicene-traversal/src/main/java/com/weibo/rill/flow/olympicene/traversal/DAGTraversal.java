@@ -114,6 +114,16 @@ public class DAGTraversal {
             traversalNestedTasks(executionId, completedTaskName);
         }
     }
+    private void runTasks(String executionId, List<Pair<TaskInfo, Map<String, Object>>> taskInfoToContexts) {
+        // 若此处不设置为READY 则同一个任务可能触发多次执行
+        taskInfoToContexts.forEach(taskInfoMapPair -> {
+            TaskInfo taskInfo = taskInfoMapPair.getLeft();
+            if (stasher.needStash(executionId, taskInfo, taskInfoMapPair.getRight())) {
+                taskInfo.setTaskStatus(TaskStatus.STASHED);
+                String groupIndex = DAGWalkHelper.getInstance().getTaskInfoGroupIndex(taskInfo.getName());
+            }
+        }
+    }
 
     private void traversalAncestorTasks(String executionId) {
         DAGInfo dagInfo = dagInfoStorage.getBasicDAGInfo(executionId);
@@ -153,7 +163,7 @@ public class DAGTraversal {
 
         TaskStatus currentGroupStatus = DAGWalkHelper.getInstance().calculateTaskStatus(parent.getChildren().values());
         if (currentGroupStatus.isCompleted()) {
-            String groupIndex = DAGWalkHelper.getInstance().getTaskInfoGroupIndex(completedTaskName);
+            String groupIndex = DAGWalkHelper.getInstance().getTaskInfoGroupIndex(parent.getName());
             NotifyInfo notifyInfo = NotifyInfo.builder()
                     .taskInfoName(parent.getName())
                     .completedGroupIndex(groupIndex)
@@ -184,7 +194,9 @@ public class DAGTraversal {
         Set<TaskInfo> readyToRunTasks = taskInfoToContexts.stream()
                 .map(Pair::getLeft)
                 .collect(Collectors.toSet());
-        dagInfoStorage.saveTaskInfos(executionId, readyToRunTasks);
+        if (CollectionUtils.isNotEmpty(readyToRunTasks)) {
+            dagOperations.runTasks(executionId, taskInfoToContexts);
+        }
 
         Map<TaskStatus, List<Pair<TaskInfo, Map<String, Object>>>> classifiedTaskInfoToContexts = taskInfoToContexts.stream().collect(Collectors.groupingBy(it -> it.getLeft().getTaskStatus()));
 

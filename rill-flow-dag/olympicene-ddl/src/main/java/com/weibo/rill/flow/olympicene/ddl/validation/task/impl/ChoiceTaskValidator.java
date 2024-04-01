@@ -37,7 +37,6 @@ public class ChoiceTaskValidator implements TaskValidator<ChoiceTask> {
         assertTask(choiceTask, t -> "choice".equals(t.getCategory())
                 , DDLErrorCode.CHOICE_TASK_INVALID.getCode(), String.format(DDLErrorCode.CHOICE_TASK_INVALID.getMessage(), task.getName(), "category is invalid"));
         assertTask(choiceTask, t -> CollectionUtils.isNotEmpty(t.getChoices())
-                , DDLErrorCode.CHOICE_TASK_INVALID.getCode(), String.format(DDLErrorCode.CHOICE_TASK_INVALID.getMessage(), task.getName(), "choices is empty"));
     }
 
 }

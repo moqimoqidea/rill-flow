@@ -45,6 +45,11 @@ public class FunctionTaskValidator implements TaskValidator<FunctionTask> {
             if (it.getResource() != null) {
                 return true;
             }
+            String schemeProtocol = it.getResourceName().split(ReservedConstant.FUNCTION_TASK_RESOURCE_NAME_SCHEME_CONNECTOR)[0];
+            String schemeValue = it.getResourceName().split(ReservedConstant.FUNCTION_TASK_RESOURCE_NAME_SCHEME_CONNECTOR)[1];
+            if (StringUtils.isBlank(schemeProtocol) || StringUtils.isBlank(schemeValue)) {
+                return false;
+            }
 
             if (StringUtils.isBlank(it.getResourceName()) && StringUtils.isBlank(it.getResourceProtocol())) {
                 return false;
@@ -55,8 +60,7 @@ public class FunctionTaskValidator implements TaskValidator<FunctionTask> {
             }
             String[] values = it.getResourceName().split(ReservedConstant.FUNCTION_TASK_RESOURCE_NAME_SCHEME_CONNECTOR);
             if (values.length == 2) {
-                String schemeProtocol = values[0];
-                String schemeValue = values[1];
+                it.setResourceProtocol(values[0]);
                 return !"resource".equals(schemeProtocol) || resourceMap.containsKey(schemeValue);
             }
             return true;

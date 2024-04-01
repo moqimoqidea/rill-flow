@@ -66,7 +66,16 @@ public class DAGSubmitChecker {
             return null;
         }
         try {
-            return SerializerUtil.deserialize(resourceCheck.getBytes(StandardCharsets.UTF_8), ResourceCheckConfig.class);
+            return SerializerUtil.jsonToObject(resourceCheck, ResourceCheckConfig.class);
+        } catch (Exception e) {
+            throw new TaskException(BizError.ERROR_DATA_FORMAT, "resource_check content nonsupport");
+        }
+    }
+    public void check(String executionId, String resourceCheck) {
+        try {
+            doCheck(executionId, resourceCheck);
+        } catch (TaskException taskException) {
+            log.warn("submit executionId:{}, msg:{}", executionId, taskException.getMessage());
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, "resource_check content nonsupport");
         }
@@ -99,7 +108,9 @@ public class DAGSubmitChecker {
         }
 
         if (switcherManagerImpl.getSwitcherState("ENABLE_RUNTIME_SUBMIT_TRAFFIC_CONTROL")) {
-            trafficControl(executionId, serviceId, businessId);
+            if (!trafficRateLimiter.tryAcquire(executionId, serviceId, resourceCheckConfig.getTrafficRate())) {
+                throw new TaskException(BizError.ERROR_RUNTIME_TRAFFIC_RATE_LIMIT.getCode(), "runtime traffic rate limit");
+            }
         }
 
         FlowCheck flowCheck = flowRuntimeCheck(businessId, serviceId);
@@ -143,7 +154,7 @@ public class DAGSubmitChecker {
             return storageCheck;
         }
 
-        int currentUsagePercent = dagResourceStatistic.getRuntimeRedisUsagePercent(executionId, serviceId);
+        int currentUsagePercent = getRuntimeRedisUsagePercent(executionId, serviceId);
         storageCheck.setCurrentUsagePercent(currentUsagePercent);
 
         storageCheck.setUsageLimit(currentUsagePercent > maxUsagePercent);
@@ -162,7 +173,7 @@ public class DAGSubmitChecker {
                     bizDConfs.getRuntimeRedisStorageIdToMaxUsage().getOrDefault(businessId, bizDConfs.getRuntimeRedisCustomizedStorageMaxUsage()) : -1;
         }
 
-        return bizDConfs.getRuntimeRedisDefaultStorageMaxUsage();
+        return -1;
     }
 
     private ResourceCheck resourceStatusCheck(String serviceId, String businessId, ResourceCheckConfig resourceCheckConfig) {
@@ -185,7 +196,7 @@ public class DAGSubmitChecker {
             return Collections.emptySet();
         }
 
-        Collection<ResourceStatus> allResources = dagResourceStatistic.getDependentResources(serviceId).values();
+        Set<String> unsatisfiedResources = getLimitedResources(checkConfig, getDependentResourcesWithServiceId().getOrDefault(serviceId, new ConcurrentHashMap<>()));
         if (CollectionUtils.isEmpty(allResources)) {
             return Collections.emptySet();
         }
@@ -227,7 +238,7 @@ public class DAGSubmitChecker {
             return customizedConfig;
         }
 
-        return ResourceCheckConfig.builder().checkType(ResourceCheckConfig.CheckType.SHORT_BOARD).build();
+        return bizDConfs.getResourceCheckIdToConfigBean().get(bizDConfs.getDefaultResourceCheckId());
     }
 
     private void trafficControl(String executionId, String serviceId, String businessId) {

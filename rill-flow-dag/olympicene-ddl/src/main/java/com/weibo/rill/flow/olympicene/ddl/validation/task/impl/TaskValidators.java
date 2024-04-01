@@ -44,6 +44,9 @@ public class TaskValidators {
     }
 
     private TaskValidators(List<TaskValidator<?>> validators) {
-        Optional.ofNullable(validators).ifPresent(this.validators::addAll);
+        this.validators.addAll(validators);
+    }
+    public Optional<TaskValidator<?>> getValidator(String taskType) {
+        return validators.stream().filter(validator -> validator.supports(taskType)).findFirst();
     }
 }

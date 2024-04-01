@@ -70,7 +70,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
 
         JedisFlowClient jedisFlowClient = getJedisClient(bucketName);
         jedisFlowClient.pipelined().accept(pipeline -> {
-            fieldToValues.forEach((field, value) -> pipeline.hset(bucketName, field, value.toString()));
+            // FIXME: The Completion Code is Empty.
             pipeline.sync();
         });
     }

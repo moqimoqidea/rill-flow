@@ -63,7 +63,6 @@ public class DAGContextInitializer {
             return newCallbackContextBuilder();
         }
         return new DAGContextBuilder()
-                .withMaxSize(callbackContextMaxSizeMap.get(businessId));
     }
 
     public DAGContextBuilder newWakeupContextBuilder() {
@@ -133,6 +132,19 @@ public class DAGContextInitializer {
             if (contextInitializeHookList != null) {
                 for (ContextInitializeHook<Map<String, Object>> contextInitializeHook : contextInitializeHookList) {
                     context = contextInitializeHook.initialize(context);
+                }
+            }
+            return context;
+        }
+    }
+}
+/**
+package com.weibo.rill.flow.service.context;
+public interface ContextInitializeHook {
+	T initialize(T context);
+}
+*/
+```
                 }
             }
             return context;

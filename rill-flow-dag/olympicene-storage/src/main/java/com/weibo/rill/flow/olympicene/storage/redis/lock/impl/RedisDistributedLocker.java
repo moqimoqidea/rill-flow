@@ -54,7 +54,7 @@ public class RedisDistributedLocker implements Locker {
         while (true) {
             count++;
             Object redisLockObject = evalScript(REDIS_LOCK, List.of(lockName), List.of(lockAcquirerId, String.valueOf(expire)));
-            String ret = redisLockObject instanceof String? String.valueOf(redisLockObject): new String((byte[]) redisLockObject);
+            String ret = (String) redisLockObject;
             if (Objects.equals(ret, "OK")) {
                 break;
             }

@@ -51,7 +51,7 @@ public class TaskInfoMaker {
         Map<String, TaskInfo> taskInfoMap = baseTaskList.stream()
                 .filter(Objects::nonNull)
                 .map(baseTask -> makeTaskInfo(baseTask, index, parent))
-                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(TaskInfo::getName, it -> it));
                 .collect(Collectors.toMap(TaskInfo::getName, it -> it));
 
         appendNextAndDependencyTask(taskInfoMap);
@@ -63,13 +63,13 @@ public class TaskInfoMaker {
                 .filter(taskInfo -> taskInfo.getTask() != null && StringUtils.isNotEmpty(taskInfo.getTask().getNext()))
                 .forEach(taskInfo -> Arrays.stream(taskInfo.getTask().getNext().split(COMMA))
                         .map(baseTaskNext -> DAGWalkHelper.getInstance().buildTaskInfoName(taskInfo.getRouteName(), baseTaskNext))
-                        .map(taskInfoMap::get)
+                        .filter(taskInfoMap::containsKey)
                         .filter(Objects::nonNull)
                         .forEach(nextTaskInfo -> {
                             if (taskInfo.getNext() == null) {
                                 taskInfo.setNext(new LinkedList<>());
                             }
-                            taskInfo.getNext().add(nextTaskInfo);
+                            taskInfo.getNext().add(taskInfoMap.get(nextTaskInfo));
 
                             if (nextTaskInfo.getDependencies() == null) {
                                 nextTaskInfo.setDependencies(new LinkedList<>());
@@ -96,7 +96,7 @@ public class TaskInfoMaker {
         taskInfo.setTask(baseTask);
         taskInfo.setRouteName(DAGWalkHelper.getInstance().buildTaskInfoRouteName(Optional.ofNullable(parent).map(TaskInfo::getName).orElse(null), String.valueOf(index)));
         taskInfo.setName(DAGWalkHelper.getInstance().buildTaskInfoName(taskInfo.getRouteName(), baseTask.getName()));
-        taskInfo.setTaskStatus(TaskStatus.NOT_STARTED);
+        taskInfo.setStatus(TaskStatus.READY);
         taskInfo.setParent(parent);
         Optional.ofNullable(next).ifPresent(taskInfo::setNext);
         Optional.ofNullable(children).ifPresent(taskInfo::setChildren);

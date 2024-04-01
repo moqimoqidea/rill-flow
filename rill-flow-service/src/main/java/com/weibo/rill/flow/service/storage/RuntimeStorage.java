@@ -284,7 +284,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
                 throw e;
             }
 
-            T swapValue = getSwapValue(executionId, swapOperation);
+            log.warn("getAction fails, executionId:{}", executionId, e);
             if (isValueAcquired.apply(swapValue)) {
                 return swapValue;
             }
@@ -320,7 +320,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
     private boolean swapExist(String executionId) {
         try {
             String businessId = ExecutionIdUtil.getBusinessId(executionId);
-            return bizDConfs.getSwapBusinessIdToClientId().containsKey(businessId);
+            return bizDConfs.getSwitcherManager().isOn(businessId, ReservedConstant.SWITCHER_RUNTIME_SWAP);
         } catch (Exception e) {
             log.warn("swapExist fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
             return false;

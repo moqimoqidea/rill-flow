@@ -59,7 +59,7 @@ public class TaskTemplateController {
                                        @ApiParam(value = "节点类型") @RequestParam(value = "node_type", required = false) String nodeType,
                                        @ApiParam(value = "是否启用") @RequestParam(value = "enable", required = false) Integer enable) {
         TaskTemplateParams params = TaskTemplateParams.builder().id(id).name(name).category(category).type(type).nodeType(nodeType).enable(enable).build();
-        List<TaskTemplate> taskTemplatePageInfo = taskTemplateService.getTaskTemplates(params, page, pageSize);
+        List<TaskTemplate> taskTemplates = taskTemplateService.getTaskTemplates(params, page, pageSize);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data", taskTemplatePageInfo);
         return jsonObject;

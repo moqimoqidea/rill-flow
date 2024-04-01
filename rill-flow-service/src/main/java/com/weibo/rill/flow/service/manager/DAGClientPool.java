@@ -62,10 +62,10 @@ public class DAGClientPool implements ApplicationContextAware {
     private final Map<String, RestTemplate> httpClientIdToRestTemplate = Maps.newConcurrentMap();
 
     private ApplicationContext applicationContext;
-    
+
     @Autowired
     private List<BeanGenerator<?>> beanGenerators;
-    
+
     @Autowired
     @Qualifier("clientPoolExecutor")
     private ExecutorService clientPoolExecutor;
@@ -79,6 +79,14 @@ public class DAGClientPool implements ApplicationContextAware {
                     ExecutorService.class,
                     RUNTIME_STORAGE_CLIENT_EXECUTOR_BEAN_PREFIX
             );
+        }
+    }
+
+    public static int max(int a, int b) {
+        if (a >= b) {
+            return a;
+        } else {
+            return b;
         }
     }
 
@@ -98,7 +106,14 @@ public class DAGClientPool implements ApplicationContextAware {
 
     public void updateClientIdToRestTemplate(Map<String, BeanConfig> httpConfig) {
         synchronized (HTTP_LOCK) {
-            updateClientMap(httpConfig, httpClientIdToRestTemplate, RestTemplate.class, HTTP_CLIENT_REST_TEMPLATE_BEAN_PREFIX);
+            updateClientMap(httpConfig, httpClientIdToRestTemplate,
+                    RestTemplate.class, HTTP_CLIENT_REST_TEMPLATE_BEAN_PREFIX);
+        }
+    }
+    private <T> void updateClientMap(Map<String, BeanConfig> configMap, Map<String, ? super T> clientMap,
+                                     Class<T> clientType, String beanNamePrefix) {
+        if (MapUtils.isEmpty(configMap)) {
+            log.info("updateClientMap config map empty beanNamePrefix:{}", beanNamePrefix);
         }
     }
 
@@ -143,7 +158,9 @@ public class DAGClientPool implements ApplicationContextAware {
 
     private void registerBean(String beanName, Object beanObject) {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-        beanFactory.registerSingleton(beanName, beanObject);
+        if (beanFactory.containsBean(beanName)) {
+            log.info("registerBean skip, already exist beanName:{}", beanName);
+        }
     }
 
     @SuppressWarnings("unchecked")

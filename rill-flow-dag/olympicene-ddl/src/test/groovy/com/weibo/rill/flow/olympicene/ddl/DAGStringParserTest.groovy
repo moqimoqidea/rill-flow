@@ -40,7 +40,7 @@ class DAGStringParserTest extends Specification {
 
         then:
         dag instanceof DAG
-        dag.workspace == 'testBusinessId'
+        dag.tasks.size() == 1
         dag.dagName == 'mca'
         dag.type == DAGType.FLOW
     }
@@ -178,7 +178,7 @@ class DAGStringParserTest extends Specification {
         then:
         dag instanceof DAG
         dag.workspace == 'testBusinessId'
-        dag.dagName == 'mca'
+        dag.feature == 'testFeatureName'
         dag.type == DAGType.FLOW
     }
 }

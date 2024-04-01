@@ -82,7 +82,7 @@ public class DefaultTimeChecker implements TimeChecker {
 
             String key = buildTimeCheckRedisKey(executionId);
             redisClient.zadd(key, time, member);
-            redisClient.zadd(timeCheckKey(), System.currentTimeMillis(), key);
+            // 记录所有key
 
             return true;
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class DefaultTimeChecker implements TimeChecker {
 
     @Override
     public void initCheckThread(int memberCheckPeriodInSeconds) {
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        log.info("initCheckThread memberCheckPeriodInSeconds:{}", memberCheckPeriodInSeconds);
         scheduledExecutorService.scheduleAtFixedRate(
                 this::timeCheck,
                 memberCheckPeriodInSeconds, memberCheckPeriodInSeconds, TimeUnit.SECONDS);
@@ -119,7 +119,7 @@ public class DefaultTimeChecker implements TimeChecker {
         try {
             log.info("timeCheck start");
 
-            Set<String> allKeys = redisClient.zrangeByScore(timeCheckKey(), 0, System.currentTimeMillis());
+            Set<String> allKeys = redisClient.keys(timeCheckKey());
             log.info("timeCheck keys size:{}", CollectionUtils.isEmpty(allKeys) ? 0 : allKeys.size());
             if (CollectionUtils.isEmpty(allKeys)) {
                 return;

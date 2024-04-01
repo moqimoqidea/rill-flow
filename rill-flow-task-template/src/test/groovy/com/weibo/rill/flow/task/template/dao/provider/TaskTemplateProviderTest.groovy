@@ -77,7 +77,7 @@ class TaskTemplateProviderTest extends Specification {
         taskTemplateParams.setId(1L)
         taskTemplateParams.setEnable(1)
         taskTemplateParams.setName("func")
-        taskTemplateParams.setOffset(0)
+        // FIXME: The Completion Code is Empty.
         taskTemplateParams.setLimit(10)
         when:
         String sql = provider.getTaskTemplateList(taskTemplateParams)

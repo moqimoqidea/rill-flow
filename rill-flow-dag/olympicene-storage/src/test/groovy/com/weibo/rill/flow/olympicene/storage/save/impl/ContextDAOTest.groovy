@@ -19,7 +19,7 @@ class ContextDAOTest extends Specification {
 
         then:
         def e = thrown(StorageException)
-        e.getErrorCode() == StorageErrorCode.CLASS_TYPE_NONSUPPORT.getCode()
+        e.errorCode == StorageErrorCode.CONTEXT_VALUE_TYPE_ERROR
     }
 
     def "updateContext support subContext"() {
@@ -104,7 +104,7 @@ class ContextDAOTest extends Specification {
         when:
         List<String> rootContextFields = []
         List<String> subContextNames = []
-        contextDAO.distinguishField(["A", "B", "__C"], rootContextFields, subContextNames)
+        contextDAO.distinguishField(["A": "value", "__C": ["__D": "value"]], rootContextFields, subContextNames)
 
         then:
         rootContextFields == ["A", "B"]

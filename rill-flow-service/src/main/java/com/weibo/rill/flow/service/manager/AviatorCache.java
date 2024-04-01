@@ -64,3 +64,13 @@ public class AviatorCache {
         }
     }
 }
+/*
+ *  Copyright 2021-2023 Weibo, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "
+        } catch (ExecutionException e) {
+            log.warn("getAviatorExpression fails, script:{}", script, e);
+            throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "get aviator script expression fails");
+        }
+    }
+}

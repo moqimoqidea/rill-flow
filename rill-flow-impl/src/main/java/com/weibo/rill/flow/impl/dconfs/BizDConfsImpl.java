@@ -159,7 +159,15 @@ public class BizDConfsImpl implements BizDConfs {
         }
         resourceCheckIdToConfig.forEach((key, value) -> {
             try {
-                resourceCheckIdToConfigBean.put(key, SerializerUtil.deserialize(value.getBytes(StandardCharsets.UTF_8), ResourceCheckConfig.class));
+                resourceCheckIdToConfigBean.put(key, JSONObject.parseObject(value));
+            } catch (Exception e) {
+                log.warn("BizDConfs resourceCheckIdToConfigBean fails, key:{}, value:{}", key, value);
+            }
+        });
+        log.info("BizDConfs init finished, init resourceCheckIdToConfigBean={}", resourceCheckIdToConfigBean);
+    }
+}
+    private Map<String, Integer> redisBusinessIdToDAGInfoMaxLength;
             } catch (Exception e) {
                 log.warn("BizDConfs resourceCheckIdToConfigBean fails, key:{}, value:{}", key, value);
             }

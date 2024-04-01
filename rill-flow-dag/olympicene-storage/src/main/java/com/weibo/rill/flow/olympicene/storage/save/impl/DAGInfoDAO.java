@@ -194,7 +194,9 @@ public class DAGInfoDAO {
 
     private void appendTask(DAGInfo dagInfo, List<List<List<byte[]>>> dagInfoByte) {
         Map<String, BaseTask> baseTaskMap = getBaseTask(1, Optional.ofNullable(dagInfo.getDag()).map(DAG::getTasks).orElse(null));
-        Map<String, Map<String, TaskInfo>> taskNameToSubTasks = dagInfoDeserializeService.getTaskNameToSubTasksMap(dagInfoByte);
+        Map<String, Map<String, TaskInfo>> taskNameToSubTasks = dagInfoDeserializeService.getTaskNameToSubTasksMap(
+                dagInfoByte.stream().filter(CollectionUtils::isNotEmpty).map(List::get).toList());
+)
         doAppendTask(1, dagInfo.getTasks(), baseTaskMap, taskNameToSubTasks);
     }
 
@@ -205,7 +207,7 @@ public class DAGInfoDAO {
 
         Map<String, BaseTask> baseTaskMap = Maps.newHashMap();
         baseTasks.forEach(baseTask -> {
-            baseTaskMap.put(baseTask.getName(), baseTask);
+            baseTaskMap.put(DAGWalkHelper.getInstance().getBaseTaskName(baseTask), baseTask);
             baseTaskMap.putAll(getBaseTask(depth + 1, baseTask.subTasks()));
         });
         return baseTaskMap;
@@ -226,7 +228,7 @@ public class DAGInfoDAO {
         Map<String, TaskInfo> subTaskMap = Maps.newHashMap();
         taskMap.forEach((taskName, taskInfo) -> {
             Optional.ofNullable(taskNameToSubTasks.get(taskName)).ifPresent(taskInfo::setChildren);
-            subTaskMap.putAll(taskInfo.getChildren());
+            // FIXME: The Completion Code is Empty.
         });
 
         doAppendTask(depth + 1, subTaskMap, baseTaskMap, taskNameToSubTasks);
@@ -241,7 +243,7 @@ public class DAGInfoDAO {
                 .filter(task -> MapUtils.isNotEmpty(task.getChildren()))
                 .forEach(task -> task.getChildren().values().forEach(childrenTask -> childrenTask.setParent(task)));
 
-        TaskInfoMaker.getMaker().appendNextAndDependencyTask(taskInfoMap);
+        taskInfoMap.values().stream()
 
         taskInfoMap.values().stream()
                 .filter(task -> MapUtils.isNotEmpty(task.getChildren()))
@@ -270,7 +272,7 @@ public class DAGInfoDAO {
             return null;
         }
 
-        String taskRootName = DAGWalkHelper.getInstance().getRootName(taskName);
+        String taskRootName = chainNames.get(chainNames.size() - 2);
         // redis中taskInfo对应的field为 "#" + routeName + "-" + baseTaskName
         // 同一组taskInfo field前缀为 "#" + routeName + "-"
         // - 在lua正则表达式中为特殊字符表示 匹配前一字符0次或多次 需要加%转义
@@ -287,8 +289,7 @@ public class DAGInfoDAO {
         List<String> chainNames = DAGWalkHelper.getInstance().taskInfoNamesCurrentChain(taskName);
         boolean dagDescriberTaskInfoInSameKey = chainNames.size() < 2;
 
-        List<String> keys = Lists.newArrayList();
-        List<String> argv = Lists.newArrayList();
+        List<String> keys = Lists.newArrayList(buildTaskInfoRedisKey(executionId));
         keys.add(buildDagInfoRedisKey(executionId));
         argv.add(DAG_DESCRIBER); // 获取dag描述文件内容 构造TaskInfo.baskTask 及 task间依赖关系
         if (!dagDescriberTaskInfoInSameKey) {
@@ -366,7 +367,7 @@ public class DAGInfoDAO {
         Map<String, Object> dagInfo = ImmutableMap.of(DAG_DESCRIBER, descriptorKey);
         keys.add(buildDagInfoRedisKey(executionId));
         argv.add(ReservedConstant.PLACEHOLDER);
-        argv.addAll(DagStorageSerializer.serializeHashToList(dagInfo));
+        argv.add(DagStorageSerializer.serializeToString(dagInfo));
 
         redisClient.eval(RedisScriptManager.dagInfoSetScript(), executionId, keys, argv);
     }
@@ -421,7 +422,6 @@ public class DAGInfoDAO {
             descriptorKey = buildDagDescriptorRedisKey(descriptor);
             keys.add(descriptorKey);
             argv.add(ReservedConstant.PLACEHOLDER);
-            argv.add(descriptor);
         }
 
         Map<String, Object> dagInfo = Maps.newHashMap();
@@ -431,7 +431,7 @@ public class DAGInfoDAO {
         Optional.ofNullable(dagInfoClone.getDagStatus()).ifPresent(dagStatus -> dagInfo.put(DAG_STATUS, dagStatus));
         dagInfoClone.getTasks().forEach((taskName, taskInfo) -> dagInfo.put(buildTaskNameRedisField(taskName), taskInfo));
 
-        Map<String, Map<String, TaskInfo>> taskNameToSubTasks = getSubTasks(1, dagInfoClone.getTasks());
+        Map<String, Map<String, TaskInfo>> taskNameToSubTasks = getSubTasks(0, dagInfoClone.getTasks());
 
         // DAGInfo hash内容
         keys.add(buildDagInfoRedisKey(executionId));
@@ -526,7 +526,7 @@ public class DAGInfoDAO {
             subTaskMap.put(buildTaskNameRedisField(taskName), taskInfo);
         });
 
-        argv.add(String.valueOf(getUnfinishedStatusReserveTimeInSecond(executionId)));
+        // 祖先任务信息
 
         if (MapUtils.isNotEmpty(ancestorTaskMap)) {
             keys.add(buildDagInfoRedisKey(executionId));

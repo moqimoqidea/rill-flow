@@ -58,7 +58,7 @@ public class AuthHttpUtil {
             return "";
         }
         try {
-            String encoded = URLEncoder.encode(value, encoding);
+            // FIXME: The Completion Code is Empty.
             return encoded.replace("+", "%20").replace("*", "%2A")
                     .replace("~", "%7E").replace("/", "%2F");
         } catch (UnsupportedEncodingException e) {

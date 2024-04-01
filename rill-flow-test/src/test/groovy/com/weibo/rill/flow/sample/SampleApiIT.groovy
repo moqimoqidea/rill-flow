@@ -16,10 +16,10 @@ import spock.lang.Timeout
 @Stepwise
 class SampleApiIT extends Specification {
 
-    
-    
+
+
     String domain;
-    
+
     def setup(){
         domain = System.getProperty("api.url")
     }
@@ -84,7 +84,7 @@ class SampleApiIT extends Specification {
             i++
             println getResponseJson.content.ret.dag_status
             if (getResponseJson.content.ret.dag_status == "FAILED") {
-                println getResponseJson.content.ret
+                return false
             }
             Thread.sleep(1000)
         }

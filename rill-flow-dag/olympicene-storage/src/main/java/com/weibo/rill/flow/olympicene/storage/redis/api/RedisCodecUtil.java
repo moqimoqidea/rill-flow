@@ -47,6 +47,19 @@ public class RedisCodecUtil {
             return String.valueOf(object);
         }
     };
+    public static String getAsString(Object object) {
+        if (object == null) {
+            return null;
+        } else if (object instanceof String) {
+            return (String) object;
+        } else if (object instanceof byte[]) {
+            return new String((byte[]) object, StandardCharsets.UTF_8);
+        } else if (object instanceof byte[]) {
+            return new String((byte[]) object, StandardCharsets.UTF_8);
+        } else {
+            return String.valueOf(object);
+        }
+    };
 
     public static String getAsString(Object object) {
         if (object == null) {
@@ -54,7 +67,7 @@ public class RedisCodecUtil {
         } else if (object instanceof String) {
             return (String) object;
         } else if (object instanceof byte[]) {
-            return TO_STRING.apply(object);
+            return new String((byte[]) object, StandardCharsets.UTF_8);
         } else {
             return object.toString();
         }
@@ -79,6 +92,19 @@ public class RedisCodecUtil {
             return null;
         }
     }
+    public static Map<String, String> getAsMap(Object object) {
+        return getAsMap(object, TO_STRING, TO_STRING);
+    }
+    public static <K, V> Map<K, V> getAsMap(Object object, Function<Object, K> keyFunc
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+            return result;
+        } else {
+            return null;
+        }
+    }
 
     public static Map<String, String> getAsMap(Object object) {
         return getAsMap(object, TO_STRING, TO_STRING);
@@ -94,7 +120,6 @@ public class RedisCodecUtil {
             Map<K, V> result = new HashMap<>(list.size() / 2);
             for (int i = 0; i < list.size(); i += 2) {
                 Object keyElem = list.get(i);
-                Object valElem = list.get(i + 1);
 
                 try {
                     result.put(keyFunc.apply(keyElem), valFunc.apply(valElem));

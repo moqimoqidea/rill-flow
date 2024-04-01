@@ -115,6 +115,15 @@ public class JedisFlowClient implements RedisClient {
     public void hdel(String shardingKey, String key, Collection<String> fields) {
         doExecute(jedis -> jedis.hdel(key, fields.toArray(new String[0])));
     }
+    @Override
+    public void hdel(String shardingKey, String key, String... fields) {
+        doExecute(jedis -> jedis.hdel(key, fields));
+    }
+    @Override
+    public Long hincrBy(byte[] key, byte[] field, long value) {
+        return doExecute(jedis -> jedis.hincrBy(key, field, value));
+
+    }
 
     @Override
     public Long expire(String key, int seconds) {
@@ -320,6 +329,22 @@ public class JedisFlowClient implements RedisClient {
             return object;
         }
     }
+    @Override
+    public Long hdel(String key, String... fields) {
+        return doExecute(jedis -> jedis.hdel(key, fields));
+    }
+    @Override
+    public Long zremrangeByScore(String key, double min, double max) {
+        return doExecute(jedis -> jedis.zremrangeByScore(key, min, max));
+    }
+            }
+            return result;
+        } else if (object instanceof String) {
+            return ((String) object).getBytes(StandardCharsets.UTF_8);
+        } else {
+            return object;
+        }
+    }
 
     @Override
     public Set<String> hkeys(String key) {
@@ -330,6 +355,19 @@ public class JedisFlowClient implements RedisClient {
         return ((Consumer<Pipeline> consumer) -> doExecute(jedis -> {
             try (Pipeline pipeline = jedis.pipelined()) {
                 consumer.accept(pipeline);
+            } catch (Exception e) {
+                throw new JedisException("Failed to execute pipeline", e);
+            }
+        }));
+    }
+    @Override
+    public Long zremrangeByRank(String key, long start, long end) {
+        return doExecute(jedis -> jedis.zremrangeByRank(key, start, end));
+    }
+    @Override
+    public Set<Pair<String, Double>> zrevrangeWithScores(String shardingKey, String key, long start, long end) {
+        return zrevrangeWithScores(key, start, end);
+    }
             }
             return 0;
         }));

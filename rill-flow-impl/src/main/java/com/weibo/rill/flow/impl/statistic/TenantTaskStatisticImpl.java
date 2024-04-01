@@ -95,7 +95,6 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
 
         String baseTaskName = DAGWalkHelper.getInstance().getBaseTaskName(taskInfoName);
         String serviceId = ExecutionIdUtil.getServiceId(executionId);
-        String businessId = ExecutionIdUtil.getBusinessIdFromServiceId(serviceId);
 
         Optional.ofNullable(bizDConfs.getTenantDefinedTaskInvokeProfileLog())
                 .map(it -> it.get(businessId))
@@ -147,7 +146,9 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
 
             if (Objects.equals(taskCategory, TaskCategory.FUNCTION.getValue())) {
                 String resourceName = ((FunctionTask) taskInfo.getTask()).getResourceName();
-                businessResourceCount(resourceName, businessKey, serviceId);
+                if (StringUtils.isBlank(resourceName)) {
+                    return;
+                }
             }
         } catch (Exception e) {
             log.warn("taskRunCount fails, executionId:{}, taskName:{}, errorMsg:{}",
@@ -183,7 +184,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
             String serviceId = ExecutionIdUtil.getServiceId(executionId);
             String dagSubmitField = String.format("%s_dag_submit_count", serviceId);
 
-            AtomicLong submitCountIncr = getIncrValue(Pair.of(businessKey, dagSubmitField));
+            AtomicLong dagSubmitCountIncr = getIncrValue(Pair.of(businessKey, dagSubmitField));
             submitCountIncr.incrementAndGet();
         } catch (Exception e) {
             log.warn("dagSubmitCount fails, executionId:{}", executionId, e);
@@ -204,7 +205,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
                 return;
             }
             businessResourceTime(executionId, waitTime, executionTime);
-            flowResourceTime(executionId, waitTime, executionTime);
+            String businessKey = buildBusinessKey(executionId);
         } catch (Exception e) {
             log.warn("finishNotifyCount fails, executionId:{}", executionId, e);
         }

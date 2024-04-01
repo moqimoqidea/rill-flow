@@ -104,7 +104,7 @@ public class ProfileActions {
         try {
             int index = url.indexOf('?');
             String urlPath = index < 0 ? url : url.substring(0, index);
-            ProfileType type = is200 ? HTTP_200 : HTTP_400_500;
+            String type = is200 ? HTTP_SUCCESS : HTTP_FAIL;
             String name = String.format(HTTP_EXECUTION_FORMAT, urlPath, ExecutionIdUtil.getServiceId(id));
             ProfileUtil.accessStatistic(type, name, System.currentTimeMillis(), costTimeMillis);
         } catch (Exception e) {
@@ -117,7 +117,7 @@ public class ProfileActions {
         try {
             String serviceId = ExecutionIdUtil.getServiceId(executionId);
             String name = String.format(TINY_DAG_FORMAT, serviceId);
-            ProfileUtil.count(DAG, name, System.currentTimeMillis(), 1);
+            ProfileUtil.count(DAG_COMPLETE, name, System.currentTimeMillis(), 1);
         } catch (Exception e) {
             log.warn("recordTinyDAGSubmit fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
         }

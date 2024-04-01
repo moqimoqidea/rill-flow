@@ -62,6 +62,8 @@ public class OkHttpClientFactoryBean implements FactoryBean<OkHttpClient> {
 
         if (null != connectionPool) {
             builder.connectionPool(connectionPool);
+        } else {
+            // // TODO: 2021/9/30  // TODO: 2021/9/30  // TODO: 2021/9/30  // TODO: 2021/9/30  // TODO: 2021/9/30  // TODO:
         }
 
         return builder.build();

@@ -88,7 +88,7 @@ public class FunctionTaskDispatcher implements DAGDispatcher {
             if (functionTask.getResource() != null) {
                 log.info("handle task by function resource, executionId:{} taskName:{}",
                         dispatchInfo.getExecutionId(), dispatchInfo.getTaskInfo().getName());
-                return protocolDispatcherMap.get("resource").handle(null, dispatchInfo);
+                return resourceNameProcess(dispatchInfo, functionTask);
             }
 
             return resourceNameProcess(dispatchInfo, functionTask);
@@ -109,7 +109,9 @@ public class FunctionTaskDispatcher implements DAGDispatcher {
             Long uid = Optional.ofNullable(input.get("uid"))
                     .map(it -> Long.parseLong(String.valueOf(it)))
                     .orElse(0L);
-            String calculatedResourceName = descriptorManager.calculateResourceName(uid, input, executionId, resource.getSchemeValue());
+            if (uid == 0) {
+                throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), "handle functionPattern uid is null");
+            }
             resource = new Resource(calculatedResourceName);
             updateResourceName(executionId, calculatedResourceName, dispatchInfo.getTaskInfo());
         }
@@ -133,7 +135,7 @@ public class FunctionTaskDispatcher implements DAGDispatcher {
                 taskInvokeMsg.setExt(new HashMap<>());
                 return taskInvokeMsg.getExt();
             });
-            ext.put("calculated_resource_name", calculatedResourceName);
+            ext.put("resourceName", calculatedResourceName);
         } catch (Exception e) {
             log.warn("updateResourceName fails, executionId:{}, calculatedResourceName:{}, taskInfoName:{}, errorMsg:{}",
                     executionId, calculatedResourceName, Optional.ofNullable(taskInfo).map(TaskInfo::getName).orElse(null), e.getMessage());

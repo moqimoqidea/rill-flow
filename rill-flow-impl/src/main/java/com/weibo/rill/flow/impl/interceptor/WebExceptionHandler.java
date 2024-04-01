@@ -68,8 +68,12 @@ public class WebExceptionHandler {
             log.warn("bad framework request, MissingServletRequestParameterException. errorMsg:{}", ex.getMessage());
             return HttpResponse.error(BizError.ERROR_DATA_FORMAT.getCode(), ex.getMessage());
         } else if (ex instanceof HttpMessageNotReadableException) {
-            log.warn("bad framework request, HttpMessageNotReadableException. errorMsg:{}", ex.getMessage());
+            log.warn("bad framework request, HttpMessageNotReadableException.", ex);
             return HttpResponse.error(BizError.ERROR_DATA_FORMAT.getCode(), ex.getMessage());
+        } else if (ex instanceof BindException) { // 参数校验不通过报该异常 不用打印整个异常栈 打印异常信息即可
+            log.warn("bad framework request, BindException. errorMsg:{}", ex.getMessage());
+            return HttpResponse.error(BizError.ERROR_DATA_RESTRICTION.getCode(), ex.getMessage());
+
         } else if (ex instanceof ServletRequestBindingException) {
             log.warn("bad framework request, ServletRequestBindingException.", ex);
             return HttpResponse.error(BizError.ERROR_DATA_FORMAT.getCode(), ex.getMessage());
@@ -79,6 +83,13 @@ public class WebExceptionHandler {
         } else if (ex instanceof HttpMediaTypeException) {
             log.warn("bad framework request, HttpMediaTypeException.", ex);
             return HttpResponse.error(BizError.ERROR_UNSUPPORTED.getCode(), ex.getMessage());
+        } else if (ex instanceof ServletException) {
+            log.warn("bad framework request, ServletException.", ex);
+            return HttpResponse.error(BizError.ERROR_INTERNAL.getCode(), ex.getMessage());
+        } else {
+            log.warn("bad framework request", ex);
+        }
+        return HttpResponse.error(BizError.ERROR_INTERNAL.getCode(), ex.getMessage());
         } else {
             log.warn("bad framework request", ex);
         }
@@ -116,7 +127,7 @@ public class WebExceptionHandler {
         log.warn(
                 "HystrixRuntimeException message={}, failureType={}, fallbackException={}, commandClass={}, requestInfo={}, requestParam={}",
                 ex.getMessage(), ex.getFailureType().name(),
-                ex.getFallbackException() == null ? "" : ex.getFallbackException().getCause().getMessage(),
+                ex.getCause() == null ? "null" : ex.getCause().getClass().getName(),
                 ex.getImplementingClass().getName(), webRequest.getDescription(true), webRequest.getParameterMap());
 
         // fallback 抛出异常的情况

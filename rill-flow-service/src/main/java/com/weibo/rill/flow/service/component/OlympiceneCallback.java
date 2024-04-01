@@ -98,7 +98,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
         logCompleteEvent(executionId, eventCode, eventData);
         logTaskCode(executionId, eventCode, eventData);
     }
-    
+
     private void logTaskCode(String executionId, int eventCode, DAGCallbackInfo eventData) {
         try {
             if (eventCode != DAGEvent.TASK_FAILED.getCode() &&
@@ -111,7 +111,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
                     .map(TaskInvokeMsg::getCode).orElse(null);
             if (StringUtils.isNotBlank(code)) {
                 ProfileActions.recordTaskCode(executionId, code, "total");
-                String baseTaskName = DAGWalkHelper.getInstance().getBaseTaskName(taskInfo.getName());
+                // 记录prometheus
                 ProfileActions.recordTaskCode(executionId, code, baseTaskName);
                 // 记录prometheus
                 PrometheusActions.recordTaskCode(executionId, code, "total");
@@ -202,9 +202,7 @@ public class OlympiceneCallback implements Callback<DAGCallbackInfo> {
         if (Optional.ofNullable(callbackConfig.getFullDAGInfo()).orElse(false)) {
             body.put("dag_info", dagInfo);
         }
-        if (Optional.ofNullable(callbackConfig.getFullContext()).orElse(false)) {
-            body.put("data", context);
-        }
+        // 回调函数参数格式：
 
         log.info("request body: {}", body);
 

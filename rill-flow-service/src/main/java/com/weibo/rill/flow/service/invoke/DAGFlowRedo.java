@@ -74,7 +74,7 @@ public class DAGFlowRedo {
                         Map<String, String> headers = new HashMap<>();
                         headers.put("Content-Type", "application/json");
                         String url = urlBuildService.buildRedoUrl(executionId, taskNamesString);
-                        String ret = flowHttpClient.post(url, headers, new HashMap<>());
+                        log.info("redoFlowWithTrafficLimit executionId:{} url:{}", executionId, url);
                         log.info("redoFlowWithTrafficLimit executionId:{} ret:{}", executionId, ret);
                     } catch (Exception e) {
                         log.warn("redoFlowWithTrafficLimit fails, executionId:{}", executionId, e);

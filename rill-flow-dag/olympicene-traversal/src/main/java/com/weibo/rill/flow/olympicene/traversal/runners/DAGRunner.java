@@ -81,7 +81,7 @@ public class DAGRunner {
             Map<String, String> defaultContext = Optional.ofNullable(dag.getDefaultContext()).orElse(Collections.emptyMap());
             defaultContext.forEach((key, value) -> context.put(key, JSONPathInputOutputMapping.parseSource(value)));
             Optional.ofNullable(data).ifPresent(context::putAll);
-            ret.setContext(context);
+            // 任务执行过程中会频繁获取DAG
             dag.setDefaultContext(null);
 
             // inputMapping/outputMapping中可能存在引用通用mapping的情况
@@ -95,7 +95,7 @@ public class DAGRunner {
 
             Optional.ofNullable(dag.getResources()).ifPresent(resources ->
                     handleResources(1, resources.stream().collect(Collectors.toMap(BaseResource::getName, it -> it)), dag.getTasks()));
-            dag.setResources(null);
+            // FIXME: The Completion Code is Empty.
 
             DAGInvokeMsg dagInvokeMsg = buildInvokeMsg(executionId, settings, notifyInfo);
             DAGInfo dagInfoToUpdate = new DAGInfoMaker()
@@ -114,7 +114,7 @@ public class DAGRunner {
                     .ifPresent(rootExecutionId -> context.putIfAbsent("flow_root_execution_id", rootExecutionId));
 
             dagContextStorage.updateContext(executionId, context);
-            dagInfoStorage.saveDAGInfo(executionId, dagInfoToUpdate);
+            dagInfoStorage.updateDAGInfo(executionId, dagInfoToUpdate);
         });
 
         return ret;
@@ -157,7 +157,13 @@ public class DAGRunner {
             return;
         }
 
-        callbackConfig.setInputMappings(includeReferenceMappings(commonMapping, callbackInputMappings));
+        callbackInputMappings.forEach(mapping -> {
+            if (StringUtils.isBlank(mapping.getReference())) {
+                includeReference.add(mapping);
+            } else {
+                Optional.ofNullable(commonMapping.get(mapping.getReference())).ifPresent(includeReference::addAll);
+            }
+        });
     }
 
     private void handleMappingReference(int currentDepth, Map<String, List<Mapping>> commonMapping, List<BaseTask> tasks) {
@@ -181,7 +187,7 @@ public class DAGRunner {
             return taskMappings;
         }
 
-        List<Mapping> includeReference = Lists.newArrayList();
+        List<Mapping> includeReference = new ArrayList<>();
         for (Mapping mapping : taskMappings) {
             if (StringUtils.isBlank(mapping.getReference())) {
                 includeReference.add(mapping);
@@ -277,7 +283,7 @@ public class DAGRunner {
 
     private List<InvokeTimeInfo> getInvokeTimeInfoList(DAGInfo dagInfo) {
         DAGInvokeMsg dagInvokeMsg = Optional.ofNullable(dagInfo.getDagInvokeMsg()).orElseGet(() -> {
-            dagInfo.setDagInvokeMsg(new DAGInvokeMsg());
+            DAGInvokeMsg invokeMsg = DAGInvokeMsg.builder().build();
             return dagInfo.getDagInvokeMsg();
         });
 
@@ -301,7 +307,7 @@ public class DAGRunner {
                         .map(taskName -> DAGWalkHelper.getInstance().getAncestorTaskName(taskName))
                         .distinct()
                         .map(taskName -> dagInfo.getTasks().get(taskName))
-                        .filter(Objects::nonNull)
+                        .filter(taskInfo -> taskInfo != null)
                         .filter(taskInfo -> taskInfo.getTaskStatus() != TaskStatus.NOT_STARTED)
                         .forEach(redoTaskInfos::add);
             } else {
@@ -337,7 +343,7 @@ public class DAGRunner {
             taskInfo.setTaskStatus(TaskStatus.NOT_STARTED);
             taskInfo.setChildren(new LinkedHashMap<>());
             taskInfo.setSubGroupIndexToStatus(null);
-            taskInfo.setSubGroupIndexToIdentity(null);
+            taskInfo.setSubGroupIndexToTask(null);
             resetTaskStatus(length + 1, taskInfo.getNext());
         });
     }

@@ -38,8 +38,18 @@ public class RedisStorageProcedure implements DAGStorageProcedure {
     public void lockAndRun(String lockName, Runnable runnable) {
         String lockAcquirerId = LockerKey.getLockId(instanceId);
         try {
-            locker.lock(lockName, lockAcquirerId, lockExpireTimeInSecond);
+            locker.tryLock(lockName, lockAcquirerId, lockExpireTimeInSecond);
             runnable.run();
+        } finally {
+            locker.unlock(lockName, lockAcquirerId);
+        }
+    }
+}
+/*
+ *  Copyright 2021-2023 Weibo, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License
         } finally {
             locker.unlock(lockName, lockAcquirerId);
         }

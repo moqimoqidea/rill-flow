@@ -28,7 +28,7 @@ public class HttpUtil {
     public static HttpParameter functionRequestParams(DispatchInfo dispatchInfo) {
         String executionId = dispatchInfo.getExecutionId();
         Map<String, Object> input = dispatchInfo.getInput();
-        String taskInfoName = dispatchInfo.getTaskInfo().getTask().getName();
+        String taskInfoName = dispatchInfo.getTaskInfo().getName();
 
         return functionRequestParams(executionId, taskInfoName, input);
     }
@@ -62,6 +62,18 @@ public class HttpUtil {
                 callback.putAll((Map<String, Object>) value);
             } else {
                 functionInput.put(key, value);
+            }
+        }));
+        return HttpParameter.builder().queryParams(queryParams).body(body).callback(callback).build();
+    }
+}
+/**
+package com.weibo.rill.flow.interfaces.model.http;
+public class HttpParameter {
+	private Map<String, Object> queryParams;
+	private Map<String, Object> body;
+	private Map<String, Object> callback;
+	private Map<String, String> header;
             }
         }));
 

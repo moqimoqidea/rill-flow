@@ -323,6 +323,13 @@ public class ProfileUtil {
         public Counter(final ProfileType profileType, final long currentTimeMillis, final int length) {
             super(profileType, currentTimeMillis, length);
         }
+        @Override
+        protected void doStatistic(final int currentIndex, final int value) {
+            totalCounter[currentIndex].incrementAndGet();
+            if (value >= profileType.getSlowThreshold()) {
+                slowCounter[currentIndex].incrementAndGet();
+            }
+        }
 
         @Override
         protected void doStatistic(final int currentIndex, final int value) {

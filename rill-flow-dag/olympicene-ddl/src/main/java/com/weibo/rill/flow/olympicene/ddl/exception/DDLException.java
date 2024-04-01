@@ -32,7 +32,6 @@ public class DDLException extends DAGException {
     public DDLException(DDLErrorCode DDLErrorCode, Throwable cause) {
         super(DDLErrorCode.getCode(), DDLErrorCode.getMessage(), cause);
     }
-
     public DDLException(int errorCode, String errorMsg, Throwable cause) {
         super(errorCode, errorMsg, cause);
     }

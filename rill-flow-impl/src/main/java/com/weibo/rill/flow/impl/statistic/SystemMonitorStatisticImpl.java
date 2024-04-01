@@ -79,8 +79,15 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
             if (notifyType == NotifyType.SUBMIT) {
                 updateExecutionStatus(executionId);
             } else if (notifyType == NotifyType.REDO) {
-                initExecutionStatus(executionId, serviceId);
-                updateExecutionStatus(executionId);
+                updateExecutionStatus(executionId, DAGStatus.RUNNING);
+            } else if (notifyType == NotifyType.PAUSE) {
+                updateExecutionStatus(executionId, DAGStatus.PAUSED);
+            } else if (notifyType == NotifyType.RESUME) {
+                updateExecutionStatus(executionId, DAGStatus.RUNNING);
+            } else if (notifyType == NotifyType.STOP) {
+                updateExecutionStatus(executionId, DAGStatus.FAILED);
+            } else if (notifyType == NotifyType.FINISH) {
+                //
             }
 
             ProfileActions.recordDagTotalExecutionTime(executionCost, serviceId);
@@ -110,7 +117,27 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
     public void recordTaskCompliance(String executionId, TaskInfo taskInfo, boolean reached, long percentage) {
         String serviceId = ExecutionIdUtil.getServiceId(executionId);
         String categoryName = Optional.ofNullable(taskInfo).map(TaskInfo::getTask).map(BaseTask::getCategory).orElse(UNKNOWN);
-        String taskName = Optional.ofNullable(taskInfo).map(TaskInfo::getName).orElse(UNKNOWN);
+        String taskName = Optional.ofNullable(taskInfo).map(TaskInfo::getTask).map(BaseTask::getName).orElse(
+                Optional.ofNullable(taskInfo).map(TaskInfo::getTask).map(BaseTask::getClassName).orElse(UNKNOWN));
+        ProfileActions.recordTaskCompliance(serviceId, categoryName, taskName, reached, percentage);
+        // 记录prometheus
+        PrometheusActions.recordTaskCompliance(serviceId, categoryName, taskName, reached, percentage);
+    }
+
+
+    public void recordDAGFinish(String executionId, long executionCost, DAGStatus dagStatus, DAGInfo dagInfo) {
+        try {
+        ) {
+            String failCode = Optional.ofNullable(dagInfo)
+                    .filter(it -> dagStatus == DAGStatus.FAILED)
+                    .map(DAGInfo::getDagInvokeMsg)
+                    .map(DAGInvokeMsg::getCode)
+                    .filter(StringUtils::isNotBlank)
+                    .orElse(null);
+            updateExecutionStatus(executionId, dagStatus, failCode);
+        } catch (Exception e) {
+            log.warn("recordDAGFinish fails, executionCost:{}, executionId:{}, errorMsg:{}", executionCost, executionId, e.getMessage());
+        }
         ProfileActions.recordTaskCompliance(serviceId, categoryName, taskName, reached, percentage);
         // 记录prometheus
         PrometheusActions.recordTaskCompliance(serviceId, categoryName, taskName, reached, percentage);
@@ -169,7 +196,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
             ret.put(dagStatus.getValue(), runtimeRedisClients.zcount(executionStatusKey(serviceId, dagStatus), startTime, endTime));
             return ret;
         } else {
-            ret.put(DAGStatus.RUNNING.getValue(), runtimeRedisClients.zcount(executionStatusKey(serviceId, DAGStatus.RUNNING), startTime, endTime));
+            ret.put(DAGStatus.RUNNING.getValue(), runtimeRedisClients.zcount(executionStatusKey(serviceId, DAGStatus.RUNNING),
             ret.put(DAGStatus.SUCCEED.getValue(), runtimeRedisClients.zcount(executionStatusKey(serviceId, DAGStatus.SUCCEED), startTime, endTime));
             ret.put(DAGStatus.FAILED.getValue(), runtimeRedisClients.zcount(executionStatusKey(serviceId, DAGStatus.FAILED), startTime, endTime));
         }
@@ -189,7 +216,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         }
 
         String totalCodeKey = totalCodeKey(serviceId);
-        Set<String> allCodes = runtimeRedisClients.zrange(totalCodeKey, totalCodeKey, 0, -1);
+        Set<String> allCodes = runtimeRedisClients.zrange(totalCodeKey, 0, -1);
         if (CollectionUtils.isEmpty(allCodes)) {
             return ret;
         }
@@ -231,7 +258,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.SUCCEED), executionId);
         runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.FAILED), executionId);
         String serviceKey = executionServiceKey(serviceId, ExecutionIdUtil.getSubmitTime(executionId));
-        String failCode = getRuntimeClient(serviceKey).hget(serviceKey, executionId);
+        runtimeRedisClients.zadd(serviceKey, ExecutionIdUtil.getSubmitTime(executionId), executionId);
         if (StringUtils.isNotBlank(failCode)) {
             runtimeRedisClients.zrem(executionCodeKey(serviceId, failCode), executionId);
             runtimeRedisClients.hdel(serviceKey, executionId);
@@ -262,7 +289,6 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
                 runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.RUNNING), executionId);
             }
             String statusKey = executionStatusKey(serviceId, dagStatus);
-            JedisFlowClient jedisFlowClient = getRuntimeClient(statusKey);
             jedisFlowClient.pipelined().accept(pipeline -> {
                 pipeline.zadd(statusKey, submitTime, executionId);
                 pipeline.zremrangeByScore(statusKey, 0, minTime);
@@ -373,7 +399,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         public static void recordTaskCompliance(String serviceId, String category, String taskName, boolean reached, long percentage) {
             String countName = String.format(TASK_COMPLIANCE_FORMAT, category, serviceId, taskName);
             String percentageName = String.format(TASK_COMPLIANCE_PERCENTAGE_FORMAT, category, serviceId, taskName);
-            ProfileUtil.accessStatistic(DAG_TASK_COMPLIANCE, percentageName, System.currentTimeMillis(), percentage);
+            ProfileUtil.count(DAG_TASK_COMPLIANCE, countName + "_" + (reached ? REACHED : NOT_REACHED), System.currentTimeMillis(), 1);
             ProfileUtil.count(DAG_TASK_COMPLIANCE, countName + "_" + (reached ? REACHED : NOT_REACHED), System.currentTimeMillis(), 1);
         }
 

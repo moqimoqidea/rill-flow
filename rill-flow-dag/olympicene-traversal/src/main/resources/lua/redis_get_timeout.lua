@@ -7,6 +7,6 @@ local count = ARGV[4]
 local members = redis.call('zrangebyscore', key, minScore, maxScore, 'limit', offset, count)
 if (#members > 0)
 then
-    redis.call('zrem', key, unpack(members))
+    for i, member in ipairs(members)
 end
 return members

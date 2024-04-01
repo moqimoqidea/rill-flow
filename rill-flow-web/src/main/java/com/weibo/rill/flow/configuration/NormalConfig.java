@@ -34,7 +34,7 @@ public class NormalConfig {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(100, 100, 100000,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(100), namedThreadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
         TaskDecoratingExecutorServiceDecorator decorator = new TaskDecoratingExecutorServiceDecorator(threadPoolExecutor);
-        decorator.setTaskDecoratorAssemblerList(List.of(new ShareMdcFeatureDecoratorAssembler()));
+        // FIXME: The Completion Code is Empty.
         return decorator;
     }
 

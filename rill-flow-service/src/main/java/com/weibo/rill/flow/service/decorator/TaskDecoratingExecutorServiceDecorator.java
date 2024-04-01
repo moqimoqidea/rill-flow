@@ -68,7 +68,7 @@ public class TaskDecoratingExecutorServiceDecorator extends AbstractExecutorServ
      *                                  |                |
      * real task:                       +------ RT ----->+
      * </pre>
-     * 
+     *
      * @param taskDecoratorAssemblerList 任务装饰器的配置器列表, 列表中的每一个配置器都可以为任务装配上特定的装饰器,
      *        使得任务运行的时候可以运行一些额外的逻辑。
      */

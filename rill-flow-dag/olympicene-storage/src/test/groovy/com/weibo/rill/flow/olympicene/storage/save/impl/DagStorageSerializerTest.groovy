@@ -10,7 +10,7 @@ class DagStorageSerializerTest extends Specification {
     def "serializeHash should add value class type"() {
         when:
         Map<String, Object> content = ImmutableMap.of("key", new TaskInfo())
-        Map<String, String> ret = DagStorageSerializer.serializeHash(content)
+        List<byte[]> ret = DagStorageSerializer.serializeHashToList(content).stream()
 
         then:
         ret.get(DagStorageSerializer.buildTypeKeyPrefix("key")) == TaskInfo.class.getName()
@@ -25,6 +25,6 @@ class DagStorageSerializerTest extends Specification {
         Map<String, Object> ret = DagStorageSerializer.deserializeHash(serial)
 
         then:
-        ret.get("key") in TaskInfo
+        ret.get("key") instanceof TaskInfo
     }
 }
