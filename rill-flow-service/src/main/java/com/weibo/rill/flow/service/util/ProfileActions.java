@@ -117,7 +117,7 @@ public class ProfileActions {
         try {
             String serviceId = ExecutionIdUtil.getServiceId(executionId);
             String name = String.format(TINY_DAG_FORMAT, serviceId);
-            ProfileUtil.count(DAG, name, System.currentTimeMillis(), 1);
+            ProfileUtil.accessStatistic(DAG, name, System.currentTimeMillis(), 0);
         } catch (Exception e) {
             log.warn("recordTinyDAGSubmit fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
         }

@@ -66,7 +66,7 @@ public class DAGSubmitChecker {
             return null;
         }
         try {
-            return SerializerUtil.deserialize(resourceCheck.getBytes(StandardCharsets.UTF_8), ResourceCheckConfig.class);
+            return JSON.parseObject(resourceCheck, ResourceCheckConfig.class);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, "resource_check content nonsupport");
         }
@@ -143,7 +143,7 @@ public class DAGSubmitChecker {
             return storageCheck;
         }
 
-        int currentUsagePercent = dagResourceStatistic.getRuntimeRedisUsagePercent(executionId, serviceId);
+        int currentUsagePercent = dagResourceStatistic.getRedisStorageUsagePercent(executionId);
         storageCheck.setCurrentUsagePercent(currentUsagePercent);
 
         storageCheck.setUsageLimit(currentUsagePercent > maxUsagePercent);
@@ -162,7 +162,7 @@ public class DAGSubmitChecker {
                     bizDConfs.getRuntimeRedisStorageIdToMaxUsage().getOrDefault(businessId, bizDConfs.getRuntimeRedisCustomizedStorageMaxUsage()) : -1;
         }
 
-        return bizDConfs.getRuntimeRedisDefaultStorageMaxUsage();
+        return -1;
     }
 
     private ResourceCheck resourceStatusCheck(String serviceId, String businessId, ResourceCheckConfig resourceCheckConfig) {
@@ -185,7 +185,7 @@ public class DAGSubmitChecker {
             return Collections.emptySet();
         }
 
-        Collection<ResourceStatus> allResources = dagResourceStatistic.getDependentResources(serviceId).values();
+        Set<ResourceStatus> allResources = dagResourceStatistic.getAllResources(serviceId, businessId);
         if (CollectionUtils.isEmpty(allResources)) {
             return Collections.emptySet();
         }
@@ -227,7 +227,7 @@ public class DAGSubmitChecker {
             return customizedConfig;
         }
 
-        return ResourceCheckConfig.builder().checkType(ResourceCheckConfig.CheckType.SHORT_BOARD).build();
+        return bizDConfs.getResourceCheckIdToConfigBean().get(DEFAULT_RESOURCE_CHECK_ID);
     }
 
     private void trafficControl(String executionId, String serviceId, String businessId) {

@@ -99,7 +99,7 @@ class DAGContextInitializerTest extends Specification {
 
     def "test newCallbackContextBuilder with businessId"() {
         when:
-        bizDConfs.getRuntimeCallbackContextMaxSize() >> maxSize
+        bizDConfs.getRuntimeCallbackContextMaxSize() >> 1024
         bizDConfs.getRedisBusinessIdToRuntimeCallbackContextMaxSize() >> ['testBusiness01':3188, 'testBusiness02':9216]
         DAGContextInitializer.DAGContextBuilder builder = initializer.newCallbackContextBuilder(businessId)
         then:

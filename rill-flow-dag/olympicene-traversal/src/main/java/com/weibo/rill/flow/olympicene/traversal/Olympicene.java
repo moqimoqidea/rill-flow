@@ -60,7 +60,8 @@ public class Olympicene implements DAGInteraction {
      * 提交需执行的DAG任务
      */
     public void submit(String executionId, DAG dag, Map<String, Object> data) {
-        submit(executionId, dag, data, DAGSettings.DEFAULT, null);
+        runNotify(executionId, NotifyType.SUBMIT, null,
+                () -> dagOperations.submitDAG(executionId, dag, null, data, null));
     }
 
     /**
@@ -80,7 +81,7 @@ public class Olympicene implements DAGInteraction {
         try {
             log.info("runNotify start executionId:{}, notifyType:{}, notifyInfo:{}", executionId, notifyType, notifyInfo);
 
-            Map<String, Object> params = Maps.newHashMap();
+            Map<String, Object> params = new HashMap<>();
             params.put("executionId", executionId);
             params.put("notifyType", notifyType);
             params.put("notifyInfo", notifyInfo);
@@ -126,7 +127,7 @@ public class Olympicene implements DAGInteraction {
     }
 
     private void wakeupSubTasks(String executionId, Map<String, Object> data, String parentTaskInfoName) {
-        TaskInfo taskInfo = dagInfoStorage.getTaskInfo(executionId, parentTaskInfoName);
+        // FIXME: Code Completion From Here.
         if (taskInfo.getTaskStatus().isCompleted()) {
             log.info("wakeupSubTasks parent task is completed, executionId:{}, parentTaskInfoName:{}", executionId, parentTaskInfoName);
             return;
@@ -157,7 +158,7 @@ public class Olympicene implements DAGInteraction {
      * 执行的DAG任务并返回执行结果
      */
     public DAGResult run(String executionId, DAG dag, Map<String, Object> data) {
-        return run(executionId, dag, data, DAGSettings.DEFAULT, null);
+        // FIXME: Code Completion From Here.
     }
 
     /**

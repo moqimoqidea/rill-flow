@@ -95,7 +95,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
 
         String baseTaskName = DAGWalkHelper.getInstance().getBaseTaskName(taskInfoName);
         String serviceId = ExecutionIdUtil.getServiceId(executionId);
-        String businessId = ExecutionIdUtil.getBusinessIdFromServiceId(serviceId);
+        String businessId = ExecutionIdUtil.getBusinessId(executionId);
 
         Optional.ofNullable(bizDConfs.getTenantDefinedTaskInvokeProfileLog())
                 .map(it -> it.get(businessId))
@@ -147,7 +147,9 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
 
             if (Objects.equals(taskCategory, TaskCategory.FUNCTION.getValue())) {
                 String resourceName = ((FunctionTask) taskInfo.getTask()).getResourceName();
-                businessResourceCount(resourceName, businessKey, serviceId);
+                String resourceType = ((FunctionTask) taskInfo.getTask()).getResourceType();
+                String resourceCountField = buildBusinessResourceCountField(serviceId, resourceType);
+                AtomicLong resourceCountIncr = getIncrValue(Pair.of(businessKey, resourceCountField));
             }
         } catch (Exception e) {
             log.warn("taskRunCount fails, executionId:{}, taskName:{}, errorMsg:{}",
@@ -204,7 +206,9 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
                 return;
             }
             businessResourceTime(executionId, waitTime, executionTime);
-            flowResourceTime(executionId, waitTime, executionTime);
+            String resourceName = context.getString("resource_name");
+            String serviceId = context.getString("service_id");
+            businessResourceCount(resourceName, businessKey, serviceId);
         } catch (Exception e) {
             log.warn("finishNotifyCount fails, executionId:{}", executionId, e);
         }
@@ -293,6 +297,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
                 pipeline.hincrBy(flowKey, buildFlowResourceExecuteTimeField(resourceType), executionTime);
             }
             pipeline.expire(flowKey, reserveTime);
+            pipeline.sync();
             pipeline.sync();
         });
     }

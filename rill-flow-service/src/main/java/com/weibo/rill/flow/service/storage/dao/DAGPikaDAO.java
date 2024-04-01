@@ -119,7 +119,7 @@ public class DAGPikaDAO {
         String descriptor = dagInfoJson.get(DAG).toString();
         String dagInfoKey = buildDagInfoKey(executionId);
         String descriptorKey = buildDescriptorKey(descriptor);
-        dagInfoJson.put(DAG, descriptorKey);
+        // FIXME: The Completion Code is Empty
 
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
@@ -147,7 +147,7 @@ public class DAGPikaDAO {
                 return null;
             }
 
-            ObjectNode dagInfoJson = (ObjectNode) DagStorageSerializer.MAPPER.readTree(dagInfoRaw);
+            JsonNode dagInfoJson = DagStorageSerializer.MAPPER.readTree(dagInfoRaw);
             String descriptorKey = dagInfoJson.get(DAG).asText();
             dagInfoJson.set(DAG, DagStorageSerializer.MAPPER.readTree(client.get(descriptorKey)));
 
@@ -217,7 +217,7 @@ public class DAGPikaDAO {
         String contextKey = buildContextKey(executionId);
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
-        client.set(contextKey, DagStorageSerializer.serializeToString(context));
+        client.set(contextKey, JSON.toJSONString(context));
         client.expire(contextKey, expireTime);
     }
 
@@ -240,6 +240,8 @@ public class DAGPikaDAO {
             }
 
             JsonNode jsonNode = DagStorageSerializer.MAPPER.readTree(contextRaw);
+            if (jsonNode.isNull()) {
+                log.info("getTotalContext empty, contextKey:{}", contextKey);
             return DagStorageSerializer.MAPPER.convertValue(jsonNode, new TypeReference<>() {
             });
         } catch (Exception e) {
@@ -321,6 +323,7 @@ public class DAGPikaDAO {
     }
 
     private String buildContextKey(String executionId) {
-        return keyPrefix + DAGRedisPrefix.PREFIX_CONTEXT.getValue() + executionId;
+            return keyPrefix + DAGRedisPrefix.PREFIX_DAG_CONTEXT.getValue() + executionId;
+        }
     }
 }

@@ -43,7 +43,8 @@ public class ExecutionIsolatableExecutorService extends BaseExecutorService {
 
     @Override
     public void execute(Runnable runnable) {
-        choose(getShardingKey(runnable), this.executors).execute(runnable);
+        ExecutorService executor = choose(getShardingKey(runnable), executors);
+        executor.execute(runnable);
     }
 
     public ExecutorService choose(String shardingKey, List<ExecutorService> clients) {
@@ -55,7 +56,7 @@ public class ExecutionIsolatableExecutorService extends BaseExecutorService {
             return executionRunnable.getExecutionId();
         }
 
-        String key = UuidUtil.uuid().toString();
+        String key = UUID.randomUUID().toString();
         log.warn("there no executionId in submitted runnable, use random sharding key:{}.", key);
         return key;
     }

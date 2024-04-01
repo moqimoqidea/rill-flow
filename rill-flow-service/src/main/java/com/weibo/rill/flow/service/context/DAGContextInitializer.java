@@ -132,7 +132,7 @@ public class DAGContextInitializer {
 
             if (contextInitializeHookList != null) {
                 for (ContextInitializeHook<Map<String, Object>> contextInitializeHook : contextInitializeHookList) {
-                    context = contextInitializeHook.initialize(context);
+                    context = contextInitializeHook.hook(context);
                 }
             }
             return context;

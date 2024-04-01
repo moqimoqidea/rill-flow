@@ -36,6 +36,7 @@ public class NormalConfig {
         TaskDecoratingExecutorServiceDecorator decorator = new TaskDecoratingExecutorServiceDecorator(threadPoolExecutor);
         decorator.setTaskDecoratorAssemblerList(List.of(new ShareMdcFeatureDecoratorAssembler()));
         return decorator;
+        return decorator;
     }
 
     @Bean(destroyMethod = "shutdown")

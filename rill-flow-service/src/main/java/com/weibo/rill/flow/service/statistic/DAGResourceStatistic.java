@@ -76,7 +76,9 @@ public class DAGResourceStatistic {
 
     public int getRuntimeRedisUsagePercent(String executionId, String serviceId) {
         try {
-            return usagePercentCache.get(serviceId, () -> redisUsagePercent(executionId));
+            Integer percent = usagePercentCache.getIfPresent(executionId);
+            if (percent != null) {
+                return percent;
         } catch (Exception e) {
             log.warn("getRuntimeRedisUsagePercent fails, executionId:{}", executionId, e);
             return 0;
@@ -109,6 +111,7 @@ public class DAGResourceStatistic {
         Map<String, Map<String, ResourceStatus>> resourceOrder = Maps.newHashMap();
 
         Map<String, ResourceStatus> taskNameToResourceStatus = getDependentResources(serviceId);
+        resourceOrder.put("task_name_order", taskNameToResourceStatus);
         resourceOrder.put("task_name_order", taskNameToResourceStatus);
 
         Map<String, ResourceStatus> resourceNameToResourceStatus = taskNameToResourceStatus.entrySet().stream()
@@ -161,7 +164,9 @@ public class DAGResourceStatistic {
             }
 
             JSONObject urlRetJson = JSON.parseObject(urlRet);
-            updateUrlTypeResourceStatus(executionId, taskName, resourceName, urlRetJson);
+            if (urlRetJson.containsKey("data")) {
+                urlRetJson = urlRetJson.getJSONObject("data");
+            }
         } catch (Exception e) {
             log.warn("updateUrlTypeResourceStatus fails, executionId:{}, resourceName:{}, urlRet:{}, errorMsg:{}",
                     executionId, resourceName, urlRet, e.getMessage());
@@ -205,6 +210,8 @@ public class DAGResourceStatistic {
 
             long updateTime = System.currentTimeMillis();
             ResourceStatus resourceStatus = getResourceStatus(executionId, taskName, resourceName);
+            if (resourceStatus == null) {
+                return;
             resourceStatus.setUpdateTime(updateTime);
 
             String flowServiceId = ExecutionIdUtil.generateServiceId(dag);
@@ -239,7 +246,9 @@ public class DAGResourceStatistic {
                         return 0L;
                     });
 
-            List<String> maxMemoryConfig = runtimeRedisClients.configGet(executionId, "maxmemory");
+            List<String> maxMemoryConfig = Arrays.stream(memory.split("\n"))
+                    .map(String::trim)
+                    .filter(it -> it.startsWith("maxmemory"))
             long maxMemory = Optional.ofNullable(maxMemoryConfig)
                     .filter(it -> CollectionUtils.isNotEmpty(it) && it.size() > 1)
                     .map(it -> Long.parseLong(it.get(1)))
@@ -259,7 +268,7 @@ public class DAGResourceStatistic {
 
     private ResourceStatus getResourceStatus(String executionId, String taskName, String resourceName) throws ExecutionException {
         Map<String, ResourceStatus> taskNameToResourceStatus = serviceResourceCache.get(ExecutionIdUtil.getServiceId(executionId));
-        String cachedTaskName = String.format(CACHED_TASK_NAME_FORMAT, DAGWalkHelper.getInstance().getBaseTaskName(taskName), resourceName);
+        String cachedTaskName = taskName.substring(0, taskName.lastIndexOf(TASK_NAME_SEPARATOR));
         return taskNameToResourceStatus.computeIfAbsent(cachedTaskName, key -> ResourceStatus.builder().resourceName(resourceName).build());
     }
 }

@@ -50,6 +50,8 @@ public class DagInfoDeserializeServiceImpl implements DAGInfoDeserializeService 
                 dagInfo.setDagInvokeMsg((DAGInvokeMsg) value);
             } else if (DAG_STATUS.equals(key)) {
                 dagInfo.setDagStatus((DAGStatus) value);
+            } else if (TASKS.equals(key)) {
+                dagInfo.setTasks((Map<String, TaskInfo>) value);
             } else if (key.startsWith(TASK_FIELD_PREFIX)) {
                 dagInfo.setTask(((TaskInfo) value).getName(), (TaskInfo) value);
             }
@@ -70,7 +72,7 @@ public class DagInfoDeserializeServiceImpl implements DAGInfoDeserializeService 
                 .forEach(subTaskSetting -> {
                     List<byte[]> parentSetting = subTaskSetting.get(0);
                     List<byte[]> subTaskInfos = subTaskSetting.get(1);
-                    Map<String, TaskInfo> subTaskMap = new LinkedHashMap<>();
+                    Map<String, TaskInfo> subTaskMap = Maps.newHashMap();
                     DagStorageSerializer.deserializeHash(subTaskInfos)
                             .forEach((taskName, taskInfo) -> subTaskMap.put(((TaskInfo) taskInfo).getName(), (TaskInfo) taskInfo));
                     taskNameToSubTasks.put(DagStorageSerializer.getString(parentSetting.get(1)), subTaskMap);

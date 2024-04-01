@@ -330,6 +330,7 @@ public class JedisFlowClient implements RedisClient {
         return ((Consumer<Pipeline> consumer) -> doExecute(jedis -> {
             try (Pipeline pipeline = jedis.pipelined()) {
                 consumer.accept(pipeline);
+                pipeline.sync();
             }
             return 0;
         }));

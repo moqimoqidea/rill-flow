@@ -21,7 +21,7 @@ for k = 1, #KEYS, 1 do
         local keyPrefix = args[2]
         local filteredMapKeys = {}
 
-        local mapKeys = redis.call("hkeys", key)
+        local mapKeys = redis.call("hkeys", key);
         for mapKeyIndex = 1, #mapKeys, 1 do
             if (string.find(mapKeys[mapKeyIndex], keyPrefix) == 1) then
                 table.insert(filteredMapKeys, mapKeys[mapKeyIndex])

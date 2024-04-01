@@ -44,6 +44,6 @@ class DAGRedisStorageTest extends Specification {
         dagRedisStorage.getContext("executionId")
 
         then:
-        1 * contextDao.getContext("executionId", false)
+        1 * dagInfoDAO.getContext("executionId")
     }
 }

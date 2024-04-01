@@ -63,7 +63,7 @@ class BaseTaskValidatorTest extends Specification {
                 "       source: segments\n" +
                 "  next: segmentForeach"
         when:
-        dagParser.parse(text)
+        def flow = new FlowYamlParser().parse(new StringReader(text))
 
         then:
         def e = thrown(ValidationException)
@@ -95,7 +95,7 @@ class BaseTaskValidatorTest extends Specification {
         dagParser.parse(text)
 
         then:
-        def e = thrown(DDLException.class)
+        thrown(DagParserException)
         e.errorCode == DDLErrorCode.DAG_DESCRIPTOR_INVALID.getCode()
     }
 

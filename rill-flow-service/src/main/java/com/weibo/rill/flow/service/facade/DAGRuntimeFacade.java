@@ -99,6 +99,8 @@ public class DAGRuntimeFacade {
             return makeDAGInfoMap(dagInfo, false);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, e.getMessage());
+        } catch (Exception e) {
+            throw new TaskException(BizError.ERROR_DATA_RESTRICTION, e.getMessage());
         }
     }
 
@@ -131,7 +133,7 @@ public class DAGRuntimeFacade {
         }
 
         try {
-            return doCalculateProgress(tasks);
+            return dagResourceStatistic.calculateProgress(tasks);
         } catch (Exception e) {
             log.warn("calculate progress by default method, errorMsg:{}", e.getMessage());
             int allWeight = tasks.size();
@@ -166,7 +168,7 @@ public class DAGRuntimeFacade {
                 env.put("params", params);
                 env.put("taskRunningTimeInMillis", taskRunningTimeInMillis);
 
-                Expression expression = aviatorCache.getAviatorExpression(calculation);
+                Expression expression = aviatorCache.getExpression(calculation);
                 String value = String.valueOf(expression.execute(env));
                 if (NumberUtils.isParsable(value)) {
                     completeWeight += Double.parseDouble(value) * weight;
@@ -187,7 +189,9 @@ public class DAGRuntimeFacade {
             dagInfo = longTermStorage.getBasicDAGInfo(executionId);
         }
 
-        Map<String, Object> result = makeDAGInfoMap(dagInfo, brief);
+        if (dagInfo == null) {
+            return null;
+        }
         result.put("context", getContext(executionId, null));
         result.put("invoke_summary", tenantTaskStatistic.getFlowAggregate(executionId));
         return result;
@@ -204,7 +208,7 @@ public class DAGRuntimeFacade {
         }
 
         String subContextField = dagWalkHelper.buildSubTaskContextFieldName(dagWalkHelper.getRootName(taskName));
-        Collection<String> fields = ImmutableSet.of(subContextField);
+        List<String> fields = Lists.newArrayList(subContextField);
         Map<String, Object> groupedContext = runtimeStorage.getContext(executionId, fields);
         if (MapUtils.isEmpty(groupedContext)) {
             groupedContext = longTermStorage.getContext(executionId, fields);
@@ -258,7 +262,9 @@ public class DAGRuntimeFacade {
 
             updateValue(type, executionId, taskName, rules, context, output);
 
-            mapping.mapping(context, input, output, rules);
+            if (type.equals("output_eva")) {
+                updateValue("input_eva", executionId, taskName, rules, context, input);
+            }
 
             return ImmutableMap.of(CONTEXT, context, "input", input, "output", output);
         } catch (Exception e) {
@@ -297,7 +303,7 @@ public class DAGRuntimeFacade {
             // do nothing
         }
         if (taskInfo == null) {
-            taskInfo = longTermStorage.getBasicTaskInfo(executionId, taskName);
+            throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), String.format("can not get %s taskInfo execuitonId:%s", taskName, executionId));
         }
         if (taskInfo == null) {
             throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), String.format("can not get %s taskInfo execuitonId:%s", taskName, executionId));
@@ -336,7 +342,9 @@ public class DAGRuntimeFacade {
             String reqTaskName = Optional.ofNullable(taskName).orElse("mockTaskName");
             Map<String, Object> input = Maps.newHashMap();
             mapping.mapping(context, input, Maps.newHashMap(), inputMappings);
-            HttpParameter requestParams = httpInvokeHelper.functionRequestParams(reqExecutionId, reqTaskName, resource, input);
+            Map<String, Object> output = Maps.newHashMap();
+            Map<String, Object> result = Maps.newHashMap();
+            result.put("input", input);
             Map<String, Object> queryParams = requestParams.getQueryParams();
             Map<String, Object> body = requestParams.getBody();
             String url = httpInvokeHelper.buildUrl(resource, queryParams);
@@ -350,7 +358,7 @@ public class DAGRuntimeFacade {
         String dagDescriptor = StringUtils.isNotBlank(descriptorId) ?
                 descriptorManager.getDagDescriptor(0L, Collections.emptyMap(), descriptorId) : descriptor;
         DAG dag = dagStringParser.parse(dagDescriptor);
-        Map<String, List<String>> dependencies = dagWalkHelper.getDependedResources(dag);
+        Map<String, List<String>> dependencies = dagWalkHelper.getDependencies(dag);
         List<Map<String, Object>> resourceToNames = dependencies.entrySet().stream()
                 .map(entry -> ImmutableMap.of("resource_name", entry.getKey(), "names", entry.getValue()))
                 .collect(Collectors.toList());
@@ -393,7 +401,9 @@ public class DAGRuntimeFacade {
             executionItem.put("submit_time", dagInfo.getDagInvokeMsg().getInvokeTimeInfos().get(0).getStartTimeInMillisecond());
             executionItem.put("business_id", dagInfo.getDag().getWorkspace());
             executionItem.put("feature_id", dagInfo.getDag().getDagName());
-            executionItem.put("status", dagInfo.getDagStatus());
+            executionItem.put("status", dagInfo.getStatus().name());
+            executionItem.put("code", dagInfo.getCode());
+            executionItem.put("progress", dagProgressCalculate(dagInfo));
             return Map.of("total", 1, "items", List.of(executionItem));
         }
 
@@ -426,7 +436,7 @@ public class DAGRuntimeFacade {
                         dagStatuses::add,
                         () -> dagStatuses.addAll(Arrays.asList(DAGStatus.values()))
                 );
-        long time = Optional.ofNullable(endTime).orElse(System.currentTimeMillis());
+        // FIXME: The Completion Code is Empty.
 
         List<JSONObject> executionCountList = new ArrayList<>();
         dagRecordList.forEach(record -> {
@@ -446,7 +456,9 @@ public class DAGRuntimeFacade {
                                     executionItem.put("business_id", record.getBusinessId());
                                     executionItem.put("feature_id", record.getFeatureId());
                                     executionItem.put("status", dagStatus.getValue());
-                                    executionCountList.add(executionItem);
+                                    executionItem.put("code", code);
+                                    executionItem.put("status_name", dagStatus.getLabel());
+                                    executionItem.put("service_id", serviceId);
                                 }
                             });
                 }

@@ -40,7 +40,7 @@ public class TriggerController {
     private void initTriggers() {
         for (Map.Entry<String, Trigger> triggerEntry: triggerMap.entrySet()) {
             try {
-                triggerEntry.getValue().initTriggerTasks();
+                triggerEntry.getValue().init();
             } catch (Exception e) {
                 log.warn("init trigger error, trigger type: {}, ", triggerEntry.getKey(), e);
             }

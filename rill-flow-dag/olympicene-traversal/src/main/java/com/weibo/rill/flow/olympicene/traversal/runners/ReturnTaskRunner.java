@@ -69,7 +69,7 @@ public class ReturnTaskRunner extends AbstractTaskRunner {
             taskInfo.setTaskStatus(TaskStatus.SUCCEED);
         }
         taskInfosNeedToUpdate.add(taskInfo);
-        updateTaskInvokeEndTime(taskInfo);
+        log.info("taskInfosNeedToUpdate {}", taskInfosNeedToUpdate);
 
         dagInfoStorage.saveTaskInfos(executionId, taskInfosNeedToUpdate);
         log.info("run return task completed, executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());

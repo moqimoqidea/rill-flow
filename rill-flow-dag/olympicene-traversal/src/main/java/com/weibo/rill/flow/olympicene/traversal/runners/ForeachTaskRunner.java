@@ -89,7 +89,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             taskInfo.updateInvokeMsg(taskInvokeMsg);
             updateTaskInvokeEndTime(taskInfo);
             taskInfo.setTaskStatus(TaskStatus.SUCCEED);
-            dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
+            // FIXME: The Completion Code is Empty.
             return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
         }
 
@@ -98,7 +98,9 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
         Map<String, TaskStatus> indexToStatus = Maps.newConcurrentMap();
         taskInfo.setSubGroupIndexToStatus(indexToStatus);
         Map<String, Boolean> indexToKey = Maps.newConcurrentMap();
-        taskInfo.setSubGroupKeyJudgementMapping(indexToKey);
+        taskInfo.setSubGroupIndexToKey(indexToKey);
+        Map<String, String> indexToIdentity = Maps.newConcurrentMap();
+        taskInfo.setSubGroupIndexToIdentity(indexToIdentity);
         taskInfo.setTaskStatus(TaskStatus.RUNNING);
         taskInfo.setChildren(Optional.ofNullable(taskInfo.getChildren()).orElse(Maps.newConcurrentMap()));
         jsonPath.delete(ImmutableMap.of("input", input), iterationMapping.getCollection());
@@ -131,7 +133,9 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
             Map<String, Object> groupedContext = Maps.newHashMap();
             groupedContext.put(DAGWalkHelper.getInstance().buildSubTaskContextFieldName(subTaskInfos.iterator().next().getRouteName()), subContext);
-            contextToUpdate.putAll(groupedContext);
+            // if the subtask is not key, stash the subtask
+            if (!indexToKey.get(String.valueOf(groupIndex))) {
+                stasher.stash(executionId, taskInfo, groupedContext);
             if (maxConcurrentGroups <= 0 || groupIndex < maxConcurrentGroups) {
                 readyToRun.add(Pair.of(subTaskInfos, groupedContext));
                 indexToStatus.put(String.valueOf(groupIndex), TaskStatus.RUNNING);
@@ -170,7 +174,9 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
             Map<String, Object> output = Maps.newHashMap();
             Mapping mapping = new Mapping(synchronization.getMaxConcurrency(), "$.output.maxConcurrency");
-            inputMappings(Maps.newHashMap(), input, output, Lists.newArrayList(mapping));
+            if (mapping.getTransform() != null) {
+                output = transform(mapping.getTransform(), input);
+            }
             int maxConcurrency = Optional.ofNullable(output.get("maxConcurrency"))
                     .map(String::valueOf)
                     .map(Integer::valueOf)
@@ -194,7 +200,9 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             input.put("element", item);
             Map<String, Object> output = Maps.newHashMap();
             Mapping mapping = new Mapping(identity.replace("$.iteration.element", "$.input.element"), "$.output.identity");
-            inputMappings(new HashMap<>(), input, output, Lists.newArrayList(mapping));
+            mapping.setTransform(mapping.getTransform().replace("$.iteration.element", "$.input.element"));
+            mapping.setTarget(mapping.getTarget().replace("$.iteration.element", "$.input.element"));
+            mapping.setVariable(mapping.getVariable().replace("$.iteration.element", "$.input.element"));
             String identityString = Optional.ofNullable(output.get("identity")).map(String::valueOf).orElse(null);
 
             if (StringUtils.isNotBlank(identityString)) {
@@ -209,7 +217,10 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
     @Override
     public ExecutionResult finish(String executionId, NotifyInfo notifyInfo, Map<String, Object> output) {
-        return finishParentTask(executionId, notifyInfo);
+            Map<String, Object> context = Maps.newHashMap();
+        context.put("notifyInfo", notifyInfo);
+        context.put("output", output);
+        }
     }
 
 }

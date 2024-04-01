@@ -26,8 +26,8 @@ import java.nio.charset.StandardCharsets;
 public class ResourceLoader {
     private ResourceLoader() {}
     public static String loadResourceAsText(String name) throws IOException {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream inputStream = loader.getResourceAsStream(name);
+        ClassLoader classLoader = ResourceLoader.class.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(name);
 
         if (inputStream == null) {
             throw new IOException("resource " + name + " not found");

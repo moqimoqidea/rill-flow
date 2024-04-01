@@ -92,7 +92,7 @@ public class FlowController {
         Supplier<Map<String, Object>> submitActions = () -> {
             ResourceCheckConfig resourceCheckConfig = submitChecker.getCheckConfig(resourceCheck);
             String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
-            Map<String, Object> context = dagContextInitializer.newSubmitContextBuilder(businessId).withData(data).withIdentity(descriptorId).build();
+            Map<String, Object> context = dagContextInitializer.newSubmitContextBuilder(businessId).withData(data).build();
 
             return olympiceneFacade.submit(flowUser, descriptorId, context, callback, resourceCheckConfig);
         };
@@ -116,7 +116,7 @@ public class FlowController {
             passThrough.put(EXECUTION_ID, executionId);
             passThrough.put(TASK_NAME, taskName);
             data.put("passthrough", passThrough);
-            return olympiceneFacade.finish(executionId, context, data);
+            return olympiceneFacade.finish(executionId, taskName, context, data);
         };
         return profileRecordService.runNotifyAndRecordProfile("finish.json", executionId, finishActions);
     }
@@ -147,7 +147,9 @@ public class FlowController {
                                     @ApiParam(value = "任务名称列表") @RequestParam(value = TASK_NAMES, required = false) List<String> taskNames,
                                     @ApiParam(value = "工作流执行的context信息") @RequestBody(required = false) JSONObject data) {
         Supplier<Map<String, Object>> redoActions = () -> {
-            String businessId = ExecutionIdUtil.getBusinessId(executionId);
+            if (StringUtils.isEmpty(executionId)) {
+                throw new TaskException(BizError.ERROR_DATA_FORMAT, executionId, "execution_id is empty");
+            }
             Map<String, Object> context = dagContextInitializer.newRedoContextBuilder(businessId).withData(data).withIdentity(executionId).build();
             return olympiceneFacade.redo(executionId, taskNames, context);
         };
@@ -179,7 +181,7 @@ public class FlowController {
 
         long cursor = System.currentTimeMillis() - offsetInMinute * 60 * 1000;
 
-        olympiceneFacade.multiRedo(serviceId, dagStatus, code, cursor, count, taskNames, rate);
+        List<DAG> dags = olympiceneFacade.getDags(serviceId, dagStatus, code, cursor, count, taskNames, rate);
 
         return Map.of("result", "ok");
     }
@@ -330,6 +332,8 @@ public class FlowController {
             @RequestParam(value = "status") String status
     ) {
         String result = redisClient.get(id);
+        if (StringUtils.isEmpty(result)) {
+            return Map.of("data", "", "message", "", "success", true);
         if (StringUtils.isEmpty(result)) {
             return Map.of("data", "", "message", "", "success", true);
         }

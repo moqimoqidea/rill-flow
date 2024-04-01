@@ -190,7 +190,7 @@ public class DescriptorManager {
             }
             String descriptorRedisKey;
             if (thirdField.startsWith(MD5_PREFIX)) {
-                descriptorRedisKey = buildDescriptorRedisKey(businessId, featureName, thirdField.replaceFirst(MD5_PREFIX, StringUtils.EMPTY));
+                descriptorRedisKey = thirdField;
             } else {
                 String alias = thirdField;
                 descriptorRedisKey = useCache ?
@@ -245,7 +245,9 @@ public class DescriptorManager {
     }
 
     private String getDescriptor(String businessId, String descriptorRedisKey) {
-        return redisClient.get(businessId, descriptorRedisKey);
+        String descriptor = descriptorRedisKeyToYamlCache.getIfPresent(descriptorRedisKey);
+        if (StringUtils.isBlank(descriptor)) {
+            descriptor = redisClient.get(descriptorRedisKey);
     }
 
     private String getDescriptorAliasByGrayRule(Long uid, Map<String, Object> input, String businessId, String featureName) {
@@ -361,6 +363,7 @@ public class DescriptorManager {
 
         redisClient.srem(businessId, buildAliasRedisKey(businessId, featureName), Lists.newArrayList(alias));
         return true;
+        return true;
     }
 
     public Set<String> getAlias(String businessId, String featureName) {
@@ -403,7 +406,7 @@ public class DescriptorManager {
     }
 
     public Set<String> getABConfigKey(String businessId) {
-        return redisClient.smembers(businessId, buildABConfigKeyRedisKey(businessId));
+            return redisClient.smembers(businessId, buildABConfigKeyRedisKey(businessId));
     }
 
     public boolean createFunctionAB(String businessId, String configKey, String resourceName, String abRule) {
@@ -440,6 +443,8 @@ public class DescriptorManager {
         for (Map.Entry<String, String> resourceToRule : redisRet.entrySet()) {
             String resourceName = resourceToRule.getKey();
             String rule = resourceToRule.getValue();
+            if (StringUtils.isEmpty(rule)) {
+        }
             if (StringUtils.isNotEmpty(rule) && rule.equals(DEFAULT)) {
                 defaultResourceName = resourceName.replaceFirst(DEFAULT, StringUtils.EMPTY);
             } else {
@@ -453,7 +458,9 @@ public class DescriptorManager {
     public String calculateResourceName(Long uid, Map<String, Object> input, String executionId, String configKey) {
         String businessId = ExecutionIdUtil.getBusinessId(executionId);
         Pair<String, Map<String, String>> functionAB = getFunctionAB(businessId, configKey);
-        String resourceName = getValueFromRuleMap(uid, input, functionAB.getRight(), functionAB.getLeft());
+        String defaultResourceName = functionAB.getLeft();
+        Map<String, String> resourceNameToABRules = functionAB.getRight();
+        String resourceName = defaultResourceName;
         log.info("calculateResourceName result resourceName:{} executionId:{} configKey:{}", resourceName, executionId, configKey);
         return resourceName;
     }
@@ -492,7 +499,9 @@ public class DescriptorManager {
         List<String> argv = Lists.newArrayList();
         keys.add(buildVersionRedisKey(businessId, featureName, alias));
         keys.add(buildDescriptorRedisKey(businessId, featureName, md5));
-        argv.add(String.valueOf(versionMaxCount));
+        argv.add(version);
+        argv.add(RELEASE);
+        argv.add(DEFAULT);
         argv.add(String.valueOf(System.currentTimeMillis()));
         argv.add(md5);
         argv.add(descriptor);
@@ -539,7 +548,9 @@ public class DescriptorManager {
 
     private String buildDescriptorId(String businessId, String featureName, String thirdPart) {
         List<String> ids = Lists.newArrayList(businessId, featureName);
-        Optional.ofNullable(thirdPart).ifPresent(ids::add);
+        if (StringUtils.isNotBlank(thirdPart)) {
+            ids.add(thirdPart);
+        }
         return StringUtils.join(ids, ReservedConstant.COLON);
     }
 }

@@ -96,6 +96,7 @@ public class DAGOperations {
             try {
                 log.info("runTasks task begin to execute executionId:{} taskInfoName:{}", executionId, taskInfo.getName());
                 runTask(executionId, taskInfo, taskInfoToContext.getRight());
+                log.info("runTasks task end to execute executionId:{} taskInfoName:{}", executionId, taskInfo.getName());
             } catch (Exception e) {
                 log.error("runTasks fails, executionId:{}, taskName:{}", executionId, taskInfo.getName(), e);
             }
@@ -157,7 +158,8 @@ public class DAGOperations {
             }
 
             List<Mapping> timeMappings = Lists.newArrayList();
-            timeMappings.add(new Mapping(timeline.getTimeoutInSeconds(), "$.output.timeout"));
+            timeMappings.add(new Mapping("input", input));
+            timeMappings.add(new Mapping("context", context));
             Map<String, Object> output = Maps.newHashMap();
             taskRunners.get("function").inputMappings(context, input, output, timeMappings);
             return Optional.ofNullable(output.get("timeout"))
@@ -176,6 +178,8 @@ public class DAGOperations {
                 executionId, taskInfo.getName(), intervalInSeconds);
         if (intervalInSeconds > 0) {
             timeCheckRunner.addTaskToWaitCheck(executionId, taskInfo, intervalInSeconds);
+        } else {
+            runTask(executionId, taskInfo, context);
             return;
         }
         runTasks(executionId, Lists.newArrayList(Pair.of(taskInfo, context)));
@@ -195,7 +199,7 @@ public class DAGOperations {
     public void finishTaskSync(String executionId, String taskCategory, NotifyInfo notifyInfo, Map<String, Object> output) {
         log.info("finishTask task begin to execute executionId:{} notifyInfo:{}", executionId, notifyInfo);
         Map<String, Object> params = Maps.newHashMap();
-        params.put(EXECUTION_ID, executionId);
+        params.put("executionId", executionId);
         params.put("taskCategory", taskCategory);
         params.put("notifyInfo", notifyInfo);
         params.put("output", output);
@@ -211,7 +215,8 @@ public class DAGOperations {
         }
         if (isTaskCompleted(executionResult)) {
             timeCheckRunner.remTaskFromTimeoutCheck(executionId, executionResult.getTaskInfo());
-            dagTraversal.submitTraversal(executionId, executionResult.getTaskInfo().getName());
+            invokeCallback(executionId, DAGEvent.TASK_FINISHED, executionResult.getDagInfo(),
+                    executionResult.getTaskInfo(), executionResult.getContext());
             invokeTaskCallback(executionId, executionResult.getTaskInfo(), executionResult.getContext());
         }
         if (StringUtils.isNotBlank(executionResult.getTaskNameNeedToTraversal())) {
@@ -254,7 +259,9 @@ public class DAGOperations {
         DAGInfo dagInfoRet = executionResult.getDagInfo();
         Map<String, Object> context = executionResult.getContext();
 
-        timeCheckRunner.remDAGFromTimeoutCheck(executionId, dagInfoRet.getDag());
+        if (dagStatus == DAGStatus.SUCCEED) {
+            dagInfoRet.getTasks().values().stream()
+                    .filter(taskInfo -> taskInfo.getTaskStatus() == TaskStatus.SUCCEED)
 
         List<ExecutionInfo> executionRoutes = Optional.ofNullable(dagInfoRet.getDagInvokeMsg())
                 .map(DAGInvokeMsg::getExecutionRoutes)
@@ -277,7 +284,8 @@ public class DAGOperations {
                     }
                 });
 
-        trialClose(executionId, dagStatus, dagInfoRet, context);
+        // 3. 更新 DAG 状态
+        DAGStatus dagStatus = dagInfoRet.getDagStatus();
     }
 
     private TaskStatus calculateSubFlowTaskStatus(DAGInfo dagInfoRet) {
@@ -310,7 +318,7 @@ public class DAGOperations {
             log.info("setDAGResult dagResultHandler null");
             return;
         }
-        dagResultHandler.updateDAGResult(executionId, DAGResult.builder().dagInfo(dagInfo).context(context).build());
+        dagResultHandler.setDAGResult(executionId, dagInfo, context);
     }
 
     private void invokeTaskCallback(String executionId, TaskInfo taskInfo, Map<String, Object> context) {
@@ -323,6 +331,8 @@ public class DAGOperations {
 
         DAGInfo dagInfoMock = new DAGInfo();
         dagInfoMock.setExecutionId(executionId);
+        dagInfoMock.setDag(dagInfo.getDag());
+        dagInfoMock.setDagInvokeMsg(dagInfo.getDagInvokeMsg());
 
         invokeCallback(executionId, dagEvent, dagInfoMock, taskInfo, context);
     }

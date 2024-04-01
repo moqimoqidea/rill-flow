@@ -41,8 +41,8 @@ public class FlowAuthHeaderGenerator implements AuthHeaderGenerator {
             paramMap.put("execution_id", executionId);
         }
         if (task != null) {
-            paramMap.put("task_name", task.getName());
-        }
+            paramMap.put("task_id", task.getTaskId());
+            paramMap.put("task_name", task.getTaskName());
         paramMap.put("ts", String.valueOf(System.currentTimeMillis()));
         AuthHttpUtil.addSignToParam(paramMap, authSecret);
         httpHeaders.add("X-Callback-Url", flowCallbackUrl + "?" + AuthHttpUtil.paramToQueryString(paramMap, "utf-8"));

@@ -125,7 +125,7 @@ public class DAGRuntimeController {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, "service_ids cannot empty");
         }
 
-        return dagRuntimeFacade.runtimeDependentResources(serviceIds);
+        return ImmutableMap.of("ret", dagRuntimeFacade.runtimeDependentResources(serviceIds));
     }
 
     @RequestMapping(value = "clear_runtime_resources.json", method = RequestMethod.POST)

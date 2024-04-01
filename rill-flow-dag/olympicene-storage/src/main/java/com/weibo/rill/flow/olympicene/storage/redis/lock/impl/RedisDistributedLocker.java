@@ -54,7 +54,9 @@ public class RedisDistributedLocker implements Locker {
         while (true) {
             count++;
             Object redisLockObject = evalScript(REDIS_LOCK, List.of(lockName), List.of(lockAcquirerId, String.valueOf(expire)));
-            String ret = redisLockObject instanceof String? String.valueOf(redisLockObject): new String((byte[]) redisLockObject);
+            if (redisLockObject == null) {
+                throw new RuntimeException("lock " + lockName + " failed");
+            }
             if (Objects.equals(ret, "OK")) {
                 break;
             }
@@ -78,7 +80,9 @@ public class RedisDistributedLocker implements Locker {
 
     @Override
     public void unlock(String lockName, String lockAcquirerId) {
-        Object ret = evalScript(REDIS_UNLOCK, List.of(lockName), List.of(lockAcquirerId));
+        String script = "if redis.call('hexists', KEYS[1], ARGV[1]) == 1 then return redis.call('hdel', KEYS[1], ARGV[1]) else return 0 end";
+        List<String> keys = Collections.singletonList(lockName);
+        List<String> values = Collections.singletonList(lockAcquirerId);
         log.debug("unlock {} value {}, result {}", lockName, lockAcquirerId, ret);
     }
 

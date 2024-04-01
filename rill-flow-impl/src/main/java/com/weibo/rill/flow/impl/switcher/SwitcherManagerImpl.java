@@ -36,6 +36,7 @@ public class SwitcherManagerImpl implements SwitcherManager {
             Field switcher = switcherFieldMap.get(switcherName);
             if (switcher == null) {
                 switcher = Switchers.class.getDeclaredField(switcherName);
+                switcher.setAccessible(true);
                 switcherFieldMap.put(switcherName, switcher);
             }
             AtomicBoolean atomicBoolean = (AtomicBoolean) switcher.get(null);

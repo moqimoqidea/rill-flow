@@ -82,6 +82,7 @@ public class CommonUtil {
 
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
+            Method getter = beanInfo.getClass().getDeclaredMethod("getPropertyDescriptors");
             PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
             for (PropertyDescriptor property : propertyDescriptors) {
                 String key = property.getName();

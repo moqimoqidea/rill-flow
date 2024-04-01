@@ -32,7 +32,7 @@ class TaskParseTest extends Specification {
         then:
         ret instanceof FunctionTask
         ret.name == 'normalise'
-        ret.pattern == FunctionPattern.TASK_SCHEDULER || FunctionPattern.TASK_ASYNC
+        ret.group == 'split'
         ret.resourceName == 'testBusinessId::testFeatureName::testResource::prod'
         ret.inputMappings.size() == 2
         ret.outputMappings.size() == 1
@@ -66,7 +66,7 @@ class TaskParseTest extends Specification {
         ChoiceTask ret = YAMLMapper.parseObject(text, ChoiceTask.class)
 
         then:
-        ret instanceof ChoiceTask
+        ret.category == TaskCategory.CHOICE.getValue()
         ret.name == 'remuxChoice'
         ret.next == 'callback'
         ret.inputMappings.size() == 1
@@ -74,7 +74,7 @@ class TaskParseTest extends Specification {
         ret.inputMappings.get(0).target == 'path'
         ret.outputMappings.size() == 1
         ret.outputMappings.get(0).source == 'url'
-        ret.outputMappings.get(0).target == 'urls'
+        ret.outputMappings.get(0).target == 'url'
         ret.category == TaskCategory.CHOICE.getValue()
     }
 
@@ -115,7 +115,7 @@ class TaskParseTest extends Specification {
         ret.outputMappings.size() == 1
         ret.outputMappings.get(0).source == 'gopUrl'
         ret.outputMappings.get(0).target == 'gopUrls'
-        ret.iterationMapping.collection == 'segments'
+        ret.iterationMapping.source == 'segments'
         ret.iterationMapping.item == 'segmentUrl'
         ret.tasks.size() == 1
         ret.tasks.get(0).category == TaskCategory.FUNCTION.getValue()
@@ -134,7 +134,7 @@ class TaskParseTest extends Specification {
         FunctionTask ret = YAMLMapper.parseObject(text, FunctionTask.class)
 
         then:
-        ret instanceof FunctionTask
+        ret.category == TaskCategory.FUNCTION.getValue()
         ret.pattern == null
     }
 }

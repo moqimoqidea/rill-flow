@@ -103,7 +103,7 @@ public class CustomizedExceptionFilter extends AbstractFilter {
                     String paramString = (String) param;
                     logMessages.add(paramString);
                     if (ExecutionIdUtil.isExecutionId(paramString)) {
-                        serviceId = ExecutionIdUtil.getServiceId(paramString);
+                        serviceId = paramString;
                     }
                 } else if (param instanceof Throwable) {
                     Throwable t = (Throwable) param;

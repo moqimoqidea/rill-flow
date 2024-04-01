@@ -70,7 +70,9 @@ public class CustomizedStorageImpl implements CustomizedStorage {
 
         JedisFlowClient jedisFlowClient = getJedisClient(bucketName);
         jedisFlowClient.pipelined().accept(pipeline -> {
-            fieldToValues.forEach((field, value) -> pipeline.hset(bucketName, field, value.toString()));
+            pipeline.hset(bucketName, "expire", String.valueOf(currentTimeSecond + reserveTimeInSecond));
+            if (MapUtils.isNotEmpty(fieldToValues)) {
+                fieldToValues.forEach((field, value) -> pipeline.hset(bucketName, field, value.toString()));
             pipeline.sync();
         });
     }
@@ -125,7 +127,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         }
         log.debug("getClient bucketName:{}, clientId:{}", bucketName, clientId);
 
-        Map<String, RedisClient> clientMap = dagClientPool.getCustomizedStorageClientIdToRedisClient();
+        BizDConfs.ClientMap clientMap = bizDConfs.getClientMap();
         if (StringUtils.isBlank(clientId) || !clientMap.containsKey(clientId)) {
             log.warn("clientId:{} not found in config", clientId);
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "client not configured");

@@ -36,7 +36,7 @@ class ChoiceTaskTest extends Specification {
                 "       source: segments\n" +
                 "  next: "
         when:
-        dagParser.parse(text)
+        def flow = new YamlParser().parse(text)
 
         then:
         noExceptionThrown()
@@ -64,7 +64,7 @@ class ChoiceTaskTest extends Specification {
         dagParser.parse(text)
 
         then:
-        def e = thrown(ValidationException)
+        DDLException e = thrown()
         e.getErrorCode() == DDLErrorCode.CHOICE_TASK_INVALID.getCode()
     }
 

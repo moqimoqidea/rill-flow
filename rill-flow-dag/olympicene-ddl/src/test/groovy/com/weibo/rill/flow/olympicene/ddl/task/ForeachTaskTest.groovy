@@ -89,7 +89,7 @@ class ForeachTaskTest extends Specification {
 
         then:
         def e = thrown(ValidationException)
-        e.getErrorCode() == DDLErrorCode.FOREACH_TASK_INVALID.getCode()
+        e.message == "Invalid DAG. 'collection' is required for foreach task"
     }
 
 
@@ -116,7 +116,7 @@ class ForeachTaskTest extends Specification {
                 "      name: testName1\n" +
                 "  next: "
         when:
-        dagParser.parse(text)
+        def flow = parser.parse(new StringReader(flowYaml))
 
         then:
         noExceptionThrown()

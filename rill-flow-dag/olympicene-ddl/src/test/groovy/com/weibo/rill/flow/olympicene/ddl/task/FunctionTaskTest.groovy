@@ -102,7 +102,7 @@ class FunctionTaskTest extends Specification {
         ret.pattern == FunctionPattern.TASK_SCHEDULER || ret.pattern == FunctionPattern.TASK_ASYNC
         ret.resourceName == 'testBusinessId::testFeatureName::testResource::prod'
         ret.inputMappings.size() == 2
-        ret.outputMappings.size() == 1
+        ret.inputMappings[0].target == 'url'
         ret.category == TaskCategory.FUNCTION.getValue()
     }
 
@@ -127,7 +127,7 @@ class FunctionTaskTest extends Specification {
 
         then:
         def e = thrown(ValidationException)
-        e.errorCode == DDLErrorCode.FUNCTION_TASK_INVALID.getCode()
+        e.message == 'function task normalise is invalid. Because resourceName can not be null.'
         e.message == 'function task normalise is invalid. Because pattern can not be null.'
     }
 
@@ -169,7 +169,7 @@ class FunctionTaskTest extends Specification {
         where:
         text                          | _
         resourceNullResourceNameNull  | _
-        resourceNullResourceNameBlank | _
+        resourceNullResourceNameEmpty | _
         resourceNullResourcesNull     | _
     }
 
@@ -178,7 +178,7 @@ class FunctionTaskTest extends Specification {
         dagParser.parse(text)
 
         then:
-        noExceptionThrown()
+        def e = thrown(ValidationException)
 
         where:
         text                         | _

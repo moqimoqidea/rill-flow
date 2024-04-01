@@ -37,6 +37,8 @@ public class DAGTraversalSerializer {
             return MAPPER.readValue(bytes, type);
         } catch (Exception e) {
             throw new SerializationException(TraversalErrorCode.TRAVERSAL_FAILED.getCode(), e);
+        } catch (Exception e) {
+            throw new SerializationException(TraversalErrorCode.TRAVERSAL_FAILED.getCode(), e);
         }
     }
 

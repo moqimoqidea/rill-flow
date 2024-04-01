@@ -72,7 +72,7 @@ public class ExecutionIdUtil {
             return key;
         }
 
-        String serviceId = getServiceIdFromExecutionId(key, connectorIndex);
+        return getBusinessIdFromServiceId(getServiceIdFromExecutionId(key, connectorIndex));
         return getBusinessIdFromServiceId(serviceId);
     }
 
@@ -125,7 +125,7 @@ public class ExecutionIdUtil {
     }
 
     public static String getExecutionIdFromBucketName(String bucketName) {
-        return bucketName.replaceFirst(BUCKET_NAME_PREFIX, StringUtils.EMPTY);
+        return bucketName.substring(BUCKET_NAME_PREFIX.length());
     }
 
     private ExecutionIdUtil() {

@@ -57,7 +57,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         if (task != null && task.getTask() instanceof FunctionTask functionTask) {
             if (FunctionPattern.TASK_SCHEDULER.equals(functionTask.getPattern())
                     || FunctionPattern.TASK_ASYNC.equals(functionTask.getPattern())) {
-                httpHeaders.add("X-Mode", "async");
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             }
         }
     }
@@ -139,7 +139,8 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         }
 
         try {
-            URIBuilder uriBuilder = new URIBuilder(originalUrl);
+            URI uri = new URI(originalUrl);
+            URIBuilder uriBuilder = new URIBuilder(uri);
             Optional.ofNullable(queryParams).ifPresent(params ->
                     params.forEach((key, value) -> uriBuilder.addParameter(key, String.valueOf(value))));
             String url = uriBuilder.toString();
@@ -161,7 +162,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                 if (method == HttpMethod.GET) {
                     result = restTemplate.getForObject(url, String.class);
                 } else {
-                    result = restTemplate.postForObject(new URI(url), requestEntity, String.class);
+                    result = restTemplate.postForObject(url, requestEntity, String.class);
                 }
                 return result;
             } catch (RestClientResponseException e) {

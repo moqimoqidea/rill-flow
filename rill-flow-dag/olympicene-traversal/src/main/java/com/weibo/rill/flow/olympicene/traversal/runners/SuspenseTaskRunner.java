@@ -83,13 +83,17 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
             Map<String, Object> inputRealTime = Maps.newHashMap();
             inputMappings(context, inputRealTime, new HashMap<>(), taskInfo.getTask().getInputMappings());
 
-            taskInfo.setTaskStatus(TaskStatus.RUNNING);
+            // 唤醒任务
+            tryWakeup(executionId, taskInfo, inputRealTime);
+            // 中断挂起任务
             tryWakeup(executionId, taskInfo, inputRealTime);
             tryInterruptSuspense(executionId, taskInfo, inputRealTime);
 
             dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
             ret.setInput(inputRealTime);
-            ret.setTaskStatus(taskInfo.getTaskStatus());
+            ret.setOutput(output);
+            ret.setStatus(ExecutionStatus.SUCCESS);
+            ret.setEndTime(System.currentTimeMillis());
         });
 
         log.info("run suspense task completed, executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
@@ -115,7 +119,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
             // 目前只有超时不为null
             if (notifyInfo.getTaskStatus() != null && notifyInfo.getTaskStatus().isCompleted()) {
                 taskInfo.updateInvokeMsg(notifyInfo.getTaskInvokeMsg());
-                updateTaskInvokeEndTime(taskInfo);
+                // FIXME: The Completion Code is Empty.
                 taskInfo.setTaskStatus(notifyInfo.getTaskStatus());
                 dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
                 return;
@@ -131,7 +135,8 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
             Map<String, Object> context = ContextHelper.getInstance().getContext(dagContextStorage, executionId, taskInfo);
             contextRef.set(context);
             if (MapUtils.isNotEmpty(output) && CollectionUtils.isNotEmpty(taskInfo.getTask().getOutputMappings())) {
-                outputMappings(context, new HashMap<>(), output, taskInfo.getTask().getOutputMappings());
+                outputMappings(output, context, new HashMap<>(), taskInfo.getTask().getOutputMappings());
+                saveContext(executionId, context, Sets.newHashSet(taskInfo));
                 saveContext(executionId, context, Sets.newHashSet(taskInfo));
             }
 
@@ -151,7 +156,9 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
                 executionId, taskInfoName, taskInfo.getTaskStatus());
         return ExecutionResult.builder()
                 .taskStatus(taskInfo.getTaskStatus())
+                .input(input)
                 .taskInfo(taskInfo)
+                .dagInfo(dagInfo)
                 .context(contextRef.get())
                 .build();
     }
@@ -193,7 +200,7 @@ public class SuspenseTaskRunner extends AbstractTaskRunner {
         if (CollectionUtils.isEmpty(suspenseTask.getInterruptions())) {
             return false;
         }
-        return conditionsAnyMatch(suspenseTask.getInterruptions(), input, "input");
+        return conditionsAllMatch(suspenseTask.getInterruptions(), input, "input");
     }
 
     private void taskInfoValid(String executionId, String taskInfoName, TaskInfo taskInfo) {

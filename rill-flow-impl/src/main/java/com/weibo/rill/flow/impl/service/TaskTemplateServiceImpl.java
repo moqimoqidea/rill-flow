@@ -54,6 +54,8 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         for (Map.Entry<String, AbstractTaskRunner> taskRunnerEntry: taskRunnerMap.entrySet()) {
             JSONObject metaData = new JSONObject();
             AbstractTaskRunner taskRunner = taskRunnerEntry.getValue();
+            metaData.put("name", taskRunner.getName());
+            metaData.put("description", taskRunner.getDescription());
             if (!taskRunner.isEnable()) {
                 continue;
             }
@@ -180,7 +182,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         result.setOutput("{}");
         result.setSchema("{}");
         result.setEnable(1);
-        result.setType(taskTemplateType.getType());
+        result.setType(taskTemplateType.getValue());
         result.setTypeStr(taskTemplateType.getDesc() + "（元数据）");
         result.setNodeType("meta");
         result.setMetaData(MetaData.builder().icon(taskRunner.getIcon()).fields(taskRunner.getFields()).build());
@@ -193,6 +195,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             checkTaskTemplateDOValid(taskTemplateDO);
             // set default value if field is null
             setTemplateDOBeforeCreate(taskTemplateDO);
+            // insert into db
             return taskTemplateDAO.insert(taskTemplateDO);
         } catch (Exception e) {
             log.warn("create task template error", e);
@@ -204,8 +207,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         if (taskTemplateDO == null || taskTemplateDO.getName() == null || taskTemplateDO.getType() == null) {
             throw new IllegalArgumentException("task_template can't be null");
         }
-        String category = taskTemplateDO.getCategory();
-        TaskCategory taskCategory = TaskCategory.getEnumByValue(category);
+        TaskCategory taskCategory = TaskCategory.getTaskCategory(taskTemplateDO.getType());
         if (taskCategory == null) {
             log.warn("task_template category is invalid: {}", category);
             throw new IllegalArgumentException("task_template category is invalid: " + category);
@@ -238,6 +240,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             }
             taskTemplateDO.setUpdateTime(new Date());
             taskTemplateDO.setCreateTime(null);
+            checkTaskTemplateDOValid(taskTemplateDO);
             return taskTemplateDAO.update(taskTemplateDO);
         } catch (Exception e) {
             log.warn("update task template error", e);

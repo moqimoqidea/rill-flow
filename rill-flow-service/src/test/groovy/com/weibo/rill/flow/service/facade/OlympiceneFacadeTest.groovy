@@ -235,7 +235,7 @@ class OlympiceneFacadeTest extends Specification {
         systemMonitorStatistic.getExecutionIdsByStatus(*_) >> [pair1]
         systemMonitorStatistic.getExecutionIdsByCode(*_) >> [pair2]
         when:
-        var result = facade.getExecutionIds("testBusiness:testServiceName", DAGStatus.RUNNING, "0", 0L, 0, 1)
+        var result = facade.getExecutionIds("testBusiness:testServiceName", null, "0", 0L, 0, 1)
         then:
         result.get("execution_ids") == [["execution_id": "testExecutionId2", "submit_time": 456L]]
         result.get("type") == "0"

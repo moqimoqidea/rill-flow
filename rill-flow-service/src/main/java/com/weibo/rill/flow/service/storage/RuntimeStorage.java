@@ -56,7 +56,8 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
 
         DAGInfoRedisDAO dagInfoRedisDAO = new DAGInfoRedisDAO(redisClient, bizDConfs, dagInfoDeserializeService, switcherManagerImpl);
         ContextRedisDAO contextRedisDAO = new ContextRedisDAO(redisClient, bizDConfs, switcherManagerImpl);
-        this.runtimeRedisStorage = new DAGRedisStorage(dagInfoRedisDAO, contextRedisDAO);
+        RuntimeRedisDAO runtimeRedisDAO = new RuntimeRedisDAO(redisClient, bizDConfs, switcherManagerImpl);
+        this.runtimeRedisStorage = new DAGRedisStorage(dagInfoRedisDAO, contextRedisDAO, runtimeRedisDAO);
 
         this.runtimeSwapStorage = new RuntimeSwapStorage(redisClient, clientIdToRedisClient, bizDConfs);
     }
@@ -103,7 +104,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
         Supplier<DAGInfo> redisOperation = () -> runtimeRedisStorage.getBasicDAGInfo(executionId);
         Function<DAGInfo, Boolean> isValueAcquired = Objects::nonNull;
         Supplier<DAGInfo> swapOperation = () -> {
-            DAGInfo dagInfo = runtimeSwapStorage.getDAGInfo(executionId);
+            DAGInfo dagInfo = runtimeSwapStorage.getBasicDAGInfo(executionId);
             if (dagInfo != null) {
                 runtimeRedisStorage.saveDAGInfo(executionId, dagInfo);
                 Optional.ofNullable(dagInfo.getTasks()).map(Map::values)
@@ -223,7 +224,9 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
 
     @Override
     public Map<String, Object> getContext(String executionId) {
+        Function<Map<String, Object>, Boolean> isValueAcquired = MapUtils::isNotEmpty;
         Supplier<Map<String, Object>> redisOperation = () -> runtimeRedisStorage.getContext(executionId);
+        Supplier<Map<String, Object>> swapOperation = () -> runtimeSwapStorage.getContext(executionId);
         Function<Map<String, Object>, Boolean> isValueAcquired = MapUtils::isNotEmpty;
         Supplier<Map<String, Object>> swapOperation = () -> {
             Map<String, Object> ret = Maps.newHashMap();
@@ -249,7 +252,9 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
         Function<Map<String, Object>, Boolean> isValueAcquired = MapUtils::isNotEmpty;
         Supplier<Map<String, Object>> swapOperation = () -> {
             Map<String, Object> ret = Maps.newHashMap();
-            Map<String, Object> totalContext = runtimeSwapStorage.getTotalContext(executionId);
+            Map<String, Object> totalContext = runtimeSwapStorage.getContext(executionId);
+            if (MapUtils.isNotEmpty(totalContext)) {
+                fields.forEach(field -> Optional.ofNullable(totalContext.get(field))
             if (MapUtils.isNotEmpty(totalContext)) {
                 runtimeRedisStorage.updateContext(executionId, totalContext);
                 fields.forEach(field -> Optional.ofNullable(totalContext.get(field))
@@ -284,7 +289,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
                 throw e;
             }
 
-            T swapValue = getSwapValue(executionId, swapOperation);
+            log.warn("get value from redis storage fails, executionId:{}", executionId, e);
             if (isValueAcquired.apply(swapValue)) {
                 return swapValue;
             }

@@ -88,7 +88,9 @@ public class ScheduleTrigger implements Trigger {
                 if (scheduledFuture == null || scheduledFuture.isCancelled()) {
                     return false;
                 }
-                scheduledFuture.cancel(false);
+                if (scheduledFuture.cancel(false)) {
+                    scheduledTaskMap.remove(taskId);
+                    return true;
                 return cancelScheduler(taskId);
             }
         } catch (Exception e) {
@@ -123,7 +125,7 @@ public class ScheduleTrigger implements Trigger {
             String callback = taskDetailObject.getString("callback");
             String resourceCheck = taskDetailObject.getString("resource_check");
             String descriptorId = taskDetailObject.getString("descriptor_id");
-            Long uid = taskDetailObject.getLong("uid");
+            Long uid = context.getLong("uid");
             addCronTrigger(uid, descriptorId, callback, resourceCheck, context, taskId);
         }
     }
@@ -150,6 +152,9 @@ public class ScheduleTrigger implements Trigger {
         taskInfoMap.put(taskId, body);
         try {
             scheduleTask(taskId, cron, runnable);
+            log.info("add scheduler success, task_id: {}, cron: {}", taskId, cron);
+        } catch (Exception e) {
+        }
             return new JSONObject(Map.of("code", 0, "data", Map.of("task_id", taskId)));
         } catch (Exception e) {
             log.warn("add scheduler error, task_id: {}, cron: {}", taskId, cron, e);
@@ -164,6 +169,8 @@ public class ScheduleTrigger implements Trigger {
         JSONObject jsonDetails = TriggerUtil.buildCommonDetail(uid, descriptorId, callback, resourceCheck);
         jsonDetails.put("cron", cron);
         jsonDetails.put("context", context);
+        jsonDetails.put("task_id", taskId);
+        jsonDetails.put("create_time", System.currentTimeMillis());
         redisClient.hset(SCHEDULED_TASKS, taskId, jsonDetails.toJSONString());
     }
 

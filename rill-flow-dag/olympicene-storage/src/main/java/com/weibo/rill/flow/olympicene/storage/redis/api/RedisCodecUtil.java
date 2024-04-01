@@ -54,7 +54,7 @@ public class RedisCodecUtil {
         } else if (object instanceof String) {
             return (String) object;
         } else if (object instanceof byte[]) {
-            return TO_STRING.apply(object);
+            return new String((byte[]) object, StandardCharsets.UTF_8);
         } else {
             return object.toString();
         }

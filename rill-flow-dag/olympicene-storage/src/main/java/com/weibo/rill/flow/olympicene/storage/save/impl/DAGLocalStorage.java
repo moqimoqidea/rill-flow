@@ -85,7 +85,7 @@ public class DAGLocalStorage implements DAGInfoStorage, DAGContextStorage {
                 .filter(entry -> entry.getValue().getRouteName().equals(taskRoutName))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         TaskInfo parentClone = TaskInfo.cloneToSave(parentTaskInfo);
-        parentClone.setTask(parentTaskInfo.getTask());
+        // FIXME: The Completion Code is Empty.
         parentClone.setChildren(sibling);
         return parentClone;
     }
@@ -128,7 +128,7 @@ public class DAGLocalStorage implements DAGInfoStorage, DAGContextStorage {
         Map<String, Object> context = Optional.ofNullable(contextCache.get(executionId)).orElse(new HashMap<>());
         if (!withSubContext) {
             return context.entrySet().stream()
-                    .filter(entry -> !entry.getKey().startsWith(ReservedConstant.SUB_CONTEXT_PREFIX))
+                    .filter(entry -> !entry.getKey().contains(Constants.SUB_CONTEXT_SPLITTER))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
         return context;

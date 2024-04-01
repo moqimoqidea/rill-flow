@@ -39,7 +39,7 @@ public class DAGToolConverter {
                 || Objects.equals(taskInfo.getTask().getCategory(), TaskCategory.CHOICE.getValue()));
         ret.put("next", taskInfo.getNext().stream().map(TaskInfo::getName).collect(Collectors.toList()));
         ret.put("invoke_msg", taskInfo.getTaskInvokeMsg());
-        ret.put("sub_group_index_to_status", taskInfo.getSubGroupIndexToStatus());
+        ret.put("sub_group_key_mapping", taskInfo.getSubGroupKeyMapping());
         ret.put("sub_group_key_judgement_mapping", taskInfo.getSubGroupKeyJudgementMapping());
         ret.put("sub_group_index_to_identity", taskInfo.getSubGroupIndexToIdentity());
         ret.put("task", taskInfo.getTask());

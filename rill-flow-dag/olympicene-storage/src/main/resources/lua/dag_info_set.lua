@@ -20,6 +20,6 @@ for keyIndex = 1, #KEYS, 1 do
         redis.call("set", key, args[1]);
     else
         redis.call("hmset", key, unpack(args));
-        redis.call("expire", key, expireTime);
+        redis.call("expire", key, 3600);
     end
 end

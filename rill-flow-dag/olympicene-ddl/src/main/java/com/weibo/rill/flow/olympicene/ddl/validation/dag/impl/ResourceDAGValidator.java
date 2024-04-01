@@ -54,6 +54,8 @@ public class ResourceDAGValidator implements DAGValidator {
         Set<String> names = Sets.newHashSet();
         for (BaseResource resource : resources) {
             String name = resource.getName();
+            if (StringUtils.isBlank(name)) {
+                throw new ValidationException(DDLErrorCode.NAME_INVALID.getCode(), "resource name empty");
 
             if (StringUtils.isBlank(name) || name.length() > 100 || !namePattern.matcher(name).find()) {
                 throw new ValidationException(DDLErrorCode.NAME_INVALID.getCode(), "resource name invalid:" + name);

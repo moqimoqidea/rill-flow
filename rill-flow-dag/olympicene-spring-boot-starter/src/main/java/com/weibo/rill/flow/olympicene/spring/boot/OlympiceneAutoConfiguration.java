@@ -260,7 +260,7 @@ public class OlympiceneAutoConfiguration {
             @Autowired @Qualifier("dagInfoStorage") DAGInfoStorage dagInfoStorage,
             @Autowired @Qualifier("dagStorageProcedure") DAGStorageProcedure dagStorageProcedure) {
         log.info("begin to init default DAGRunner bean");
-        DAGRunner dagRunner = new DAGRunner(dagContextStorage, dagInfoStorage, dagStorageProcedure);
+        return new DAGRunner(stasher, dagContextStorage, dagInfoStorage, dagStorageProcedure);
         dagRunner.setStasher(stasher);
         return dagRunner;
     }
@@ -290,6 +290,7 @@ public class OlympiceneAutoConfiguration {
         DAGOperations dagOperations = new DAGOperations(runnerExecutor, taskRunners, dagRunner,
                 timeCheckRunner, dagTraversal, dagCallback, dagResultHandler);
         dagTraversal.setDagOperations(dagOperations);
+        dagCallback.setDagOperations(dagOperations);
         timeCheckRunner.setDagOperations(dagOperations);
         return dagOperations;
     }
@@ -302,6 +303,7 @@ public class OlympiceneAutoConfiguration {
             @Autowired @Qualifier("notifyExecutor") ExecutorService notifyExecutor,
             @Autowired(required = false) @Qualifier("dagResultHandler") DAGResultHandler dagResultHandler) {
         log.info("begin to init default Olympicene bean");
-        return new Olympicene(dagInfoStorage, dagOperations, notifyExecutor, dagResultHandler);
+        Olympicene olympicene = new Olympicene(dagInfoStorage, dagOperations, notifyExecutor, dagResultHandler);
+        return olympicene;
     }
 }

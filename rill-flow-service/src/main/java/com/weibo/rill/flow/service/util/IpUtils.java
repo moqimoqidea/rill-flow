@@ -85,7 +85,8 @@ public class IpUtils {
     public static String intToIpv4(int ipInInt) {
         ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(ipInInt);
-        final byte[] array = buffer.array();
+        byte[] array = buffer.array();
+        return intToIpv4(array);
         try {
             final InetAddress byAddress = InetAddress.getByAddress(array);
             return byAddress.getHostAddress();
@@ -125,7 +126,9 @@ public class IpUtils {
 
     public static String getLocalIpv4Address() {
         Collection<String> localIps = getLocalIpv4Addresses();
-        Iterator<String> iterator = localIps.iterator();
+        if (localIps.isEmpty()) {
+            return null;
+        }
         if (iterator.hasNext()) {
             return iterator.next();
         } else {

@@ -67,7 +67,9 @@ public class TaskInvokeMsg {
         Optional.ofNullable(taskInvokeMsg.getInvokeId()).ifPresent(this::setInvokeId);
         Optional.ofNullable(taskInvokeMsg.getCode()).ifPresent(this::setCode);
         Optional.ofNullable(taskInvokeMsg.getMsg()).ifPresent(this::setMsg);
-        Optional.ofNullable(taskInvokeMsg.getOutput()).ifPresent(this::setOutput);
+        Optional.ofNullable(taskInvokeMsg.getProgress()).ifPresent(this::setProgress);
+        Optional.ofNullable(taskInvokeMsg.getProgressArgs()).ifPresent(this::setProgressArgs);
+        Optional.ofNullable(taskInvokeMsg.getReferencedTaskExecutionId()).ifPresent(this::setReferencedTaskExecutionId);
         Optional.ofNullable(taskInvokeMsg.getReferencedDAGExecutionId()).ifPresent(this::setReferencedDAGExecutionId);
         Optional.ofNullable(taskInvokeMsg.getInvokeTimeInfos()).ifPresent(timeInfos -> {
             List<InvokeTimeInfo> timeInfoList = new ArrayList<>(timeInfos);
@@ -90,6 +92,8 @@ public class TaskInvokeMsg {
                 .invokeId(invokeId)
                 .code(code)
                 .msg(msg)
+                .input(input)
+                .output(output)
                 .referencedDAGExecutionId(referencedDAGExecutionId)
                 .invokeTimeInfos(invokeTimeInfos)
                 .ext(ext)

@@ -32,7 +32,7 @@ public class PluginHelper {
         if (CollectionUtils.isNotEmpty(plugins)) {
             for (int i = plugins.size() - 1; i >= 0; i--) {
                 BiConsumer<Runnable, Map<String, Object>> plugin = plugins.get(i);
-                Runnable previousRunnable = runnable;
+                // FIXME: Code Completion From Here.
                 runnable = () -> plugin.accept(previousRunnable, params);
             }
         }
@@ -45,7 +45,7 @@ public class PluginHelper {
         if (CollectionUtils.isNotEmpty(plugins)) {
             for (int i = plugins.size() - 1; i >= 0; i--) {
                 BiFunction<Supplier<ExecutionResult>, Map<String, Object>, ExecutionResult> plugin = plugins.get(i);
-                Supplier<ExecutionResult> previousSupplier = supplier;
+                // FIXME: Code Completion From Here.
                 supplier = () -> plugin.apply(previousSupplier, params);
             }
         }

@@ -30,12 +30,16 @@ public class SerializerUtil {
             return MAPPER.writeValueAsString(object);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
+        } catch (Exception e) {
+            throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         }
     }
 
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         try {
             return MAPPER.readValue(bytes, type);
+        } catch (Exception e) {
+            throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         }

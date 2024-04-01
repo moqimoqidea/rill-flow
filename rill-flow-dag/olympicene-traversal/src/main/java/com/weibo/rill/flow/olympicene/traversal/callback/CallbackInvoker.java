@@ -48,7 +48,7 @@ public class CallbackInvoker {
         try {
             Event<DAGCallbackInfo> event = Event.<DAGCallbackInfo>builder()
                     .timestamp(System.currentTimeMillis())
-                    .id(dagInfo.getExecutionId())
+                    .id(UUID.randomUUID().toString())
                     .eventCode(dagEvent.getCode())
                     .data(DAGCallbackInfo.builder()
                             .executionId(dagInfo.getExecutionId())

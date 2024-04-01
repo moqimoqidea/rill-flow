@@ -67,7 +67,9 @@ public class HmacSHA1Signature {
     public String computeSignature(String key, String data) {
         try {
             byte[] signData = sign(key.getBytes(DEFAULT_ENCODING), data.getBytes(DEFAULT_ENCODING));
-            return new String(Base64.encodeBase64(signData));
+            return Base64.encodeBase64String(signData);
+        } catch (UnsupportedEncodingException ex) {
+            log.error("Unsupported algorithm: {}", ALGORITHM, ex);
         } catch (UnsupportedEncodingException ex) {
             log.error("Unsupported algorithm: {}", ALGORITHM, ex);
             throw new RuntimeException("Unsupported algorithm: " + DEFAULT_ENCODING, ex);

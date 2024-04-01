@@ -53,7 +53,7 @@ class DAGStringParserExceptionTest extends Specification {
 
         then:
         def e = thrown(DDLException)
-        e.errorCode == DDLErrorCode.DAG_DESCRIPTOR_INVALID.getCode()
+        e.errorCode == DDLErrorCode.DAG_YAML_INVALID.getCode()
         e.message.contains('com.fasterxml.jackson.dataformat.yaml.snakeyaml.error.MarkedYAMLException')
     }
 
@@ -114,7 +114,7 @@ class DAGStringParserExceptionTest extends Specification {
                 "  next: segment"
 
         when:
-        dagParser.parse(text)
+        def flow = new YamlParser().parse(yaml)
 
         then:
         def e = thrown(DDLException)
