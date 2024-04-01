@@ -82,7 +82,9 @@ public class KafkaTrigger implements Trigger {
         kafkaTriggerProperties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
         kafkaTriggerProperties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         kafkaTriggerProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        // FIXME: Code Completion From Here.
+        kafkaTriggerProperties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        kafkaTriggerProperties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        kafkaTriggerProperties.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
         kafkaTriggerProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return kafkaTriggerProperties;
     }
@@ -120,7 +122,8 @@ public class KafkaTrigger implements Trigger {
         }
         // 2. create consumer
         Properties properties = createKafkaProperties(kafkaServer, groupId);
-        // FIXME: Code Completion From Here.
+        createConsumer(topic, uid, descriptorId, callback, resourceCheck, properties);
+        // 3. put to taskInfos
         taskInfos.put(taskKey, jsonDetails);
         return new JSONObject(Map.of("code", 0));
     }
@@ -135,7 +138,7 @@ public class KafkaTrigger implements Trigger {
                 continue;
             }
             String topic = keyInfos[0];
-            // FIXME: Code Completion From Here.
+            String descriptorId = keyInfos[1];
             JSONObject taskDetail = JSON.parseObject(entry.getValue());
             taskDetail.put("topic", topic);
             addTrigger(taskDetail.getLong("uid"), descriptorId, taskDetail.getString("callback"),
@@ -174,7 +177,7 @@ public class KafkaTrigger implements Trigger {
                         log.info("task canceled: {}", taskKey);
                         break;
                     }
-                    // FIXME: Code Completion From Here.
+                    consumeRecords(topic, uid, descriptorId, callback, resourceCheck, consumer);
                 }
             });
             log.info("kafka trigger create consumer success, topic: {}, descriptor_id: {}", topic, descriptorId);
@@ -193,7 +196,9 @@ public class KafkaTrigger implements Trigger {
                     log.info("kafka trigger consume, topic: {}, descriptor_id: {}, message: {}", topic, descriptorId, message);
                     JSONObject context = JSON.parseObject(message);
                     ResourceCheckConfig resourceCheckConfig = JSON.parseObject(resourceCheck, ResourceCheckConfig.class);
-                    // FIXME: Code Completion From Here.
+                    String businessId = context.getString("business_id");
+                    if (StringUtils.isBlank(businessId)) {
+                        businessId = UUID.randomUUID().toString();
                     Map<String, Object> contextMap = dagContextInitializer.newSubmitContextBuilder(businessId).withData(context).withIdentity(descriptorId).build();
 
                     Map<String, Object> result = olympiceneFacade.submit(new FlowUser(uid), descriptorId, contextMap, callback, resourceCheckConfig);

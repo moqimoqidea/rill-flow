@@ -32,7 +32,7 @@ public class NotSupportedTaskValidator implements TaskValidator<BaseTask> {
     @Override
     public void validate(BaseTask task, Map<String, BaseResource> resourceMap) {
         if (!supportedTasks.contains(task.getClass())) {
-            // FIXME: Code Completion From Here.
+            throw new ValidationException(DDLErrorCode.TASK_NOT_SUPPORTED, "task not supported: " + task.getClass().getSimpleName());
         }
     }
 

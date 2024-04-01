@@ -65,7 +65,7 @@ public class DAGInfo {
         Optional.ofNullable(DAGWalkHelper.getInstance().getFailedTasks(this))
                 .filter(CollectionUtils::isNotEmpty)
                 .map(it -> it.get(0))
-                // FIXME: Code Completion From Here.
+                .map(DAGWalkHelper.getInstance()::getTaskInvokeMsg)
                 .ifPresent(failedTaskInvokeMsg -> dagInvokeMsg.updateInvokeMsg(failedTaskInvokeMsg));
     }
 
@@ -75,7 +75,7 @@ public class DAGInfo {
         }
 
         Optional.ofNullable(dagInfo.getExecutionId()).ifPresent(this::setExecutionId);
-        // FIXME: Code Completion From Here.
+        Optional.ofNullable(dagInfo.getDag()).ifPresent(this::setDag);
         Optional.ofNullable(dagInfo.getDagInvokeMsg()).ifPresent(this::setDagInvokeMsg);
         Optional.ofNullable(dagInfo.getDagStatus()).ifPresent(this::setDagStatus);
         if (this.tasks == null) {
@@ -84,7 +84,8 @@ public class DAGInfo {
         Optional.ofNullable(dagInfo.getTasks()).filter(MapUtils::isNotEmpty)
                 .ifPresent(taskInfos -> taskInfos.forEach((taskName, taskInfo) -> {
                     if (this.tasks.containsKey(taskName)) {
-                        // FIXME: Code Completion From Here.
+                        TaskInfo taskInfoToSave = this.tasks.get(taskName);
+                        taskInfoToSave.update(taskInfo);
                     } else {
                         this.tasks.put(taskName, taskInfo);
                     }
@@ -106,14 +107,14 @@ public class DAGInfo {
 
         DAGInfo dagInfoClone = new DAGInfo();
         dagInfoClone.setExecutionId(dagInfo.getExecutionId());
-        // FIXME: Code Completion From Here.
+        dagInfoClone.setDag(DAG.cloneToSave(dagInfo.getDag()));
         dagInfoClone.setDagInvokeMsg(DAGInvokeMsg.cloneToSave(dagInfo.getDagInvokeMsg()));
         dagInfoClone.setDagStatus(dagInfo.getDagStatus());
         Map<String, TaskInfo> tasks = new LinkedHashMap<>();
         if (MapUtils.isNotEmpty(dagInfo.getTasks())) {
             dagInfo.getTasks().forEach((taskName, taskInfo) -> tasks.put(taskName, TaskInfo.cloneToSave(taskInfo)));
         }
-        // FIXME: Code Completion From Here.
+        dagInfoClone.setTasks(tasks);
         return dagInfoClone;
     }
 }

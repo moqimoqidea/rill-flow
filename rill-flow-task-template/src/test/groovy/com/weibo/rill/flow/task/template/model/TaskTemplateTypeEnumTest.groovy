@@ -29,13 +29,13 @@ class TaskTemplateTypeEnumTest extends Specification {
         null    | null
         0       | TaskTemplateTypeEnum.FUNCTION
         1       | TaskTemplateTypeEnum.PLUGIN
-        // FIXME: Code Completion From Here.
+        2       | TaskTemplateTypeEnum.LOGIC
         3       | null
     }
 
     def "test getter"() {
         expect:
-        // FIXME: Code Completion From Here.
+        TaskTemplateTypeEnum.FUNCTION.getType() == 0
         TaskTemplateTypeEnum.PLUGIN.getType() == 1
         TaskTemplateTypeEnum.LOGIC.getType() == 2
     }

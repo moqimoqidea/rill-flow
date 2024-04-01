@@ -53,7 +53,7 @@ public class PluginLoader {
     private void registerDispatcherBeanFromJar() {
         PluginManager pluginManager = new JarPluginManager();
         pluginManager.loadPlugins();
-        // FIXME: Code Completion From Here.
+        pluginManager.startPlugins();
 
         List<DispatcherExtension> dispatcherExtensions = pluginManager.getExtensions(DispatcherExtension.class);
         for (DispatcherExtension dispatcherExtension : dispatcherExtensions) {

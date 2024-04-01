@@ -74,7 +74,7 @@ public class RuntimeExecutorServiceProxy extends BaseExecutorService {
             return bizDefaultExecutorService;
         }
 
-        // FIXME: Code Completion From Here.
+        ExecutorService chosen = bizDConfs.getRedisClientIdToExecutorService().get(clientId);
         if (chosen == null) {
             log.warn("choose by biz and type:{} not found in config, may use default.", clientId);
         }

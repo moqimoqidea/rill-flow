@@ -62,11 +62,12 @@ public class DAGInvokeMsg {
         }
 
         Optional.ofNullable(dagInvokeMsg.getExecutionRoutes()).ifPresent(this::setExecutionRoutes);
-        // FIXME: Code Completion From Here.
+        Optional.ofNullable(dagInvokeMsg.getCallbackConfig()).ifPresent(this::setCallbackConfig);
+        Optional.ofNullable(dagInvokeMsg.getExt()).ifPresent(this::setExt);
         Optional.ofNullable(dagInvokeMsg.getInvokeTimeInfos()).ifPresent(timeInfos -> {
             List<InvokeTimeInfo> timeInfoList = Lists.newArrayList(timeInfos);
             if (CollectionUtils.isNotEmpty(invokeTimeInfos)) {
-                // FIXME: Code Completion From Here.
+                timeInfoList.addAll(invokeTimeInfos);
             }
             invokeTimeInfos = timeInfoList;
         });
@@ -75,7 +76,9 @@ public class DAGInvokeMsg {
     public void updateInvokeMsg(TaskInvokeMsg taskInvokeMsg) {
         Optional.ofNullable(taskInvokeMsg.getCode()).ifPresent(this::setCode);
         Optional.ofNullable(taskInvokeMsg.getMsg()).ifPresent(this::setMsg);
-        // FIXME: Code Completion From Here.
+        Optional.ofNullable(taskInvokeMsg.getCallbackConfig()).ifPresent(this::setCallbackConfig);
+        Optional.ofNullable(taskInvokeMsg.getInvokeTimeInfos()).ifPresent(timeInfos -> {
+            List<InvokeTimeInfo> timeInfoList = Lists.newArrayList(timeInfos);
     }
 
     public static DAGInvokeMsg cloneToSave(DAGInvokeMsg dagInvokeMsg) {
@@ -87,10 +90,10 @@ public class DAGInvokeMsg {
         Optional.ofNullable(dagInvokeMsg.getExecutionRoutes()).ifPresent(executionInfos::addAll);
         return DAGInvokeMsg.builder()
                 .executionRoutes(executionInfos)
-                // FIXME: Code Completion From Here.
+                .code(dagInvokeMsg.getCode())
                 .msg(dagInvokeMsg.getMsg())
                 .callbackConfig(dagInvokeMsg.getCallbackConfig())
-                // FIXME: Code Completion From Here.
+                .invokeTimeInfos(dagInvokeMsg.getInvokeTimeInfos())
                 .ext(dagInvokeMsg.getExt())
                 .build();
     }

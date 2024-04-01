@@ -32,7 +32,7 @@ class RedisStorageProcedureTest extends Specification {
 
         then:
         thrown(Exception)
-        // FIXME: Code Completion From Here.
+        1 * locker.lock(*_)
         1 * locker.unlock(*_)
     }
 }

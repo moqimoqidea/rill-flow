@@ -16,6 +16,6 @@ for keyIndex = 1, #KEYS, 1 do
         end
     end
 
-    -- FIXME: Code Completion From Here.
+    redis.call("set", key, unpack(args));
     redis.call("expire", key, expireTime)
 end

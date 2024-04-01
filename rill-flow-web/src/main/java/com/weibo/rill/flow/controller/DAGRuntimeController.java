@@ -125,7 +125,7 @@ public class DAGRuntimeController {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, "service_ids cannot empty");
         }
 
-        // FIXME: Code Completion From Here.
+        return ImmutableMap.of("ret", dagRuntimeFacade.runtimeDependentResources(serviceIds));
     }
 
     @RequestMapping(value = "clear_runtime_resources.json", method = RequestMethod.POST)
@@ -139,6 +139,6 @@ public class DAGRuntimeController {
     @RequestMapping(value = "business_invoke_summary.json", method = RequestMethod.GET)
     public Map<String, Object> businessInvokeSummary(User flowUser,
                                                      @RequestParam(value = "business_key") String businessKey) {
-        // FIXME: Code Completion From Here.
+        return dagRuntimeFacade.businessInvokeSummary(businessKey);
     }
 }

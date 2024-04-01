@@ -48,7 +48,7 @@ public class LongTermStorage {
 
         String executionId = callbackInfo.getExecutionId();
         try {
-            // FIXME: Code Completion From Here.
+            boolean needStore = bizDConfs.getNeedStoreDAGInfoAndContext();
             log.info("storeDAGInfoAndContext executionId:{} needStore:{}", executionId, needStore);
             if (!needStore) {
                 return;
@@ -66,7 +66,7 @@ public class LongTermStorage {
         if (!storageExist) {
             return null;
         }
-        // FIXME: Code Completion From Here.
+        return dagPikaDAO.getDAGInfo(executionId);
     }
 
     public DAGInfo getBasicDAGInfo(String executionId) {
@@ -84,7 +84,7 @@ public class LongTermStorage {
         if (!storageExist) {
             return null;
         }
-        // FIXME: Code Completion From Here.
+        return dagPikaDAO.getBasicTaskInfo(executionId, taskName);
     }
 
     public TaskInfo getTaskInfo(String executionId, String taskName, String subGroupIndex) {
@@ -118,7 +118,9 @@ public class LongTermStorage {
 
         try {
             String businessId = ExecutionIdUtil.getBusinessId(executionId);
-            // FIXME: Code Completion From Here.
+            if (StringUtils.isBlank(businessId)) {
+                return false;
+            }
         } catch (Exception e) {
             log.warn("storageExist fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
             return false;

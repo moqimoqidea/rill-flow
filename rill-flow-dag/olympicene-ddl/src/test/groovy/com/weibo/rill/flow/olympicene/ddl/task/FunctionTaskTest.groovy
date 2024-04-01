@@ -98,11 +98,11 @@ class FunctionTaskTest extends Specification {
 
         then:
         ret instanceof FunctionTask
-        // FIXME: Code Completion From Here.
+        ret.name == 'normalise'
         ret.pattern == FunctionPattern.TASK_SCHEDULER || ret.pattern == FunctionPattern.TASK_ASYNC
         ret.resourceName == 'testBusinessId::testFeatureName::testResource::prod'
         ret.inputMappings.size() == 2
-        // FIXME: Code Completion From Here.
+        ret.inputMappings[0].target == 'url'
         ret.category == TaskCategory.FUNCTION.getValue()
     }
 
@@ -127,7 +127,7 @@ class FunctionTaskTest extends Specification {
 
         then:
         def e = thrown(ValidationException)
-        // FIXME: Code Completion From Here.
+        e.message == 'function task normalise is invalid. Because resourceName can not be null.'
         e.message == 'function task normalise is invalid. Because pattern can not be null.'
     }
 
@@ -169,7 +169,7 @@ class FunctionTaskTest extends Specification {
         where:
         text                          | _
         resourceNullResourceNameNull  | _
-        // FIXME: Code Completion From Here.
+        resourceNullResourceNameEmpty | _
         resourceNullResourcesNull     | _
     }
 
@@ -178,7 +178,7 @@ class FunctionTaskTest extends Specification {
         dagParser.parse(text)
 
         then:
-        // FIXME: Code Completion From Here.
+        def e = thrown(ValidationException)
 
         where:
         text                         | _

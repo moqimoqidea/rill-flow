@@ -36,7 +36,7 @@ class ChoiceTaskTest extends Specification {
                 "       source: segments\n" +
                 "  next: "
         when:
-        // FIXME: Code Completion From Here.
+        def flow = new YamlParser().parse(text)
 
         then:
         noExceptionThrown()
@@ -64,7 +64,7 @@ class ChoiceTaskTest extends Specification {
         dagParser.parse(text)
 
         then:
-        // FIXME: Code Completion From Here.
+        DDLException e = thrown()
         e.getErrorCode() == DDLErrorCode.CHOICE_TASK_INVALID.getCode()
     }
 

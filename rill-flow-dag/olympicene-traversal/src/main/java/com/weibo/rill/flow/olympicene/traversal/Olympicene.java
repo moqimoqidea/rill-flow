@@ -60,7 +60,8 @@ public class Olympicene implements DAGInteraction {
      * 提交需执行的DAG任务
      */
     public void submit(String executionId, DAG dag, Map<String, Object> data) {
-        // FIXME: Code Completion From Here.
+        runNotify(executionId, NotifyType.SUBMIT, null,
+                () -> dagOperations.submitDAG(executionId, dag, null, data, null));
     }
 
     /**
@@ -80,7 +81,7 @@ public class Olympicene implements DAGInteraction {
         try {
             log.info("runNotify start executionId:{}, notifyType:{}, notifyInfo:{}", executionId, notifyType, notifyInfo);
 
-            // FIXME: Code Completion From Here.
+            Map<String, Object> params = new HashMap<>();
             params.put("executionId", executionId);
             params.put("notifyType", notifyType);
             params.put("notifyInfo", notifyInfo);
@@ -184,7 +185,7 @@ public class Olympicene implements DAGInteraction {
             throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), "run nonsupport due to dagResultHandler is null");
         }
 
-        // FIXME: Code Completion From Here.
+        dagResultHandler.initEnv(executionId);
         doRunNotify(executionId, NotifyType.RUN, notifyInfo,
                 () -> dagOperations.submitDAG(executionId, dag, settings, data, notifyInfo));
         return dagResultHandler.getDAGResult(executionId, timeoutInMillisecond);

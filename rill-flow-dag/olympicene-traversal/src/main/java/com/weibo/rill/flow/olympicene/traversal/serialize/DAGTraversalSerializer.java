@@ -34,7 +34,9 @@ public class DAGTraversalSerializer {
 
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         try {
-            // FIXME: Code Completion From Here.
+            return MAPPER.readValue(bytes, type);
+        } catch (Exception e) {
+            throw new SerializationException(TraversalErrorCode.TRAVERSAL_FAILED.getCode(), e);
         } catch (Exception e) {
             throw new SerializationException(TraversalErrorCode.TRAVERSAL_FAILED.getCode(), e);
         }

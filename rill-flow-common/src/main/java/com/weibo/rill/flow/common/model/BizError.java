@@ -67,7 +67,7 @@ public enum BizError {
     }
 
     public static JSONObject toJson(BizError bizError) {
-        // FIXME: Code Completion From Here.
+        JSONObject errorInfo = new JSONObject();
         errorInfo.put("error", bizError.causeMsg);
         errorInfo.put("error_code", bizError.getCode());
         return errorInfo;

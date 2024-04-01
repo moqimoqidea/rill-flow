@@ -43,13 +43,15 @@ public class DagInfoDeserializeServiceImpl implements DAGInfoDeserializeService 
         DAGInfo dagInfo = new DAGInfo();
         DagStorageSerializer.deserializeHash(dagInfoByte.get(1)).forEach((key, value) -> {
             if (EXECUTION_ID.equals(key)) {
-                // FIXME: Code Completion From Here.
+                dagInfo.setExecutionId((String) value);
             } else if (DAG_DESCRIBER.equals(key)) {
                 dagInfo.setDag((DAG) value);
             } else if (DAG_INVOKE_MSG.equals(key)) {
                 dagInfo.setDagInvokeMsg((DAGInvokeMsg) value);
             } else if (DAG_STATUS.equals(key)) {
-                // FIXME: Code Completion From Here.
+                dagInfo.setDagStatus((DAGStatus) value);
+            } else if (TASKS.equals(key)) {
+                dagInfo.setTasks((Map<String, TaskInfo>) value);
             } else if (key.startsWith(TASK_FIELD_PREFIX)) {
                 dagInfo.setTask(((TaskInfo) value).getName(), (TaskInfo) value);
             }
@@ -68,7 +70,9 @@ public class DagInfoDeserializeServiceImpl implements DAGInfoDeserializeService 
                 .filter(it -> CollectionUtils.isNotEmpty(it.get(0)) && it.get(0).size() == 2)
                 .filter(it -> CollectionUtils.isNotEmpty(it.get(1)))
                 .forEach(subTaskSetting -> {
-                    // FIXME: Code Completion From Here.
+                    List<byte[]> parentSetting = subTaskSetting.get(0);
+                    List<byte[]> subTaskInfos = subTaskSetting.get(1);
+                    Map<String, TaskInfo> subTaskMap = Maps.newHashMap();
                     DagStorageSerializer.deserializeHash(subTaskInfos)
                             .forEach((taskName, taskInfo) -> subTaskMap.put(((TaskInfo) taskInfo).getName(), (TaskInfo) taskInfo));
                     taskNameToSubTasks.put(DagStorageSerializer.getString(parentSetting.get(1)), subTaskMap);

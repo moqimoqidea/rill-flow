@@ -59,7 +59,7 @@ public class TaskTemplateController {
                                        @ApiParam(value = "节点类型") @RequestParam(value = "node_type", required = false) String nodeType,
                                        @ApiParam(value = "是否启用") @RequestParam(value = "enable", required = false) Integer enable) {
         TaskTemplateParams params = TaskTemplateParams.builder().id(id).name(name).category(category).type(type).nodeType(nodeType).enable(enable).build();
-        // FIXME: Code Completion From Here.
+        PageInfo<TaskTemplate> taskTemplatePageInfo = taskTemplateService.getTaskTemplatePageInfo(params, page, pageSize);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data", taskTemplatePageInfo);
         return jsonObject;
@@ -89,7 +89,7 @@ public class TaskTemplateController {
     @ApiOperation("更新模板接口")
     @RequestMapping(value = "update_task_template.json", method = RequestMethod.POST)
     public JSONObject updateTaskTemplate(User user, @ApiParam(value = "任务模板对象") @RequestBody() JSONObject taskTemplate) {
-        // FIXME: Code Completion From Here.
+        int num = taskTemplateService.updateTaskTemplate(taskTemplate);
         return new JSONObject(Map.of("code", num > 0? 0: 1));
     }
 }

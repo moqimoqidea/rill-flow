@@ -7,6 +7,6 @@ class RedisScriptManagerTest extends Specification {
         when:
         RedisScriptManager.getRedisGet()
         then:
-        // FIXME: Code Completion From Here.
+        noExceptionThrown()
     }
 }

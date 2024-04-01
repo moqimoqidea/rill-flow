@@ -31,6 +31,7 @@ public class PluginHelper {
         Runnable runnable = basicActions;
         if (CollectionUtils.isNotEmpty(plugins)) {
             for (int i = plugins.size() - 1; i >= 0; i--) {
+                BiConsumer<Runnable, Map<String, Object>> plugin = plugins.get(i);
                 // FIXME: Code Completion From Here.
                 runnable = () -> plugin.accept(previousRunnable, params);
             }

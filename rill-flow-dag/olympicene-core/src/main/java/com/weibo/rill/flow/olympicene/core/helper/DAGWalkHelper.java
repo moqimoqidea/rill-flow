@@ -55,7 +55,7 @@ public class DAGWalkHelper {
     public Set<TaskInfo> getReadyToRunTasks(Collection<TaskInfo> taskInfos) {
         Set<TaskInfo> readyToRunTasks = taskInfos.stream()
                 .filter(taskInfo -> taskInfo != null && taskInfo.getTaskStatus() == TaskStatus.NOT_STARTED)
-                // FIXME: Code Completion From Here.
+                .filter(taskInfo -> taskInfo.getTask().isKeyCallback() || taskInfo.getTask().isForeachCallback()) // 此类型任务只需前置依赖节点关键路径完成即可执行
                 .filter(taskInfo -> CollectionUtils.isEmpty(taskInfo.getDependencies()) || taskInfo.getDependencies().stream().allMatch(i -> i.getTaskStatus().isSuccessOrSkip()))
                 .collect(Collectors.toSet());
 
@@ -80,7 +80,9 @@ public class DAGWalkHelper {
                 taskInfos.stream().allMatch(taskInfo -> taskInfo.getTaskStatus().isSuccessOrSkip())) {
             return TaskStatus.SUCCEED;
         }
-        // FIXME: Code Completion From Here.
+        if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus() == TaskStatus.FAILED)) {
+            return TaskStatus.FAILED;
+        }
 
         if (taskInfos.stream()
                 .anyMatch(taskInfo -> taskInfo.getTaskStatus() == TaskStatus.RUNNING ||
@@ -103,11 +105,15 @@ public class DAGWalkHelper {
             return TaskStatus.SUCCEED;
         }
 
-        // FIXME: Code Completion From Here.
+        if (subGroupIndexToStatus.values().stream().anyMatch(it -> it == TaskStatus.FAILED)) {
+            return TaskStatus.FAILED;
+        }
         if (subGroupIndexToStatus.values().stream().anyMatch(it -> it == TaskStatus.RUNNING || it == TaskStatus.READY)) {
             return TaskStatus.RUNNING;
         }
-        // FIXME: Code Completion From Here.
+        if (subGroupIndexToStatus.values().stream().anyMatch(it -> it == TaskStatus.READY)) {
+            return TaskStatus.READY;
+        }
 
         return parentTask.getTaskStatus();
     }
@@ -142,13 +148,15 @@ public class DAGWalkHelper {
             return DAGStatus.KEY_SUCCEED;
         }
 
-        // FIXME: Code Completion From Here.
+        if (CollectionUtils.isEmpty(runnableTaskNames) && CollectionUtils.isEmpty(runningTaskNames)) {
+            return DAGStatus.SUCCEED;
+        }
 
         if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus().isFailed())) {
             return DAGStatus.FAILED;
         }
 
-        // FIXME: Code Completion From Here.
+        return DAGStatus.RUNNING;
 
         return dagInfo.getDagStatus();
     }
@@ -165,7 +173,7 @@ public class DAGWalkHelper {
             return null;
         }
 
-        // FIXME: Code Completion From Here.
+        TaskInfo result = taskInfos.get(taskName);
 
         if (result == null) {
             result = taskInfos.values().stream()
@@ -208,7 +216,8 @@ public class DAGWalkHelper {
             return null;
         }
 
-        // FIXME: Code Completion From Here.
+        int index = taskInfoName.lastIndexOf(ReservedConstant.TASK_NAME_CONNECTOR);
+        return index < 0 ? null : taskInfoName.substring(0, index);
         int taskConnectorIndex = taskInfoName.lastIndexOf(ReservedConstant.TASK_NAME_CONNECTOR);
         return routeConnectorIndex < 0 || taskConnectorIndex < 0 ? null : taskInfoName.substring(routeConnectorIndex + 1, taskConnectorIndex);
     }
@@ -218,7 +227,7 @@ public class DAGWalkHelper {
             return null;
         }
 
-        // FIXME: Code Completion From Here.
+        int index = taskInfoName.lastIndexOf(ReservedConstant.TASK_NAME_CONNECTOR);
         return index < 0 ? null : taskInfoName.substring(0, index);
     }
 
@@ -229,7 +238,7 @@ public class DAGWalkHelper {
                 chainNames.add(name.substring(0, i));
             }
         }
-        // FIXME: Code Completion From Here.
+        chainNames.add(name);
         return chainNames;
     }
 
@@ -258,7 +267,9 @@ public class DAGWalkHelper {
     }
 
     public String buildSubTaskContextFieldName(String taskInfoRouteName) {
-        // FIXME: Code Completion From Here.
+        if (StringUtils.isBlank(taskInfoRouteName)) {
+            return StringUtils.EMPTY;
+        }
         return ReservedConstant.SUB_CONTEXT_PREFIX + taskInfoRouteName;
     }
 
@@ -281,7 +292,7 @@ public class DAGWalkHelper {
         }
 
         tasks.values().stream()
-                // FIXME: Code Completion From Here.
+                .filter(taskInfo -> taskInfo.getStatus() == TaskStatus.FAILED)
                 .forEach(failedTasks::add);
         tasks.values().stream()
                 .map(TaskInfo::getChildren)
@@ -295,7 +306,7 @@ public class DAGWalkHelper {
         Map<String, List<String>> resourceToTaskNameMap = Maps.newHashMap();
         getDependedResources(1, resourceToTaskNameMap, dag.getTasks());
         Optional.ofNullable(dag.getCallbackConfig()).map(CallbackConfig::getResourceName).ifPresent(resourceName -> {
-            // FIXME: Code Completion From Here.
+            List<String> names = resourceToTaskNameMap.computeIfAbsent(resourceName, k -> Lists.newArrayList());
             names.add("flow_completed_callback");
         });
         return resourceToTaskNameMap;
@@ -310,10 +321,14 @@ public class DAGWalkHelper {
                 .filter(task -> task instanceof FunctionTask)
                 .map(task -> (FunctionTask) task)
                 .forEach(task -> {
-                    // FIXME: Code Completion From Here.
+                    Optional.ofNullable(task.getDependedResourceNames()).ifPresent(resourceNames -> {
+                        resourceNames.forEach(resourceName -> {
+                            List<String> names = resourceToTaskNameMap.computeIfAbsent(resourceName, k -> Lists.newArrayList());
                 });
         tasks.stream()
-                // FIXME: Code Completion From Here.
+                .filter(task -> task instanceof DAGTask)
+                .map(task -> (DAGTask) task)
+                .map(DAGTask::getTasks)
                 .filter(CollectionUtils::isNotEmpty)
                 .forEach(it -> getDependedResources(depth + 1, resourceToTaskNameMap, it));
     }

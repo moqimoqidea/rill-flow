@@ -27,7 +27,9 @@ public class SerializerUtil {
 
     public static String serializeToString(Object object) {
         try {
-            // FIXME: Code Completion From Here.
+            return MAPPER.writeValueAsString(object);
+        } catch (Exception e) {
+            throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         }
@@ -35,7 +37,9 @@ public class SerializerUtil {
 
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         try {
-            // FIXME: Code Completion From Here.
+            return MAPPER.readValue(bytes, type);
+        } catch (Exception e) {
+            throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         }

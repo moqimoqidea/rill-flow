@@ -51,7 +51,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         long currentTimeSecond = Instant.now().getEpochSecond();
         int reserveTimeInSecond = getReserveTimeInSecond(bucketName);
 
-        // FIXME: Code Completion From Here.
+        JedisFlowClient jedisFlowClient = getJedisClient(bucketName);
         jedisFlowClient.pipelined().accept(pipeline -> {
             pipeline.hset(bucketName, "expire", String.valueOf(currentTimeSecond + reserveTimeInSecond));
             if (MapUtils.isNotEmpty(fieldToValues)) {
@@ -70,7 +70,9 @@ public class CustomizedStorageImpl implements CustomizedStorage {
 
         JedisFlowClient jedisFlowClient = getJedisClient(bucketName);
         jedisFlowClient.pipelined().accept(pipeline -> {
-            // FIXME: Code Completion From Here.
+            pipeline.hset(bucketName, "expire", String.valueOf(currentTimeSecond + reserveTimeInSecond));
+            if (MapUtils.isNotEmpty(fieldToValues)) {
+                fieldToValues.forEach((field, value) -> pipeline.hset(bucketName, field, value.toString()));
             pipeline.sync();
         });
     }
@@ -86,7 +88,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         if (CollectionUtils.isEmpty(fields)) {
             return Collections.emptyMap();
         }
-        // FIXME: Code Completion From Here.
+        List<String> values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
         long nullValueCount = values.stream().filter(Objects::isNull).count();
         if (nullValueCount > 0) {
             values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
@@ -125,7 +127,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         }
         log.debug("getClient bucketName:{}, clientId:{}", bucketName, clientId);
 
-        // FIXME: Code Completion From Here.
+        BizDConfs.ClientMap clientMap = bizDConfs.getClientMap();
         if (StringUtils.isBlank(clientId) || !clientMap.containsKey(clientId)) {
             log.warn("clientId:{} not found in config", clientId);
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "client not configured");

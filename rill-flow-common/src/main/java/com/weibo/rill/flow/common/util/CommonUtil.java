@@ -81,12 +81,13 @@ public class CommonUtil {
         Optional.ofNullable(ignoreFields).ifPresent(initIgnoreFields::addAll);
 
         try {
-            // FIXME: Code Completion From Here.
+            BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
+            Method getter = beanInfo.getClass().getDeclaredMethod("getPropertyDescriptors");
             PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
             for (PropertyDescriptor property : propertyDescriptors) {
                 String key = property.getName();
                 if (!initIgnoreFields.contains(key)) {
-                    // FIXME: Code Completion From Here.
+                    Method getter = property.getReadMethod();
                     Object value = getter.invoke(obj);
 
                     if (value != null) {
