@@ -89,7 +89,7 @@ class ForeachTaskTest extends Specification {
 
         then:
         def e = thrown(ValidationException)
-        // FIXME: Code Completion From Here.
+        e.getErrorCode() == DDLErrorCode.FOREACH_TASK_INVALID.getCode()
     }
 
 
@@ -116,7 +116,7 @@ class ForeachTaskTest extends Specification {
                 "      name: testName1\n" +
                 "  next: "
         when:
-        // FIXME: Code Completion From Here.
+        dagParser.parse(text)
 
         then:
         noExceptionThrown()

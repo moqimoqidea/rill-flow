@@ -36,7 +36,7 @@ class ChoiceTaskTest extends Specification {
                 "       source: segments\n" +
                 "  next: "
         when:
-        // FIXME: Code Completion From Here.
+        dagParser.parse(text)
 
         then:
         noExceptionThrown()
@@ -64,7 +64,7 @@ class ChoiceTaskTest extends Specification {
         dagParser.parse(text)
 
         then:
-        // FIXME: Code Completion From Here.
+        def e = thrown(ValidationException)
         e.getErrorCode() == DDLErrorCode.CHOICE_TASK_INVALID.getCode()
     }
 

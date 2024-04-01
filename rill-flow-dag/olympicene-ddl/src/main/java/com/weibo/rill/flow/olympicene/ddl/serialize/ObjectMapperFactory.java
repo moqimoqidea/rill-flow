@@ -36,10 +36,10 @@ public class ObjectMapperFactory {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     static {
         JSON_MAPPER.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        // FIXME: Code Completion From Here.
+        JSON_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         JSON_MAPPER.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         JSON_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-        // FIXME: Code Completion From Here.
+        JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         addNetSfJSONNullSerializer(JSON_MAPPER);
         JSON_MAPPER.registerSubtypes(
                 new NamedType(FunctionTask.class, "function"),
@@ -58,11 +58,11 @@ public class ObjectMapperFactory {
 
     static {
         YAML_MAPPER.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        // FIXME: Code Completion From Here.
+        YAML_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         YAML_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         YAML_MAPPER.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
-        // FIXME: Code Completion From Here.
+        addNetSfJSONNullSerializer(YAML_MAPPER);
         YAML_MAPPER.registerSubtypes(
                 new NamedType(FunctionTask.class, "function"),
                 new NamedType(ChoiceTask.class, "choice"),
@@ -99,7 +99,7 @@ public class ObjectMapperFactory {
     public static void addNetSfJSONNullSerializer(ObjectMapper mapper) {
         //下面三行解决net.sf.json.JSONNull反序列化异常的问题
         SimpleModule netSfJsonModule = new SimpleModule("net.sf.json");
-        // FIXME: Code Completion From Here.
+        netSfJsonModule.addSerializer(JSONNull.class, new NullSerializer());
         mapper.registerModule(netSfJsonModule);
     }
 }

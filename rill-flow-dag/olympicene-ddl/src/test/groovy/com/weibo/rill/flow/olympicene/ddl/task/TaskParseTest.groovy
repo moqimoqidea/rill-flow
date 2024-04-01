@@ -32,11 +32,11 @@ class TaskParseTest extends Specification {
         then:
         ret instanceof FunctionTask
         ret.name == 'normalise'
-        // FIXME: Code Completion From Here.
+        ret.group == 'split'
         ret.resourceName == 'testBusinessId::testFeatureName::testResource::prod'
         ret.inputMappings.size() == 2
         ret.outputMappings.size() == 1
-        // FIXME: Code Completion From Here.
+        ret.pattern == FunctionPattern.TASK_SCHEDULER.getValue()
         ret.category == TaskCategory.FUNCTION.getValue()
     }
 
@@ -66,7 +66,7 @@ class TaskParseTest extends Specification {
         ChoiceTask ret = YAMLMapper.parseObject(text, ChoiceTask.class)
 
         then:
-        // FIXME: Code Completion From Here.
+        ret instanceof ChoiceTask
         ret.name == 'remuxChoice'
         ret.next == 'callback'
         ret.inputMappings.size() == 1
@@ -74,7 +74,7 @@ class TaskParseTest extends Specification {
         ret.inputMappings.get(0).target == 'path'
         ret.outputMappings.size() == 1
         ret.outputMappings.get(0).source == 'url'
-        // FIXME: Code Completion From Here.
+        ret.outputMappings.get(0).target == 'urls'
         ret.category == TaskCategory.CHOICE.getValue()
     }
 
@@ -109,13 +109,13 @@ class TaskParseTest extends Specification {
         ret instanceof ForeachTask
         ret.name == 'segmentForeach'
         ret.next == 'mergeGops'
-        // FIXME: Code Completion From Here.
+        ret.inputMappings.size() == 1
         ret.inputMappings.get(0).source == 'segments'
         ret.inputMappings.get(0).target == 'segments'
         ret.outputMappings.size() == 1
         ret.outputMappings.get(0).source == 'gopUrl'
         ret.outputMappings.get(0).target == 'gopUrls'
-        // FIXME: Code Completion From Here.
+        ret.iterationMapping.collection == 'segments'
         ret.iterationMapping.item == 'segmentUrl'
         ret.tasks.size() == 1
         ret.tasks.get(0).category == TaskCategory.FUNCTION.getValue()
@@ -134,7 +134,7 @@ class TaskParseTest extends Specification {
         FunctionTask ret = YAMLMapper.parseObject(text, FunctionTask.class)
 
         then:
-        // FIXME: Code Completion From Here.
+        ret instanceof FunctionTask
         ret.pattern == null
     }
 }

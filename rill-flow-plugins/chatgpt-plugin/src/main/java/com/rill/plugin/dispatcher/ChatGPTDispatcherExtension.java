@@ -55,7 +55,7 @@ public class ChatGPTDispatcherExtension implements DispatcherExtension {
 
         Map<String, Object> input = dispatchInfo.getInput();
 
-        // FIXME: Code Completion From Here.
+        FunctionTask functionTask = (FunctionTask) input.get("functionTask");
 
         if (MapUtils.isEmpty(input)) {
             throw new RuntimeException("parameters is empty");
@@ -108,7 +108,7 @@ public class ChatGPTDispatcherExtension implements DispatcherExtension {
             resultTye = "FAILED";
             logger.error("execute is failed. error:{}", e.getMessage());
         } finally {
-            // FIXME: Code Completion From Here.
+            HttpParameter httpParameter = new HttpParameter();
         }
     }
 
@@ -124,7 +124,7 @@ public class ChatGPTDispatcherExtension implements DispatcherExtension {
                 jsonObject = new JSONObject();
             }
 
-            // FIXME: Code Completion From Here.
+            String callbackBody = "{\"result\":{\"result_type\":\"" + resultType + "\",\"result\":\"" + jsonObject.toJSONString() + "\"}}";
             String callbackResponse = FLOW_WEB_HTTP_CLIENT.postWithBody(callbackUrl, null, null, callbackBody, null);
             logger.info("callback rill flow is success. callback url:{}, body:{}, response:{}", callbackUrl, callbackBody, callbackResponse);
         } catch (Exception e) {
@@ -160,7 +160,7 @@ public class ChatGPTDispatcherExtension implements DispatcherExtension {
         String model = (String) input.getOrDefault("model", "gpt-3.5-turbo");
 
         String body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
-        // FIXME: Code Completion From Here.
+        String result = FLOW_WEB_HTTP_CLIENT.postWithBody(OPENAI_URL, header, null, body, null);
 
         logger.info("request chatgpt is success. request body:{}, response:{}", body, result);
         return result;

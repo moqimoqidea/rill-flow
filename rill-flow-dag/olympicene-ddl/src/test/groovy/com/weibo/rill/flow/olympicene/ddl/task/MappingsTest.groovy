@@ -26,9 +26,9 @@ class MappingsTest extends Specification {
         ret instanceof FunctionTask
         ret.inputMappings.size() == 1
         ret.outputMappings.size() == 1
-        // FIXME: Code Completion From Here.
+        ret.inputMappings.get(0).source == '$.context.url'
         ret.inputMappings.get(0).target == '$.input.url'
         ret.outputMappings.get(0).source == '$.context.segments'
-        // FIXME: Code Completion From Here.
+        ret.outputMappings.get(0).target == '$.output.segments'
     }
 }

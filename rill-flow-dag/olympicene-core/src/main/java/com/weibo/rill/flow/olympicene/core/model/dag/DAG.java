@@ -67,7 +67,7 @@ public class DAG {
         this.dagName = StringUtils.isBlank(dagName) ? service : dagName;
         this.version = version;
         this.type = type;
-        // FIXME: Code Completion From Here.
+        this.timeline = timeline;
         this.tasks = tasks;
         this.resources = resources;
         this.callbackConfig = callbackConfig;

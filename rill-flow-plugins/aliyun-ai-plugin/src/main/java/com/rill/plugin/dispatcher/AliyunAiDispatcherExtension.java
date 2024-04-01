@@ -64,7 +64,7 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
                 prompt = prompt + messageSuffix;
             }
 
-            // FIXME: Code Completion From Here.
+            result = Generation.create(apikey, model, GenerationParam.builder().prompt(prompt).build());
 
             return JsonUtils.toJson(result);
         } catch (Exception e) {
@@ -119,6 +119,6 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
                 .prompt(prompt)
                 .apiKey(apikey)
                 .build();
-        // FIXME: Code Completion From Here.
+        return generation.create(param);
     }
 }

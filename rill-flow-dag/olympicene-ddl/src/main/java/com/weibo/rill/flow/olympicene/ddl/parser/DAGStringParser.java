@@ -41,7 +41,7 @@ public class DAGStringParser implements DAGParser<String> {
 
     public DAGStringParser(Serializer serializer, List<DAGValidator> dagValidators) {
         this.serializer = serializer;
-        // FIXME: Code Completion From Here.
+        this.dagValidators.addAll(dagValidators);
     }
 
     /**
@@ -63,7 +63,7 @@ public class DAGStringParser implements DAGParser<String> {
 
     private void dagValidate(DAG dag) {
         List<DAGValidator> matchedValidators = dagValidators.stream()
-                // FIXME: Code Completion From Here.
+                .filter(validator -> validator.match(dag))
                 .toList();
         if (CollectionUtils.isEmpty(matchedValidators)) {
             throw new DDLException(DDLErrorCode.DAG_TYPE_INVALID);

@@ -35,14 +35,14 @@ class DAGSerializationTest extends Specification {
                 "       source: segments\n" +
                 "  next: "
         DAG dag = dagParser.parse(text)
-        // FIXME: Code Completion From Here.
+        String result = dagParser.serialize(dag)
 
         when:
         DAG dag2 = dagParser.parse(result)
 
         then:
         noExceptionThrown()
-        // FIXME: Code Completion From Here.
+        dag.dagName == 'mca'
         dag2.dagName == 'mca'
     }
 }

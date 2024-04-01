@@ -63,7 +63,7 @@ class BaseTaskValidatorTest extends Specification {
                 "       source: segments\n" +
                 "  next: segmentForeach"
         when:
-        // FIXME: Code Completion From Here.
+        dagParser.parse(text)
 
         then:
         def e = thrown(ValidationException)
@@ -95,7 +95,7 @@ class BaseTaskValidatorTest extends Specification {
         dagParser.parse(text)
 
         then:
-        // FIXME: Code Completion From Here.
+        def e = thrown(DDLException)
         e.errorCode == DDLErrorCode.DAG_DESCRIPTOR_INVALID.getCode()
     }
 
