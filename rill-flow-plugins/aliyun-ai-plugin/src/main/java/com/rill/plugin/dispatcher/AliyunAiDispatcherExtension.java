@@ -49,7 +49,7 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
         String apikey = input.get("apikey").toString();
         String model = Optional.ofNullable(input.get("model")).map(Object::toString).orElse(Conversation.Models.QWEN_PLUS);
 
-        // FIXME: Code Completion From Here.
+        GenerationResult result = null;
 
         HttpParameter requestParams = HttpUtil.functionRequestParams(executionId, taskInfoName, input);
 
