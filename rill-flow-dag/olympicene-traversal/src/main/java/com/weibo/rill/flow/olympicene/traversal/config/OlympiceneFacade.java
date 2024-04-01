@@ -67,7 +67,7 @@ public class OlympiceneFacade {
 
         DAGTraversal dagTraversal = new DAGTraversal(dagContextStorage, dagInfoStorage, dagStorageProcedure, executor);
         DAGOperations dagOperations = new DAGOperations(executor, taskRunners, dagRunner, timeCheckRunner, dagTraversal, callback, dagResultHandler);
-        // FIXME: Code Completion From Here.
+        //  * @param dagOperations
         dagTraversal.setStasher(stasher);
         timeCheckRunner.setDagOperations(dagOperations);
         return new Olympicene(dagInfoStorage, dagOperations, executor, dagResultHandler);

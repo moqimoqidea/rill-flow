@@ -94,7 +94,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
         }
 
         String baseTaskName = DAGWalkHelper.getInstance().getBaseTaskName(taskInfoName);
-        // FIXME: Code Completion From Here.
+        String serviceId = ExecutionIdUtil.getServiceId(executionId);
 
         Optional.ofNullable(bizDConfs.getTenantDefinedTaskInvokeProfileLog())
                 .map(it -> it.get(businessId))

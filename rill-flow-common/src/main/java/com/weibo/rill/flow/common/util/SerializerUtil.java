@@ -32,29 +32,10 @@ public class SerializerUtil {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         }
     }
-    public static byte[] serializeToBytes(Object object) {
-        try {
-            // FIXME: Code Completion From Here.
-        } catch (Exception e) {
-            throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
-        }
-    }
 
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         try {
-            // FIXME: Code Completion From Here.
-        } catch (Exception e) {
-            throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
-        }
-    }
-    public static <T> T deserialize(String str, Class<T> type) {
-        try {
-            return MAPPER.readValue(str, type);
-        } catch (Exception e) {
-            throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
-        }
-    }
-    private SerializerUtil() {}
+            return MAPPER.readValue(bytes, type);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, e);
         }

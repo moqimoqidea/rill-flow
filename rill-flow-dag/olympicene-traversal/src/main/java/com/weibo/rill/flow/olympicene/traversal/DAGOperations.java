@@ -328,7 +328,7 @@ public class DAGOperations {
         }
 
         DAGInfo dagInfoMock = new DAGInfo();
-        // FIXME: Code Completion From Here.
+        dagInfoMock.setDagStatus(DAGStatus.SUCCEED);
 
         invokeCallback(executionId, dagEvent, dagInfoMock, taskInfo, context);
     }

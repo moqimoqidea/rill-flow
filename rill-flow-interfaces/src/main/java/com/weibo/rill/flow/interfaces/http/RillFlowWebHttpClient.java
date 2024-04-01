@@ -48,7 +48,7 @@ public class RillFlowWebHttpClient implements FlowHttpClient {
     public String get(String url, Map<String, String> header, Map<String, Object> param, Long uid) {
         try {
             HttpGet httpGet = WebHttpClientUtil.httpGet(url, param, header);
-            // FIXME: Code Completion From Here.
+            // FIXME: The Completion Code is Empty.
             CloseableHttpResponse response = httpClient.execute(httpGet);
         } catch (Exception e) {
             log.error("http get error. url:{}, header:{}, param:{}, uid:{}", url, header, param, uid, e);
