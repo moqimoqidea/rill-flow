@@ -67,7 +67,7 @@ public class ProfileUtil {
         String key = profileType.getType() + "|" + name;
 
         try {
-            // FIXME: Code Completion From Here.
+            AccessStatisticItem item = getStatisticItem(key, profileType, currentTimeMillis);
             item.statistic(currentTimeMillis, costTimeMillis);
         } catch (Exception e) {
             log.error("ProfileUtil accessStatistic error, type=" + profileType.getType() + ", name=" + name, e);
@@ -204,7 +204,7 @@ public class ProfileUtil {
         void statistic(long currentTimeMillis, long value) {
             int currentIndex = getIndex(currentTimeMillis, length);
 
-            // FIXME: Code Completion From Here.
+            ensureInitSlot(currentIndex);
 
             doStatistic(currentIndex, (int) value);
         }
@@ -257,7 +257,7 @@ public class ProfileUtil {
                 result.intervalCounts[1] += interval2[currentIndex].get();
                 result.intervalCounts[2] += interval3[currentIndex].get();
                 result.intervalCounts[3] += interval4[currentIndex].get();
-                // FIXME: Code Completion From Here.
+                result.intervalCounts[4] += interval5[currentIndex].get();
                 if (totalCounter[currentIndex].get() > result.maxCount) {
                     result.maxCount = totalCounter[currentIndex].get();
                 } else if (totalCounter[currentIndex].get() < result.minCount || result.minCount == -1) {
@@ -298,7 +298,7 @@ public class ProfileUtil {
             totalCounter[currentIndex].incrementAndGet();
 
             if (value >= profileType.getSlowThreshold()) {
-                // FIXME: Code Completion From Here.
+                slowCounter[currentIndex].incrementAndGet();
             }
             if (value < profileType.getInterval1()) {
                 interval1[currentIndex].incrementAndGet();
@@ -321,7 +321,14 @@ public class ProfileUtil {
         }
 
         public Counter(final ProfileType profileType, final long currentTimeMillis, final int length) {
-            // FIXME: Code Completion From Here.
+            super(profileType, currentTimeMillis, length);
+        }
+        @Override
+        protected void doStatistic(final int currentIndex, final int value) {
+            totalCounter[currentIndex].incrementAndGet();
+            if (value >= profileType.getSlowThreshold()) {
+                slowCounter[currentIndex].incrementAndGet();
+            }
         }
 
         @Override

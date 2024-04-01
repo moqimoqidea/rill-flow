@@ -60,7 +60,8 @@ public class Olympicene implements DAGInteraction {
      * 提交需执行的DAG任务
      */
     public void submit(String executionId, DAG dag, Map<String, Object> data) {
-        // FIXME: Code Completion From Here.
+        submit(executionId, dag, data, new DAGSettings(), null);
+    }
     }
 
     /**
@@ -80,7 +81,7 @@ public class Olympicene implements DAGInteraction {
         try {
             log.info("runNotify start executionId:{}, notifyType:{}, notifyInfo:{}", executionId, notifyType, notifyInfo);
 
-            // FIXME: Code Completion From Here.
+            Map<String, Object> params = Maps.newHashMap();
             params.put("executionId", executionId);
             params.put("notifyType", notifyType);
             params.put("notifyInfo", notifyInfo);
@@ -126,7 +127,7 @@ public class Olympicene implements DAGInteraction {
     }
 
     private void wakeupSubTasks(String executionId, Map<String, Object> data, String parentTaskInfoName) {
-        // FIXME: Code Completion From Here.
+        TaskInfo taskInfo = dagInfoStorage.getTask(executionId, parentTaskInfoName);
         if (taskInfo.getTaskStatus().isCompleted()) {
             log.info("wakeupSubTasks parent task is completed, executionId:{}, parentTaskInfoName:{}", executionId, parentTaskInfoName);
             return;
@@ -157,7 +158,8 @@ public class Olympicene implements DAGInteraction {
      * 执行的DAG任务并返回执行结果
      */
     public DAGResult run(String executionId, DAG dag, Map<String, Object> data) {
-        // FIXME: Code Completion From Here.
+        return run(executionId, dag, data, DAGSettings.DEFAULT);
+    }
     }
 
     /**
@@ -184,7 +186,10 @@ public class Olympicene implements DAGInteraction {
             throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), "run nonsupport due to dagResultHandler is null");
         }
 
-        // FIXME: Code Completion From Here.
+        if (StringUtils.isEmpty(executionId)) {
+            log.warn("run executionId empty");
+            throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), "run executionId can not be empty");
+        }
         doRunNotify(executionId, NotifyType.RUN, notifyInfo,
                 () -> dagOperations.submitDAG(executionId, dag, settings, data, notifyInfo));
         return dagResultHandler.getDAGResult(executionId, timeoutInMillisecond);

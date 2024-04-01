@@ -19,7 +19,7 @@ public abstract class ProcessorFactory {
             throw new IllegalArgumentException("Processor type not found: " + type);
         }
         Class<? extends DataProcessor<?>> processorClass = processorMap.get(type);
-        // FIXME: Code Completion From Here.
+        return (DataProcessor<T>) processorClass.newInstance();
     }
 }
 

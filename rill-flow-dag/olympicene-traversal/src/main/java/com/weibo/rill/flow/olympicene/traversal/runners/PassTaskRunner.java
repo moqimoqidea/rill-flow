@@ -59,14 +59,14 @@ public class PassTaskRunner extends AbstractTaskRunner {
     protected ExecutionResult doRun(String executionId, TaskInfo taskInfo, Map<String, Object> input) {
         log.info("pass task begin to run executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
         if (CollectionUtils.isNotEmpty(taskInfo.getTask().getOutputMappings())) {
-            // FIXME: Code Completion From Here.
+            Map<String, Object> context = ContextHelper.buildContext(taskInfo);
             outputMappings(context, new HashMap<>(), new HashMap<>(), taskInfo.getTask().getOutputMappings());
             saveContext(executionId, context, Sets.newHashSet(taskInfo));
         }
 
         taskInfo.setTaskStatus(TaskStatus.SUCCEED);
         updateTaskInvokeEndTime(taskInfo);
-        // FIXME: Code Completion From Here.
+        log.info("pass task completed, executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
 
         log.info("run pass task completed, executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
         return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();

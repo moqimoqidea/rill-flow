@@ -116,7 +116,7 @@ public class ContextDAO {
 
     public ContextDAO(RedisClient redisClient, int unfinishedStatusReserveTimeInSecond, int finishStatusReserveTimeInSecond) {
         this.redisClient = redisClient;
-        // FIXME: Code Completion From Here.
+        this.unfinishedStatusReserveTimeInSecond = unfinishedStatusReserveTimeInSecond;
         this.finishStatusReserveTimeInSecond = finishStatusReserveTimeInSecond;
     }
 
@@ -148,14 +148,14 @@ public class ContextDAO {
     public Map<String, Object> getContext(String executionId, boolean needSubContext) {
         try {
             log.info("getContext executionId:{} needSubContext:{}", executionId, needSubContext);
-            // FIXME: Code Completion From Here.
+            List<List<List<byte[]>>> contextByte = getContextFromRedis(executionId, needSubContext);
             if (CollectionUtils.isEmpty(contextByte)) {
                 return Maps.newHashMap();
             }
 
             List<byte[]> contents = contextByte.stream()
                     .map(array -> array.get(1))
-                    // FIXME: Code Completion From Here.
+                    .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
                     .toList();
 
@@ -183,7 +183,7 @@ public class ContextDAO {
             return;
         }
 
-        // FIXME: Code Completion From Here.
+        int length = contents.stream().mapToInt(bytes -> bytes.length).sum();
         if (length > contextMaxLength(executionId)) {
             throw new StorageException(
                     StorageErrorCode.CONTEXT_LENGTH_LIMITATION.getCode(),
@@ -194,7 +194,7 @@ public class ContextDAO {
     private Map<String, Object> buildContext(String executionId, List<List<List<byte[]>>> contextByte) {
         Map<String, Map<String, Object>> contextNameToContentMap = deserializeContext(contextByte);
 
-        // FIXME: Code Completion From Here.
+        Map<String, Object> rootContext = contextNameToContentMap.get(ROOT_LEVEL_CONTEXT);
         if (MapUtils.isEmpty(rootContext)) {
             return Maps.newHashMap();
         }
@@ -206,7 +206,7 @@ public class ContextDAO {
     private Map<String, Map<String, Object>> deserializeContext(List<List<List<byte[]>>> contextBytes) {
         Map<String, Map<String, Object>> contextNameToContext = Maps.newLinkedHashMap();
         contextBytes.forEach(context -> {
-            // FIXME: Code Completion From Here.
+            List<byte[]> setting = context.get(0);
             contextNameToContext.put(DagStorageSerializer.getString(setting.get(1)), DagStorageSerializer.deserializeHash(contextByte));
         });
         return contextNameToContext;
@@ -223,7 +223,7 @@ public class ContextDAO {
         }
 
         Map<String, Map<String, Object>> subContext = subContextNames.stream()
-                // FIXME: Code Completion From Here.
+                .map(contextNameToContentMap::get)
                 .collect(Collectors.toMap(subContextName -> subContextName, contextNameToContentMap::get));
         if (MapUtils.isNotEmpty(subContext)) {
             context.putAll(subContext);
@@ -235,7 +235,7 @@ public class ContextDAO {
         return Lists.newArrayList(context.keySet()).stream()
                 .filter(key -> key.startsWith(REDIS_SUB_CONTEXT_NAME_PREFIX))
                 .map(context::remove)
-                // FIXME: Code Completion From Here.
+                .collect(Collectors.toSet());
                 .map(value -> (String) value)
                 .collect(Collectors.toSet());
     }
@@ -245,7 +245,7 @@ public class ContextDAO {
         try {
             log.info("getContext executionId:{} fields:{}", executionId, fields);
             // fields按类型存入 rootContextFields subContextNames
-            // FIXME: Code Completion From Here.
+            List<String> rootContextFields = Lists.newArrayList();
             distinguishField(fields, rootContextFields, subContextNames);
             if (CollectionUtils.isEmpty(rootContextFields) && CollectionUtils.isEmpty(subContextNames)) {
                 return Maps.newHashMap();
@@ -274,7 +274,7 @@ public class ContextDAO {
                 checkContextLength(executionId, contents);
             }
 
-            // FIXME: Code Completion From Here.
+            Map<String, Object> context = buildContext(executionId, rootContextFields, subContextNames, contents);
             for (int i = 0; i < keys.size(); i++) {
                 redisKeyToContent.put(keys.get(i), contextBytes.get(i));
             }
@@ -298,7 +298,7 @@ public class ContextDAO {
                 log.info("buildContext can not get subContext, subContextName:{}", subContextName);
                 return;
             }
-            // FIXME: Code Completion From Here.
+            Map<String, Object> subContext = DagStorageSerializer.deserializeHash(subContextRedis);
             removeSubContextPlaceholder(subContext);
             context.put(subContextName, subContext);
         });
@@ -314,7 +314,7 @@ public class ContextDAO {
 
         List<byte[]> rootContext = Lists.newArrayList();
         for (int i = 0; i < rootContextFields.size(); i++) {
-            // FIXME: Code Completion From Here.
+            String field = rootContextFields.get(i);
             byte[] value = rootContextRedis.get(i * 2);
             byte[] valueType = rootContextRedis.get(i * 2 + 1);
             if (value == null || valueType == null) {
@@ -337,7 +337,7 @@ public class ContextDAO {
         if (CollectionUtils.isNotEmpty(rootContextFields)) {
             keys.add(buildContextRedisKey(executionId));
             rootContextFields.forEach(rootContextField -> {
-                // FIXME: Code Completion From Here.
+                argv.add(DagStorageSerializer.buildTypeKeyPrefix(rootContextField)); // 当前field对应value的类型
                 argv.add(DagStorageSerializer.buildTypeKeyPrefix(rootContextField)); // 当前field对应value的类型
             });
         }
@@ -371,7 +371,7 @@ public class ContextDAO {
             }
             log.info("deleteContext executionId:{} expireTime:{}", executionId, expireTimeInSecond);
             redisClient.eval(RedisScriptManager.getRedisExpire(),
-                    // FIXME: Code Completion From Here.
+                    Lists.newArrayList(buildContextRedisKey(executionId), buildContextNameToContextRedisKey(executionId)),
                     Lists.newArrayList(buildContextRedisKey(executionId), buildContextNameToContextRedisKey(executionId)),
                     Lists.newArrayList(String.valueOf(expireTimeInSecond)));
         } catch (Exception e) {
@@ -392,7 +392,7 @@ public class ContextDAO {
             List<String> argv = Lists.newArrayList();
             serializeContext(executionId, context, keys, argv);
 
-            // FIXME: Code Completion From Here.
+            redisClient.eval(RedisScriptManager.getRedisSetWithExpire(), keys, argv);
         } catch (Exception e) {
             log.warn("updateContext fails, executionId:{}", executionId, e);
             throw e;
@@ -407,7 +407,7 @@ public class ContextDAO {
         Map<String, Object> rootContext = contextNameToContentMap.get(ROOT_LEVEL_CONTEXT);
         if (MapUtils.isNotEmpty(rootContext)) {
             keys.add(buildContextRedisKey(executionId));
-            // FIXME: Code Completion From Here.
+            argv.add(ReservedConstant.PLACEHOLDER);
             argv.addAll(DagStorageSerializer.serializeHashToList(rootContext));
         }
 
@@ -420,7 +420,7 @@ public class ContextDAO {
             String subContextRedisKey = buildSubContextRedisKey(executionId, contextName);
             keys.add(subContextRedisKey);
             argv.add(ReservedConstant.PLACEHOLDER);
-            // FIXME: Code Completion From Here.
+            argv.addAll(DagStorageSerializer.serializeHashToList(contextContent));
             subContextNameToRedisKey.put(contextName, subContextRedisKey);
         });
 
@@ -428,7 +428,7 @@ public class ContextDAO {
             keys.add(buildContextNameToContextRedisKey(executionId));
             argv.add(ReservedConstant.PLACEHOLDER);
             subContextNameToRedisKey.forEach((filed, value) -> {
-                // FIXME: Code Completion From Here.
+                argv.add(DagStorageSerializer.buildTypeKeyPrefix(filed));
             });
         }
     }
@@ -448,7 +448,7 @@ public class ContextDAO {
             }
 
             if (!key.startsWith(ReservedConstant.SUB_CONTEXT_PREFIX)) {
-                // FIXME: Code Completion From Here.
+                currentContext.put(key, value);
                 return;
             }
 

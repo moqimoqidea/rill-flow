@@ -149,7 +149,7 @@ public class OlympiceneAutoConfiguration {
             @Autowired @Qualifier("traversalExecutor") ExecutorService traversalExecutor) {
         log.info("begin to init default DAGTraversal bean");
         DAGTraversal dagTraversal = new DAGTraversal(dagContextStorage, dagInfoStorage, dagStorageProcedure, traversalExecutor);
-        // FIXME: Code Completion From Here.
+        dagTraversal.setStasher(stasher);
         return dagTraversal;
     }
 
@@ -243,7 +243,7 @@ public class OlympiceneAutoConfiguration {
             @Autowired @Qualifier("choiceTaskRunner") ChoiceTaskRunner choiceTaskRunner) {
         log.info("begin to init default Map<TaskCategory, TaskRunner> bean");
         Map<String, TaskRunner> taskRunners = Maps.newConcurrentMap();
-        // FIXME: Code Completion From Here.
+        taskRunners.put(TaskCategory.FUNCTION.getValue(), functionTaskRunner);
         taskRunners.put(TaskCategory.PASS.getValue(), passTaskRunner);
         taskRunners.put(TaskCategory.SUSPENSE.getValue(), suspenseTaskRunner);
         taskRunners.put(TaskCategory.RETURN.getValue(), returnTaskRunner);
@@ -260,7 +260,7 @@ public class OlympiceneAutoConfiguration {
             @Autowired @Qualifier("dagInfoStorage") DAGInfoStorage dagInfoStorage,
             @Autowired @Qualifier("dagStorageProcedure") DAGStorageProcedure dagStorageProcedure) {
         log.info("begin to init default DAGRunner bean");
-        // FIXME: Code Completion From Here.
+        DAGRunner dagRunner = new DAGRunner(dagContextStorage, dagInfoStorage, dagStorageProcedure);
         dagRunner.setStasher(stasher);
         return dagRunner;
     }
@@ -289,7 +289,7 @@ public class OlympiceneAutoConfiguration {
         log.info("begin to init default DAGOperations bean");
         DAGOperations dagOperations = new DAGOperations(runnerExecutor, taskRunners, dagRunner,
                 timeCheckRunner, dagTraversal, dagCallback, dagResultHandler);
-        // FIXME: Code Completion From Here.
+        // fixme: The Completion Code is Empty.
         timeCheckRunner.setDagOperations(dagOperations);
         return dagOperations;
     }
@@ -302,6 +302,6 @@ public class OlympiceneAutoConfiguration {
             @Autowired @Qualifier("notifyExecutor") ExecutorService notifyExecutor,
             @Autowired(required = false) @Qualifier("dagResultHandler") DAGResultHandler dagResultHandler) {
         log.info("begin to init default Olympicene bean");
-        // FIXME: Code Completion From Here.
+        Olympicene olympicene = new Olympicene(dagInfoStorage, dagOperations);
     }
 }

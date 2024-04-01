@@ -38,7 +38,7 @@ public class StashUtil {
     }
 
     public static String getIdc() {
-        // FIXME: Code Completion From Here.
+        return getIdc(NAME_CONF);
         return getIdc(nameConf);
     }
 

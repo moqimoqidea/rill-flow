@@ -30,9 +30,8 @@ public class DDLException extends DAGException {
     }
 
     public DDLException(DDLErrorCode DDLErrorCode, Throwable cause) {
-        // FIXME: Code Completion From Here.
+        super(DDLErrorCode.getCode(), DDLErrorCode.getMessage(), cause);
     }
-
     public DDLException(int errorCode, String errorMsg, Throwable cause) {
         super(errorCode, errorMsg, cause);
     }

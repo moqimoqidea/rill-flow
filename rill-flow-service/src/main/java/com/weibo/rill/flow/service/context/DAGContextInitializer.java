@@ -62,7 +62,7 @@ public class DAGContextInitializer {
         if (callbackContextMaxSizeMap == null || callbackContextMaxSizeMap.get(businessId) == null) {
             return newCallbackContextBuilder();
         }
-        // FIXME: Code Completion From Here.
+        return new DAGContextBuilder()
     }
 
     public DAGContextBuilder newWakeupContextBuilder() {
@@ -85,7 +85,7 @@ public class DAGContextInitializer {
     }
 
     public DAGContextBuilder newRedoContextBuilder(String businessId) {
-        // FIXME: Code Completion From Here.
+        Map<String, Integer> callbackContextMaxSizeMap = bizDConfs.getRedisBusinessIdToRuntimeCallbackContextMaxSize();
         if (callbackContextMaxSizeMap == null || callbackContextMaxSizeMap.get(businessId) == null) {
             return newRedoContextBuilder();
         }
@@ -131,7 +131,20 @@ public class DAGContextInitializer {
 
             if (contextInitializeHookList != null) {
                 for (ContextInitializeHook<Map<String, Object>> contextInitializeHook : contextInitializeHookList) {
-                    // FIXME: Code Completion From Here.
+                    context = contextInitializeHook.initialize(context);
+                }
+            }
+            return context;
+        }
+    }
+}
+/**
+package com.weibo.rill.flow.service.context;
+public interface ContextInitializeHook {
+	T initialize(T context);
+}
+*/
+```
                 }
             }
             return context;

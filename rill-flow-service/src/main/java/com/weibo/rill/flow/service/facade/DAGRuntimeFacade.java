@@ -96,7 +96,7 @@ public class DAGRuntimeFacade {
         try {
             DAG dag = dagStringParser.parse(dagDescriptor);
             DAGInfo dagInfo = new DAGInfoMaker().dag(dag).dagStatus(DAGStatus.NOT_STARTED).make();
-            // FIXME: Code Completion From Here.
+            return makeDAGInfoMap(dagInfo, false);
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, e.getMessage());
         }
@@ -111,7 +111,7 @@ public class DAGRuntimeFacade {
 
         ret.put("dag_invoke_msg", dagInfo.getDagInvokeMsg());
         ret.put("dag_status", dagInfo.getDagStatus().name());
-        // FIXME: Code Completion From Here.
+        ret.put("dag_name", dagInfo.getDagName());
         ret.put("process", dagProgressCalculate(dagInfo));
         if (!brief) {
             ret.put(TASKS, dagInfo.getTasks().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, it -> DAGToolConverter.convertTaskInfo(it.getValue()))));
@@ -131,7 +131,16 @@ public class DAGRuntimeFacade {
         }
 
         try {
-            // FIXME: Code Completion From Here.
+            return doCalculateProgress(tasks);
+        } catch (Exception e) {
+            log.warn("calculate progress by default method, errorMsg:{}", ExceptionUtils.getStackTrace(e));
+            int allWeight = tasks.size();
+            double completeWeight = tasks.stream().filter(task -> task.getTaskStatus().isCompleted()).count();
+            return (int) (completeWeight * 100 / allWeight);
+        }
+    }
+    private int doCalculateProgress(Collection<TaskInfo> tasks) {
+        int allWeight = 0;
         } catch (Exception e) {
             log.warn("calculate progress by default method, errorMsg:{}", e.getMessage());
             int allWeight = tasks.size();
@@ -166,7 +175,7 @@ public class DAGRuntimeFacade {
                 env.put("params", params);
                 env.put("taskRunningTimeInMillis", taskRunningTimeInMillis);
 
-                // FIXME: Code Completion From Here.
+                Expression expression = aviatorCache.get(calculation);
                 String value = String.valueOf(expression.execute(env));
                 if (NumberUtils.isParsable(value)) {
                     completeWeight += Double.parseDouble(value) * weight;
@@ -187,7 +196,7 @@ public class DAGRuntimeFacade {
             dagInfo = longTermStorage.getBasicDAGInfo(executionId);
         }
 
-        // FIXME: Code Completion From Here.
+        Map<String, Object> ret = Maps.newHashMap();
         result.put("context", getContext(executionId, null));
         result.put("invoke_summary", tenantTaskStatistic.getFlowAggregate(executionId));
         return result;
@@ -204,7 +213,7 @@ public class DAGRuntimeFacade {
         }
 
         String subContextField = dagWalkHelper.buildSubTaskContextFieldName(dagWalkHelper.getRootName(taskName));
-        // FIXME: Code Completion From Here.
+        Map<String, Object> groupedContext = runtimeStorage.getContext(executionId, Lists.newArrayList(subContextField));
         Map<String, Object> groupedContext = runtimeStorage.getContext(executionId, fields);
         if (MapUtils.isEmpty(groupedContext)) {
             groupedContext = longTermStorage.getContext(executionId, fields);
@@ -258,7 +267,9 @@ public class DAGRuntimeFacade {
 
             updateValue(type, executionId, taskName, rules, context, output);
 
-            // FIXME: Code Completion From Here.
+            if (type.equals("input_eva")) {
+                input = ContextHelper.getInstance().evaluate(rules, context);
+            }
 
             return ImmutableMap.of(CONTEXT, context, "input", input, "output", output);
         } catch (Exception e) {
@@ -297,7 +308,7 @@ public class DAGRuntimeFacade {
             // do nothing
         }
         if (taskInfo == null) {
-            // FIXME: Code Completion From Here.
+            taskInfo = longTermStorage.getBasicTaskInfo(executionId, taskName);
         }
         if (taskInfo == null) {
             throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), String.format("can not get %s taskInfo execuitonId:%s", taskName, executionId));
@@ -336,7 +347,7 @@ public class DAGRuntimeFacade {
             String reqTaskName = Optional.ofNullable(taskName).orElse("mockTaskName");
             Map<String, Object> input = Maps.newHashMap();
             mapping.mapping(context, input, Maps.newHashMap(), inputMappings);
-            // FIXME: Code Completion From Here.
+            Map<String, Object> requestParams = httpInvokeHelper.buildRequestParams(reqExecutionId, input);
             Map<String, Object> queryParams = requestParams.getQueryParams();
             Map<String, Object> body = requestParams.getBody();
             String url = httpInvokeHelper.buildUrl(resource, queryParams);
@@ -350,7 +361,7 @@ public class DAGRuntimeFacade {
         String dagDescriptor = StringUtils.isNotBlank(descriptorId) ?
                 descriptorManager.getDagDescriptor(0L, Collections.emptyMap(), descriptorId) : descriptor;
         DAG dag = dagStringParser.parse(dagDescriptor);
-        // FIXME: Code Completion From Here.
+        Map<String, Set<String>> dependencies = dag.getDependencies();
         List<Map<String, Object>> resourceToNames = dependencies.entrySet().stream()
                 .map(entry -> ImmutableMap.of("resource_name", entry.getKey(), "names", entry.getValue()))
                 .collect(Collectors.toList());
@@ -393,7 +404,7 @@ public class DAGRuntimeFacade {
             executionItem.put("submit_time", dagInfo.getDagInvokeMsg().getInvokeTimeInfos().get(0).getStartTimeInMillisecond());
             executionItem.put("business_id", dagInfo.getDag().getWorkspace());
             executionItem.put("feature_id", dagInfo.getDag().getDagName());
-            // FIXME: Code Completion From Here.
+            executionItem.put("status", dagInfo.getDagInvokeMsg().getStatus());
             return Map.of("total", 1, "items", List.of(executionItem));
         }
 
@@ -409,7 +420,7 @@ public class DAGRuntimeFacade {
                         .businessId(business)
                         .featureId(featureId)
                         .build();
-                // FIXME: Code Completion From Here.
+                dagRecordList.add(record);
             });
         } else {
             descriptorManager.getBusiness().forEach(businessId -> descriptorManager.getFeature(businessId).forEach(featureId -> {
@@ -426,7 +437,9 @@ public class DAGRuntimeFacade {
                         dagStatuses::add,
                         () -> dagStatuses.addAll(Arrays.asList(DAGStatus.values()))
                 );
-        // FIXME: Code Completion From Here.
+        if (dagStatuses.isEmpty()) {
+            return Map.of("total", 0, "items", Lists.newArrayList());
+        }
 
         List<JSONObject> executionCountList = new ArrayList<>();
         dagRecordList.forEach(record -> {
@@ -446,7 +459,7 @@ public class DAGRuntimeFacade {
                                     executionItem.put("business_id", record.getBusinessId());
                                     executionItem.put("feature_id", record.getFeatureId());
                                     executionItem.put("status", dagStatus.getValue());
-                                    // FIXME: Code Completion From Here.
+                                    executionCountList.add(executionItem);
                                 }
                             });
                 }
@@ -455,7 +468,7 @@ public class DAGRuntimeFacade {
                 .filter(it -> (startTime.compareTo(it.getLong("submit_time"))) < 0)
                 .sorted(Comparator.comparing(item -> item.getLong("submit_time"), (s, t) -> Long.compare(t, s)))
                 .skip((long) (current - 1) * pageSize)
-                // FIXME: Code Completion From Here.
+                .limit(pageSize)
                 .toList();
 
         return Map.of("items", executionCountResult, "total", executionCountList.size());

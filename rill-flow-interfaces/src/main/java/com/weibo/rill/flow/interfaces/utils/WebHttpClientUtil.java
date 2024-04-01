@@ -40,7 +40,7 @@ public class WebHttpClientUtil {
         if (param != null && !param.isEmpty()) {
             List<NameValuePair> pairs = new ArrayList<>();
             for (Map.Entry<String, Object> entry : param.entrySet()) {
-                // FIXME: Code Completion From Here.
+                pairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
             }
             httpPost.setEntity(new UrlEncodedFormEntity(pairs));
         }
@@ -79,7 +79,20 @@ public class WebHttpClientUtil {
 
         if (header != null && !header.isEmpty()) {
             for (Map.Entry<String, String> headerEntry: header.entrySet()) {
-                // FIXME: Code Completion From Here.
+                httpGet.addHeader(headerEntry.getKey(), headerEntry.getValue());
+            }
+        }
+        return httpGet;
+    }
+}
+/*
+ *  Copyright 2021-2023 Weibo, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
             }
         }
 

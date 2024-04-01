@@ -45,6 +45,6 @@ public class SpringContextHelper implements ApplicationContextAware {
 
     public void registerBean(String beanName, Object beanObject) {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-        // FIXME: Code Completion From Here.
+        beanFactory.registerSingleton(beanName, beanObject);
     }
 }

@@ -34,7 +34,7 @@ public class NormalConfig {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(100, 100, 100000,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(100), namedThreadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
         TaskDecoratingExecutorServiceDecorator decorator = new TaskDecoratingExecutorServiceDecorator(threadPoolExecutor);
-        // FIXME: Code Completion From Here.
+        // FIXME: The Completion Code is Empty.
         return decorator;
     }
 
@@ -53,7 +53,7 @@ public class NormalConfig {
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("olympicene-statistic-%d").build();
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(20, 100, 100000,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(10000), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-        // FIXME: Code Completion From Here.
+        TaskDecoratingExecutorServiceDecorator decorator = new TaskDecoratingExecutorServiceDecorator(threadPoolExecutor);
         decorator.setTaskDecoratorAssemblerList(List.of(new ShareMdcFeatureDecoratorAssembler()));
 
         return decorator;

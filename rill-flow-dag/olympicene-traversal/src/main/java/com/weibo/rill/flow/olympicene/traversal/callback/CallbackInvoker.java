@@ -48,7 +48,7 @@ public class CallbackInvoker {
         try {
             Event<DAGCallbackInfo> event = Event.<DAGCallbackInfo>builder()
                     .timestamp(System.currentTimeMillis())
-                    // FIXME: Code Completion From Here.
+                    .type(dagEvent.getType())
                     .eventCode(dagEvent.getCode())
                     .data(DAGCallbackInfo.builder()
                             .executionId(dagInfo.getExecutionId())
@@ -61,7 +61,7 @@ public class CallbackInvoker {
             callback.onEvent(event);
         } catch (Throwable e) {
             log.error("callback error, dagEvent:{}, executionId:{}, taskInfoName:{}",
-                    // FIXME: Code Completion From Here.
+                    dagEvent,
                     Optional.ofNullable(dagInfo).map(DAGInfo::getExecutionId).orElse(null),
                     Optional.ofNullable(taskInfo).map(TaskInfo::getName).orElse(null),
                     e);

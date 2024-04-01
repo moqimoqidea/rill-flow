@@ -49,7 +49,7 @@ public class JedisFlowClient implements RedisClient {
             return callable.apply(jedis);
         } catch (Exception e) {
             if (jedis != null) {
-                // FIXME: Code Completion From Here.
+                jedisPool.returnBrokenResource(jedis);
                 jedis = null;
             }
             throw e;
@@ -113,7 +113,16 @@ public class JedisFlowClient implements RedisClient {
 
     @Override
     public void hdel(String shardingKey, String key, Collection<String> fields) {
-        // FIXME: Code Completion From Here.
+        doExecute(jedis -> jedis.hdel(key, fields.toArray(new String[0])));
+    }
+    @Override
+    public void hdel(String shardingKey, String key, String... fields) {
+        doExecute(jedis -> jedis.hdel(key, fields));
+    }
+    @Override
+    public Long hincrBy(byte[] key, byte[] field, long value) {
+        return doExecute(jedis -> jedis.hincrBy(key, field, value));
+
     }
 
     @Override
@@ -248,7 +257,7 @@ public class JedisFlowClient implements RedisClient {
 
     @NotNull
     private Set<Pair<String, Double>> tupleListToPairSet(List<Tuple> redisRes) {
-        // FIXME: Code Completion From Here.
+        Set<Pair<String, Double>> result = new HashSet<>();
         for (Tuple tuple : redisRes) {
             Pair<String, Double> pair = ImmutablePair.of(tuple.getElement(), tuple.getScore());
             result.add(pair);
@@ -311,7 +320,23 @@ public class JedisFlowClient implements RedisClient {
             List<Object> result = new ArrayList<>();
             //noinspection unchecked
             for (Object element : (List<Object>) object) {
-                // FIXME: Code Completion From Here.
+                result.add(turnStringToByteArray(element));
+            }
+            return result;
+        } else if (object instanceof String) {
+            return ((String) object).getBytes(StandardCharsets.UTF_8);
+        } else {
+            return object;
+        }
+    }
+    @Override
+    public Long hdel(String key, String... fields) {
+        return doExecute(jedis -> jedis.hdel(key, fields));
+    }
+    @Override
+    public Long zremrangeByScore(String key, double min, double max) {
+        return doExecute(jedis -> jedis.zremrangeByScore(key, min, max));
+    }
             }
             return result;
         } else if (object instanceof String) {
@@ -329,7 +354,20 @@ public class JedisFlowClient implements RedisClient {
     public Consumer<Consumer<Pipeline>> pipelined() {
         return ((Consumer<Pipeline> consumer) -> doExecute(jedis -> {
             try (Pipeline pipeline = jedis.pipelined()) {
-                // FIXME: Code Completion From Here.
+                consumer.accept(pipeline);
+            } catch (Exception e) {
+                throw new JedisException("Failed to execute pipeline", e);
+            }
+        }));
+    }
+    @Override
+    public Long zremrangeByRank(String key, long start, long end) {
+        return doExecute(jedis -> jedis.zremrangeByRank(key, start, end));
+    }
+    @Override
+    public Set<Pair<String, Double>> zrevrangeWithScores(String shardingKey, String key, long start, long end) {
+        return zrevrangeWithScores(key, start, end);
+    }
             }
             return 0;
         }));

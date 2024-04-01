@@ -27,7 +27,7 @@ public interface Serializer {
     <T> T deserialize(byte[] bytes, Class<T> type) throws SerializationException;
 
     default String serializeToString(Object object) throws SerializationException {
-        // FIXME: Code Completion From Here.
+        byte[] result = serialize(object);
         return result == null ? null : new String(result, StandardCharsets.UTF_8);
     }
 }

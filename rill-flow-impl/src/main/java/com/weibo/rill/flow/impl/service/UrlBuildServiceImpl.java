@@ -36,7 +36,7 @@ public class UrlBuildServiceImpl implements UrlBuildService {
         URIBuilder uriBuilder;
         try {
             uriBuilder = new URIBuilder(redoUrl);
-            // FIXME: Code Completion From Here.
+            uriBuilder.addParameter("execution_id", executionId);
             Optional.ofNullable(taskNamesString).ifPresent(it -> uriBuilder.addParameter("task_names", it));
             return uriBuilder.toString();
         } catch (URISyntaxException e) {

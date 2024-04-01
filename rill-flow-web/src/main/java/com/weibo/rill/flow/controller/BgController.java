@@ -107,7 +107,7 @@ public class BgController {
                                 .descriptorId(descriptorId)
                                 .createTime(createTime)
                                 .build();
-                        // FIXME: Code Completion From Here.
+                        dagRecordList.add(record);
                     });
                 });
             });
@@ -169,7 +169,9 @@ public class BgController {
                 return;
             }
             Map<String, Object> context = (Map<String, Object>) result.get("context");
-            // FIXME: Code Completion From Here.
+            if (context == null) {
+                return;
+            }
             result.put("trace_url", traceQueryHost + "/trace/" + traceId);
         } catch (Exception e) {
             log.warn("append Trace Info error, original result:{}", result);
@@ -242,7 +244,7 @@ public class BgController {
     @RequestMapping(value = "get_business_options.json", method = RequestMethod.GET)
     public Map<String, Object> getBusinessOptions() {
         @SuppressWarnings("unchecked")
-        // FIXME: Code Completion From Here.
+        List<String> businessIds = (List<String>) dagRuntimeFacade.getBasicDAGInfo(EXECUTION_ID, false).get("businessIds");
         return ImmutableMap.of(BUSINESS_IDS, businessIds.stream().map(item -> ImmutableMap.of("id", item, "name", item)).collect(Collectors.toList()));
     }
 }

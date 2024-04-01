@@ -43,7 +43,7 @@ public class AviatorCache {
                 @Override
                 public Expression load(String script) {
                     try {
-                        // FIXME: Code Completion From Here.
+                        return AviatorEvaluator.compile(script);
                     } catch (Exception e) {
                         log.error("aviatorExpression fails, script:{}", script, e);
                         return null;
@@ -57,7 +57,17 @@ public class AviatorCache {
         }
 
         try {
-            // FIXME: Code Completion From Here.
+            return aviatorExpression.get(script);
+        } catch (ExecutionException e) {
+            log.warn("getAviatorExpression fails, script:{}", script, e);
+            throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "get aviator script expression fails");
+        }
+    }
+}
+/*
+ *  Copyright 2021-2023 Weibo, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "
         } catch (ExecutionException e) {
             log.warn("getAviatorExpression fails, script:{}", script, e);
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "get aviator script expression fails");

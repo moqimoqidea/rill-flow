@@ -39,7 +39,9 @@ public class ProtocolPluginService {
             if (dispatcherExtension.getSchema() != null) {
                 jsonObject.put("schema", dispatcherExtension.getSchema());
             }
-            // FIXME: Code Completion From Here.
+            if (dispatcherExtension.getDescription() != null) {
+                jsonObject.put("description", dispatcherExtension.getDescription());
+            }
         }
         return result;
     }

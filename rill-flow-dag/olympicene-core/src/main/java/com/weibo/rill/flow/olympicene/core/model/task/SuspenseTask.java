@@ -55,7 +55,7 @@ public class SuspenseTask extends BaseTask {
                         @JsonProperty("parameters") Map<String, Object> parameters,
                         @JsonProperty("templateId") String templateId) {
         super(name, category, next, tolerance, inputMappings, outputMappings, progress, degrade, timeline, isKeyCallback, keyExp, parameters, templateId);
-        // FIXME: Code Completion From Here.
+        this.conditions = conditions;
         this.interruptions = interruptions;
     }
 

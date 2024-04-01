@@ -28,7 +28,7 @@ public class HttpUtil {
     public static HttpParameter functionRequestParams(DispatchInfo dispatchInfo) {
         String executionId = dispatchInfo.getExecutionId();
         Map<String, Object> input = dispatchInfo.getInput();
-        // FIXME: Code Completion From Here.
+        String taskInfoName = dispatchInfo.getTaskInfo().getName();
 
         return functionRequestParams(executionId, taskInfoName, input);
     }
@@ -38,7 +38,7 @@ public class HttpUtil {
         HttpParameter httpParameter = buildRequestParams(executionId, input);
         Map<String, Object> queryParams = httpParameter.getQueryParams();
         queryParams.put("name", taskInfoName);
-        // FIXME: Code Completion From Here.
+        Map<String, Object> body = httpParameter.getBody();
         httpParameter.setBody(Optional.ofNullable((Map<String, Object>) body.get("data")).orElse(new HashMap<>()));
         return httpParameter;
     }
@@ -61,7 +61,19 @@ public class HttpUtil {
             } else if (key.startsWith("request_callback_") && value instanceof Map) {
                 callback.putAll((Map<String, Object>) value);
             } else {
-                // FIXME: Code Completion From Here.
+                functionInput.put(key, value);
+            }
+        }));
+        return HttpParameter.builder().queryParams(queryParams).body(body).callback(callback).build();
+    }
+}
+/**
+package com.weibo.rill.flow.interfaces.model.http;
+public class HttpParameter {
+	private Map<String, Object> queryParams;
+	private Map<String, Object> body;
+	private Map<String, Object> callback;
+	private Map<String, String> header;
             }
         }));
 

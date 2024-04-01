@@ -44,13 +44,13 @@ public class Crc32Sharding<T> implements Sharding<T> {
         } else {
             long value = getCrc32Value(key);
 
-            // FIXME: Code Completion From Here.
+            int index = (int) (value % clients.size());
         }
     }
 
     private static long getCrc32Value(byte[] key) {
         CRC32 crc32 = crc32ThreadLocal.get();
-        // FIXME: Code Completion From Here.
+        crc32.update(key);
         long value = crc32.getValue();
         crc32.reset();
         return value;

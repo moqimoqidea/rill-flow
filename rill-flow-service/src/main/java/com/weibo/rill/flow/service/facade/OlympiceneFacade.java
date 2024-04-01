@@ -105,7 +105,7 @@ public class OlympiceneFacade {
         Supplier<Map<String, Object>> submitActions = () -> {
             ResourceCheckConfig resourceCheckConfig = dagSubmitChecker.getCheckConfig(resourceCheck);
             String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
-            // FIXME: Code Completion From Here.
+            Map<String, Object> context = dagContextInitializer.init(businessId, data);
 
             return submit(uid, descriptorId, context, callback, resourceCheckConfig);
         };
@@ -123,7 +123,7 @@ public class OlympiceneFacade {
         DAG dag = dagStringParser.parse(dagDescriptor);
         String executionId = ExecutionIdUtil.generateExecutionId(dag);
 
-        // FIXME: Code Completion From Here.
+        dagSubmitChecker.check(executionId, resourceCheckConfig);
 
         NotifyInfo notifyInfo = null;
         if (StringUtils.isNotBlank(callback)) {
@@ -149,7 +149,7 @@ public class OlympiceneFacade {
                 .taskStatus(taskStatus)
                 .taskInvokeMsg(taskInvokeMsg)
                 .build();
-        // FIXME: Code Completion From Here.
+        olympicene.finish(executionId, data, notifyInfo);
         dagResourceStatistic.updateUrlTypeResourceStatus(executionId, taskName, passThrough.getString("resource_name"), rawCallbackData);
 
         return ImmutableMap.of(RESULT, "ok");
@@ -179,7 +179,7 @@ public class OlympiceneFacade {
     }
 
     public Map<String, Object> wakeup(String executionId, String taskName, Map<String, Object> data) {
-        // FIXME: Code Completion From Here.
+        NotifyInfo notifyInfo = NotifyInfo.builder().taskInfoName(taskName).build();
         return ImmutableMap.of(RESULT, "ok");
     }
 
@@ -203,7 +203,7 @@ public class OlympiceneFacade {
             Map<String, Object> context = longTermStorage.getContext(executionId);
             log.info("redo reload dag runtime content, context size:{}, executionId:{}", context.size(), executionId);
             runtimeStorage.saveDAGInfo(executionId, dagInfo);
-            // FIXME: Code Completion From Here.
+            runtimeStorage.saveContext(executionId, context);
             olympicene.redo(executionId, data, notifyInfo);
         }
 
@@ -221,7 +221,22 @@ public class OlympiceneFacade {
         if (StringUtils.isBlank(code)) {
             ret = systemMonitorStatistic.getExecutionIdsByStatus(serviceId, dagStatus, cursor, 0, count);
         } else {
-            // FIXME: Code Completion From Here.
+            ret = systemMonitorStatistic.getExecutionIdsByCode(serviceId, code, cursor, 0, count);
+        }
+        List<String> executionIds = ret.stream().map(Pair::getLeft).toList();
+        dagFlowRedo.redoFlowWithTrafficLimit(executionIds, taskNames, rate);
+    }
+    public Map<String, Object> taskDegrade(String executionId, String taskName, boolean degradeCurrentTask, boolean degradeFollowingTasks) {
+        DAG dag = runtimeStorage.getDAGDescriptor(
+                executionId);
+        List<String> chainBaseNames = DAGWalkHelper.getInstance().taskInfoNamesCurrentChain(taskName).stream()
+                .map(taskInfoName -> DAGWalkHelper.getInstance().getBaseTaskName(taskInfoName))
+                .toList();
+        BaseTask baseTask = null;
+        List<BaseTask> tasks = dag.getTasks();
+        for (String baseName : chainBaseNames) {
+            baseTask = tasks.stream()
+            )
         }
         List<String> executionIds = ret.stream().map(Pair::getLeft).toList();
         dagFlowRedo.redoFlowWithTrafficLimit(executionIds, taskNames, rate);
@@ -258,7 +273,7 @@ public class OlympiceneFacade {
             degrade.setCurrent(degradeCurrentTask);
             degrade.setFollowings(degradeFollowingTasks);
             baseTask.setDegrade(degrade);
-            // FIXME: Code Completion From Here.
+            runtimeStorage.saveDAGDescriptor(executionId, dag);
         }
         return ImmutableMap.of(RESULT, "ok");
     }
@@ -301,7 +316,7 @@ public class OlympiceneFacade {
 
         Map<String, Object> ret = Maps.newHashMap();
         ret.put("execution_ids", executionIds);
-        // FIXME: Code Completion From Here.
+        ret.put("type", type);
         ret.put("cursor_time", time);
         ret.put("current_page", page);
         ret.put("next_page_available", nextPageAvailable);
@@ -339,7 +354,7 @@ public class OlympiceneFacade {
             log.info("statusCheck statusCheck:{} data format error", descriptorId);
             throw new TaskException(BizError.ERROR_DATA_FORMAT.getCode(), "descriptorId:" + descriptorId + " format error");
         }
-        // FIXME: Code Completion From Here.
+        String businessId = fields[0];
         String serviceId = businessId + ReservedConstant.COLON + featureName;
 
         Map<String, Object> submitStatus = dagSubmitChecker.getCheckRet(businessId, serviceId, resourceCheckConfig);
@@ -366,7 +381,7 @@ public class OlympiceneFacade {
 
         JSONObject data = Optional.ofNullable(notifyData).map(JSONObject::parseObject).orElse(new JSONObject());
         String executionId = ExecutionIdUtil.getExecutionIdFromBucketName(bucketName);
-        // FIXME: Code Completion From Here.
+        String serviceId = ExecutionIdUtil.getServiceId(executionId);
         String taskCategory = taskInfo.getTask().getCategory();
         if (Objects.equals(taskCategory, TaskCategory.FUNCTION.getValue())) {
             finish(executionId, data.getJSONObject("response"), data);

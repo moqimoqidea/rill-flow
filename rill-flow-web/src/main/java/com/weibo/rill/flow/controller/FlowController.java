@@ -92,7 +92,7 @@ public class FlowController {
         Supplier<Map<String, Object>> submitActions = () -> {
             ResourceCheckConfig resourceCheckConfig = submitChecker.getCheckConfig(resourceCheck);
             String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
-            // FIXME: Code Completion From Here.
+            Map<String, Object> context = dagContextInitializer.newSubmitContextBuilder(businessId).withData(data).build();
 
             return olympiceneFacade.submit(flowUser, descriptorId, context, callback, resourceCheckConfig);
         };
@@ -116,7 +116,7 @@ public class FlowController {
             passThrough.put(EXECUTION_ID, executionId);
             passThrough.put(TASK_NAME, taskName);
             data.put("passthrough", passThrough);
-            // FIXME: Code Completion From Here.
+            return olympiceneFacade.finish(executionId, taskName, context);
         };
         return profileRecordService.runNotifyAndRecordProfile("finish.json", executionId, finishActions);
     }
@@ -147,7 +147,7 @@ public class FlowController {
                                     @ApiParam(value = "任务名称列表") @RequestParam(value = TASK_NAMES, required = false) List<String> taskNames,
                                     @ApiParam(value = "工作流执行的context信息") @RequestBody(required = false) JSONObject data) {
         Supplier<Map<String, Object>> redoActions = () -> {
-            // FIXME: Code Completion From Here.
+            String businessId = ExecutionIdUtil.getBusinessId(executionId);
             Map<String, Object> context = dagContextInitializer.newRedoContextBuilder(businessId).withData(data).withIdentity(executionId).build();
             return olympiceneFacade.redo(executionId, taskNames, context);
         };
@@ -179,7 +179,7 @@ public class FlowController {
 
         long cursor = System.currentTimeMillis() - offsetInMinute * 60 * 1000;
 
-        // FIXME: Code Completion From Here.
+        // FIXME: The Completion Code is Empty.
 
         return Map.of("result", "ok");
     }
@@ -264,7 +264,7 @@ public class FlowController {
         String bucketExecutionId = Optional.ofNullable(executionId)
                 .filter(StringUtils::isNotBlank)
                 .orElse(ExecutionIdUtil.generateExecutionId(businessId, featureName));
-        // FIXME: Code Completion From Here.
+        String bucketName = BucketUtil.generateBucketName(businessId, featureName);
         Supplier<Map<String, Object>> initActions = () ->
                 olympiceneFacade.initBucket(bucketName, JSON.parseObject(fieldToValues.toJSONString()));
 
@@ -329,7 +329,7 @@ public class FlowController {
             @RequestParam(value = "id") String id,
             @RequestParam(value = "status") String status
     ) {
-        // FIXME: Code Completion From Here.
+        String result = olympiceneFacade.getDagDetails(id, status);
         if (StringUtils.isEmpty(result)) {
             return Map.of("data", "", "message", "", "success", true);
         }

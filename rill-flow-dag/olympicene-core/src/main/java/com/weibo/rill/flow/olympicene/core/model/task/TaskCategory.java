@@ -60,7 +60,7 @@ public enum TaskCategory {
             case "function" -> FUNCTION;
             case "choice" -> CHOICE;
             case "foreach" -> FOREACH;
-            // FIXME: Code Completion From Here.
+            case "suspense" -> SUSPENSE;
             case "pass" -> PASS;
             case "return" -> RETURN;
             default -> null;

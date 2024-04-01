@@ -40,7 +40,20 @@ public class RedisCodecUtil {
 
     public static final Function<Object, String> TO_STRING = object -> {
         if (object instanceof String) {
-            // FIXME: Code Completion From Here.
+            return (String) object;
+        } else if (object instanceof byte[]) {
+            return new String((byte[]) object, StandardCharsets.UTF_8);
+        } else {
+            return String.valueOf(object);
+        }
+    };
+    public static String getAsString(Object object) {
+        if (object == null) {
+            return null;
+        } else if (object instanceof String) {
+            return (String) object;
+        } else if (object instanceof byte[]) {
+            return new String((byte[]) object, StandardCharsets.UTF_8);
         } else if (object instanceof byte[]) {
             return new String((byte[]) object, StandardCharsets.UTF_8);
         } else {
@@ -54,7 +67,7 @@ public class RedisCodecUtil {
         } else if (object instanceof String) {
             return (String) object;
         } else if (object instanceof byte[]) {
-            // FIXME: Code Completion From Here.
+            return new String((byte[]) object, StandardCharsets.UTF_8);
         } else {
             return object.toString();
         }
@@ -69,7 +82,20 @@ public class RedisCodecUtil {
             List<E> result = new ArrayList<>(list.size());
             for (Object o : list) {
                 try {
-                    // FIXME: Code Completion From Here.
+                    result.add(func.apply(o));
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+            return result;
+        } else {
+            return null;
+        }
+    }
+    public static Map<String, String> getAsMap(Object object) {
+        return getAsMap(object, TO_STRING, TO_STRING);
+    }
+    public static <K, V> Map<K, V> getAsMap(Object object, Function<Object, K> keyFunc
                 } catch (Exception e) {
                     return null;
                 }
@@ -93,7 +119,7 @@ public class RedisCodecUtil {
 
             Map<K, V> result = new HashMap<>(list.size() / 2);
             for (int i = 0; i < list.size(); i += 2) {
-                // FIXME: Code Completion From Here.
+                Object keyElem = list.get(i);
 
                 try {
                     result.put(keyFunc.apply(keyElem), valFunc.apply(valElem));

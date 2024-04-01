@@ -48,7 +48,7 @@ public class OlympiceneFacade {
                                    Callback<DAGCallbackInfo> callback, DAGDispatcher dagDispatcher,
                                    DAGStorageProcedure dagStorageProcedure, TimeChecker timeChecker,
                                    SwitcherManager switcherManager) {
-        // FIXME: Code Completion From Here.
+        return build(dagInfoStorage, dagContextStorage, callback, null, dagDispatcher,
         return build(dagInfoStorage, dagContextStorage, dagStorageProcedure, callback, null,
                 dagDispatcher, timeChecker, executor, switcherManager);
     }
@@ -59,7 +59,7 @@ public class OlympiceneFacade {
         JSONPathInputOutputMapping jsonPathInputOutputMapping = new JSONPathInputOutputMapping();
 
         DefaultStasher stasher = new DefaultStasher();
-        // FIXME: Code Completion From Here.
+        DAGRunner dagRunner = new DAGRunner(dagInfoStorage, dagContextStorage, stasher);
         dagRunner.setStasher(stasher);
         TimeCheckRunner timeCheckRunner = new TimeCheckRunner(timeChecker, dagInfoStorage, dagContextStorage, dagStorageProcedure);
         Map<String, TaskRunner> taskRunners = buildTaskRunners(dagInfoStorage, dagContextStorage, dagDispatcher,
@@ -85,7 +85,7 @@ public class OlympiceneFacade {
         FunctionTaskRunner functionTaskRunner = new FunctionTaskRunner(dagDispatcher, mapping, dagContextStorage, dagInfoStorage, dagStorageProcedure, switcherManager);
         SuspenseTaskRunner suspenseTaskRunner = new SuspenseTaskRunner(mapping, dagInfoStorage, dagContextStorage, dagStorageProcedure, switcherManager);
         ReturnTaskRunner returnTaskRunner = new ReturnTaskRunner(mapping, dagInfoStorage, dagContextStorage, dagStorageProcedure, switcherManager);
-        // FIXME: Code Completion From Here.
+        ForeachTaskRunner foreachTaskRunner = new ForeachTaskRunner(mapping, dagContextStorage, dagInfoStorage, dagStorageProcedure, switcherManager);
         foreachTaskRunner.setStasher(stasher);
         ChoiceTaskRunner choiceTaskRunner = new ChoiceTaskRunner(mapping, dagContextStorage, dagInfoStorage, dagStorageProcedure, switcherManager);
 
@@ -94,7 +94,7 @@ public class OlympiceneFacade {
         runners.put(TaskCategory.CHOICE.getValue(), choiceTaskRunner);
         runners.put(TaskCategory.FOREACH.getValue(), foreachTaskRunner);
         runners.put(TaskCategory.SUSPENSE.getValue(), suspenseTaskRunner);
-        // FIXME: Code Completion From Here.
+        runners.put(TaskCategory.PASS.getValue(), passTaskRunner);
         runners.put(TaskCategory.RETURN.getValue(), returnTaskRunner);
         return runners;
     }

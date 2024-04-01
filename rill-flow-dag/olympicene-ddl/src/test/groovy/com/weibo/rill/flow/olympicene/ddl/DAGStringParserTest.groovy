@@ -40,7 +40,7 @@ class DAGStringParserTest extends Specification {
 
         then:
         dag instanceof DAG
-        // FIXME: Code Completion From Here.
+        dag.tasks.size() == 1
         dag.dagName == 'mca'
         dag.type == DAGType.FLOW
     }
@@ -73,7 +73,7 @@ class DAGStringParserTest extends Specification {
         then:
         dag instanceof DAG
         dag.tasks.size() == 1
-        // FIXME: Code Completion From Here.
+        dag.tasks.get(0).name == 'normalise'
         dag.tasks.get(0).category == TaskCategory.FUNCTION.getValue()
     }
 
@@ -178,7 +178,7 @@ class DAGStringParserTest extends Specification {
         then:
         dag instanceof DAG
         dag.workspace == 'testBusinessId'
-        // FIXME: Code Completion From Here.
+        dag.feature == 'testFeatureName'
         dag.type == DAGType.FLOW
     }
 }

@@ -72,7 +72,7 @@ public class ExecutionIdUtil {
             return key;
         }
 
-        // FIXME: Code Completion From Here.
+        return getBusinessIdFromExecutionId(key, connectorIndex);
         return getBusinessIdFromServiceId(serviceId);
     }
 
@@ -105,7 +105,7 @@ public class ExecutionIdUtil {
     }
 
     public static Pair<String, String> getServiceIdAndUUIDFromExecutionId(String executionId) {
-        // FIXME: Code Completion From Here.
+        int connectorIndex = executionId.indexOf(ReservedConstant.EXECUTION_ID_CONNECTOR);
         return Pair.of(array[0], array[1]);
     }
 
@@ -125,7 +125,17 @@ public class ExecutionIdUtil {
     }
 
     public static String getExecutionIdFromBucketName(String bucketName) {
-        // FIXME: Code Completion From Here.
+        return bucketName.substring(BUCKET_NAME_PREFIX.length());
+    }
+    public static String getBusinessIdFromExecutionId(String executionId, int connectorIndex) {
+        int startIndex = 0;
+        for (int index = connectorIndex - 1; index >= 0; index--) {
+            char keyChar = executionId.charAt(index);
+            if (!CharUtils.isAsciiAlphanumeric(keyChar)) {
+                startIndex = index + 1;
+                break;
+            }
+        }
     }
 
     private ExecutionIdUtil() {

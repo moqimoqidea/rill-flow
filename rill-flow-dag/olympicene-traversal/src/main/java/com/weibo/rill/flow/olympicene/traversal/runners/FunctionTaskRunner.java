@@ -115,7 +115,7 @@ public class FunctionTaskRunner extends AbstractTaskRunner {
                     break;
                 case FLOW_SYNC:
                 case FLOW_ASYNC:
-                    // FIXME: Code Completion From Here.
+                    executionRef.set(dispatchTask(executionId, taskInfo, input, functionPattern, TaskStatus::isSuccess));
                     break;
                 default:
                     throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), String.format("%s not supported", functionPattern));
@@ -147,7 +147,9 @@ public class FunctionTaskRunner extends AbstractTaskRunner {
                     .taskInvokeMsg(taskInvokeMsg)
                     .build();
 
-            // FIXME: Code Completion From Here.
+            if (needUpdateContext.apply(notifyInfo.getTaskStatus())) {
+                updateContext(executionId, taskInfo, output);
+            }
         } catch (Exception e) {
             log.error("dispatchTask fails, executionId:{}, taskName:{}, functionPattern:{}, errorMsg:{}",
                     executionId, taskInfo.getName(), functionPattern, e.getMessage());
@@ -155,7 +157,7 @@ public class FunctionTaskRunner extends AbstractTaskRunner {
             Retry retry = ((FunctionTask) taskInfo.getTask()).getRetry();
             RetryContext retryContext = RetryContext.builder().retryConfig(retry).taskStatus(TaskStatus.FAILED).taskInfo(taskInfo).build();
             if (retryPolicy.needRetry(retryContext)) {
-                // FIXME: Code Completion From Here.
+                notifyInfo.setTaskStatus(retryPolicy.handleRetryCallback(executionId, taskInfo, notifyInfo));
                 if (Optional.ofNullable(taskInfo.getTaskInvokeMsg()).map(TaskInvokeMsg::getMsg).isEmpty()) {
                     notifyInfo.setTaskInvokeMsg(TaskInvokeMsg.builder().msg(e.getMessage()).build());
                 }

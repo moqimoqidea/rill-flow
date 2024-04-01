@@ -34,7 +34,19 @@ public class DAGTraversalSerializer {
 
     public static <T> T deserialize(byte[] bytes, Class<T> type) {
         try {
-            // FIXME: Code Completion From Here.
+            return MAPPER.readValue(bytes, type);
+        } catch (Exception e) {
+            throw new SerializationException(TraversalErrorCode.TRAVERSAL_FAILED.getCode(), e);
+        }
+    }
+    private DAGTraversalSerializer() {
+    }
+}
+/*
+ *  Copyright 2021-2023 Weibo, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
         } catch (Exception e) {
             throw new SerializationException(TraversalErrorCode.TRAVERSAL_FAILED.getCode(), e);
         }

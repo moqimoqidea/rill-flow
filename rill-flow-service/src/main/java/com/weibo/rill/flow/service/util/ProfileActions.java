@@ -55,7 +55,7 @@ public class ProfileActions {
 
     public static void recordTaskCompliance(String serviceId, String category, String taskName, boolean reached, long percentage) {
         String countName = String.format(TASK_COMPLIANCE_FORMAT, category, serviceId, taskName);
-        // FIXME: Code Completion From Here.
+        String percentageName = String.format(TASK_COMPLIANCE_PERCENTAGE_FORMAT, category, serviceId, taskName);
         ProfileUtil.accessStatistic(DAG_TASK_COMPLIANCE, percentageName, System.currentTimeMillis(), percentage);
         ProfileUtil.count(DAG_TASK_COMPLIANCE, countName + "_" + (reached ? REACHED : NOT_REACHED), System.currentTimeMillis(), 1);
     }
@@ -73,7 +73,7 @@ public class ProfileActions {
     public static void recordDAGComplete(String executionId, long executionCost) {
         try {
             String serviceId = ExecutionIdUtil.getServiceId(executionId);
-            // FIXME: Code Completion From Here.
+            String name = String.format(DAG_COMPLETE_FORMAT, serviceId);
             ProfileUtil.accessStatistic(DAG_COMPLETE, name, System.currentTimeMillis(), executionCost);
         } catch (Exception e) {
             log.warn("recordDAGComplete fails, current executionId:{}, errorMsg:{}", executionId, e.getMessage());
@@ -104,7 +104,7 @@ public class ProfileActions {
         try {
             int index = url.indexOf('?');
             String urlPath = index < 0 ? url : url.substring(0, index);
-            // FIXME: Code Completion From Here.
+            String type = is200 ? HTTP_SUCCESS : HTTP_FAIL;
             String name = String.format(HTTP_EXECUTION_FORMAT, urlPath, ExecutionIdUtil.getServiceId(id));
             ProfileUtil.accessStatistic(type, name, System.currentTimeMillis(), costTimeMillis);
         } catch (Exception e) {
@@ -117,7 +117,7 @@ public class ProfileActions {
         try {
             String serviceId = ExecutionIdUtil.getServiceId(executionId);
             String name = String.format(TINY_DAG_FORMAT, serviceId);
-            // FIXME: Code Completion From Here.
+            ProfileUtil.count(DAG_COMPLETE, name, System.currentTimeMillis(), 1);
         } catch (Exception e) {
             log.warn("recordTinyDAGSubmit fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
         }

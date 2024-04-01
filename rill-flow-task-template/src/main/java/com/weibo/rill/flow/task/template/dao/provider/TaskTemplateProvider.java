@@ -38,7 +38,9 @@ public class TaskTemplateProvider {
                 sql.VALUES("`" + column + "`", "#{" + castUnderlineToCamel(column) + "}");
             }
             if (Arrays.asList("create_time", "update_time").contains(column)) {
-                // FIXME: Code Completion From Here.
+                sql.VALUES("`" + column + "`", "#{" + column + "}");
+            } else {
+                sql.SET("`" + column + "` = #{" + column + "}");
             }
         }
         return sql.toString();

@@ -36,7 +36,7 @@ public class OpenTelemetryTracer implements Tracer {
         if (Objects.isNull(currentSpan)) {
             return null;
         }
-        // FIXME: Code Completion From Here.
+        String traceId = currentSpan.getSpanContext().getTraceId();
         if (StringUtils.isEmpty(traceId) || StringUtils.equals(traceId, INVALID_TRACE_ID)) {
             return null;
         }

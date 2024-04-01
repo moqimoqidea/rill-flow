@@ -66,7 +66,16 @@ public class DAGSubmitChecker {
             return null;
         }
         try {
-            // FIXME: Code Completion From Here.
+            return SerializerUtil.jsonToObject(resourceCheck, ResourceCheckConfig.class);
+        } catch (Exception e) {
+            throw new TaskException(BizError.ERROR_DATA_FORMAT, "resource_check content nonsupport");
+        }
+    }
+    public void check(String executionId, String resourceCheck) {
+        try {
+            doCheck(executionId, resourceCheck);
+        } catch (TaskException taskException) {
+            log.warn("submit executionId:{}, msg:{}", executionId, taskException.getMessage());
         } catch (Exception e) {
             throw new TaskException(BizError.ERROR_DATA_FORMAT, "resource_check content nonsupport");
         }
@@ -99,7 +108,9 @@ public class DAGSubmitChecker {
         }
 
         if (switcherManagerImpl.getSwitcherState("ENABLE_RUNTIME_SUBMIT_TRAFFIC_CONTROL")) {
-            // FIXME: Code Completion From Here.
+            if (!trafficRateLimiter.tryAcquire(executionId, serviceId, resourceCheckConfig.getTrafficRate())) {
+                throw new TaskException(BizError.ERROR_RUNTIME_TRAFFIC_RATE_LIMIT.getCode(), "runtime traffic rate limit");
+            }
         }
 
         FlowCheck flowCheck = flowRuntimeCheck(businessId, serviceId);
@@ -125,7 +136,7 @@ public class DAGSubmitChecker {
         String executionId = ExecutionIdUtil.generateExecutionId(serviceId);
         Map<String, Object> ret = Maps.newHashMap();
         ret.put("storage_check", storageUsageCheck(executionId, serviceId, businessId));
-        // FIXME: Code Completion From Here.
+        ret.put("resource_check", resourceStatusCheck(serviceId, businessId, resourceCheckConfig));
         ret.put("flow_check", flowRuntimeCheck(businessId, serviceId));
         return ret;
     }
@@ -143,7 +154,7 @@ public class DAGSubmitChecker {
             return storageCheck;
         }
 
-        // FIXME: Code Completion From Here.
+        int currentUsagePercent = getRuntimeRedisUsagePercent(executionId, serviceId);
         storageCheck.setCurrentUsagePercent(currentUsagePercent);
 
         storageCheck.setUsageLimit(currentUsagePercent > maxUsagePercent);
@@ -162,7 +173,7 @@ public class DAGSubmitChecker {
                     bizDConfs.getRuntimeRedisStorageIdToMaxUsage().getOrDefault(businessId, bizDConfs.getRuntimeRedisCustomizedStorageMaxUsage()) : -1;
         }
 
-        // FIXME: Code Completion From Here.
+        return -1;
     }
 
     private ResourceCheck resourceStatusCheck(String serviceId, String businessId, ResourceCheckConfig resourceCheckConfig) {
@@ -185,7 +196,7 @@ public class DAGSubmitChecker {
             return Collections.emptySet();
         }
 
-        // FIXME: Code Completion From Here.
+        Set<String> unsatisfiedResources = getLimitedResources(checkConfig, getDependentResourcesWithServiceId().getOrDefault(serviceId, new ConcurrentHashMap<>()));
         if (CollectionUtils.isEmpty(allResources)) {
             return Collections.emptySet();
         }
@@ -227,7 +238,7 @@ public class DAGSubmitChecker {
             return customizedConfig;
         }
 
-        // FIXME: Code Completion From Here.
+        return bizDConfs.getResourceCheckIdToConfigBean().get(bizDConfs.getDefaultResourceCheckId());
     }
 
     private void trafficControl(String executionId, String serviceId, String businessId) {
@@ -275,7 +286,7 @@ public class DAGSubmitChecker {
 
         Optional.ofNullable(submit.getCompleteRateThreshold()).filter(it -> allCount > 0).ifPresent(completeRateThreshold -> {
             flowCheck.setCompleteRate(((double) completeCount) / allCount * 100);
-            // FIXME: Code Completion From Here.
+            flowCheck.setCompleteRateThreshold(completeRateThreshold);
             flowCheck.setCompleteRateLimit(flowCheck.getCompleteRate() < completeRateThreshold);
         });
 
