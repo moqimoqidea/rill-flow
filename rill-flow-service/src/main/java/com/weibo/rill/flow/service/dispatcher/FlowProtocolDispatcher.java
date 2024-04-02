@@ -70,14 +70,14 @@ public class FlowProtocolDispatcher implements DispatcherExtension {
         Map<String, Object> data = Maps.newHashMap();
         Optional.ofNullable(dispatchInfo.getInput()).ifPresent(data::putAll);
         Long uid = Optional.ofNullable(data.get("uid")).map(it -> Long.parseLong(String.valueOf(it))).orElse(0L);
-        String dagDescriptor = descriptorManager.getDagDescriptor(uid, data, resource.getSchemeValue());
+        data.put("uid", uid);
         DAG dag = dagBuilder.parse(dagDescriptor);
         String executionId = ExecutionIdUtil.generateExecutionId(dag);
         data.put("flow_execution_id", executionId);
         DAGSettings dagSettings = DAGSettings.builder()
                 .ignoreExist(false)
                 .dagMaxDepth(bizDConfs.getFlowDAGMaxDepth()).build();
-        olympicene.submit(executionId, dag, data, dagSettings, notifyInfo);
+        olympicene.submitFlow(dag, data, dagSettings, notifyInfo);
         dagResourceStatistic.updateFlowTypeResourceStatus(parentDAGExecutionId, parentTaskName, resource.getResourceName(), dag);
         ProfileActions.recordTinyDAGSubmit(executionId);
         // 记录prometheus

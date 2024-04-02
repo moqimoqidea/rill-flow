@@ -289,7 +289,7 @@ public class OlympiceneAutoConfiguration {
         log.info("begin to init default DAGOperations bean");
         DAGOperations dagOperations = new DAGOperations(runnerExecutor, taskRunners, dagRunner,
                 timeCheckRunner, dagTraversal, dagCallback, dagResultHandler);
-        dagTraversal.setDagOperations(dagOperations);
+        dagRunner.setDagOperations(dagOperations);
         timeCheckRunner.setDagOperations(dagOperations);
         return dagOperations;
     }

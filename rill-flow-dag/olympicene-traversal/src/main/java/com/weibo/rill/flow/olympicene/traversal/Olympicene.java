@@ -60,7 +60,8 @@ public class Olympicene implements DAGInteraction {
      * 提交需执行的DAG任务
      */
     public void submit(String executionId, DAG dag, Map<String, Object> data) {
-        submit(executionId, dag, data, DAGSettings.DEFAULT, null);
+        runNotify(executionId, NotifyType.SUBMIT, null,
+                () -> dagOperations.submitDAG(executionId, dag, null, data, null));
     }
 
     /**
@@ -157,7 +158,7 @@ public class Olympicene implements DAGInteraction {
      * 执行的DAG任务并返回执行结果
      */
     public DAGResult run(String executionId, DAG dag, Map<String, Object> data) {
-        return run(executionId, dag, data, DAGSettings.DEFAULT, null);
+        return run(executionId, dag, data, dagResultGetTimeoutInMillisecond);
     }
 
     /**

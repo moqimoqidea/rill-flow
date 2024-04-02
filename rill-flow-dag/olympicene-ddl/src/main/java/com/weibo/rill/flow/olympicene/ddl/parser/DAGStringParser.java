@@ -41,7 +41,7 @@ public class DAGStringParser implements DAGParser<String> {
 
     public DAGStringParser(Serializer serializer, List<DAGValidator> dagValidators) {
         this.serializer = serializer;
-        Optional.ofNullable(dagValidators).ifPresent(this.dagValidators::addAll);
+        this.dagValidators.addAll(dagValidators);
     }
 
     /**

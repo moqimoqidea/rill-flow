@@ -81,7 +81,7 @@ public class DAGRunner {
             Map<String, String> defaultContext = Optional.ofNullable(dag.getDefaultContext()).orElse(Collections.emptyMap());
             defaultContext.forEach((key, value) -> context.put(key, JSONPathInputOutputMapping.parseSource(value)));
             Optional.ofNullable(data).ifPresent(context::putAll);
-            ret.setContext(context);
+            dag.setDefaultContext(null);
             dag.setDefaultContext(null);
 
             // inputMapping/outputMapping中可能存在引用通用mapping的情况
@@ -114,7 +114,7 @@ public class DAGRunner {
                     .ifPresent(rootExecutionId -> context.putIfAbsent("flow_root_execution_id", rootExecutionId));
 
             dagContextStorage.updateContext(executionId, context);
-            dagInfoStorage.saveDAGInfo(executionId, dagInfoToUpdate);
+            dagInfoStorage.updateDAGInfo(dagInfoToUpdate);
         });
 
         return ret;
@@ -157,7 +157,17 @@ public class DAGRunner {
             return;
         }
 
-        callbackConfig.setInputMappings(includeReferenceMappings(commonMapping, callbackInputMappings));
+        callbackInputMappings.forEach(mapping -> {
+            if (StringUtils.isBlank(mapping.getReference())) {
+                return;
+            }
+            List<Mapping> mappings = commonMapping.get(mapping.getReference());
+            if (CollectionUtils.isEmpty(mappings)) {
+                return;
+            }
+            mapping.setSource(mappings.get(0).getSource());
+            mapping.setTarget(mappings.get(0).getTarget());
+        });
     }
 
     private void handleMappingReference(int currentDepth, Map<String, List<Mapping>> commonMapping, List<BaseTask> tasks) {
@@ -201,7 +211,7 @@ public class DAGRunner {
             return dagInvokeMsg;
         }
 
-        DAGInfo parentDAGInfo = dagInfoStorage.getBasicDAGInfo(notifyInfo.getParentDAGExecutionId());
+        DAGInfo parentDAGInfo = dagInfoStorage.getDAGInfo(notifyInfo.getParentDAGExecutionId());
         List<ExecutionInfo> parentDAGExecutionRoutes = Optional.ofNullable(parentDAGInfo.getDagInvokeMsg())
                 .map(DAGInvokeMsg::getExecutionRoutes).orElse(new ArrayList<>());
 
@@ -242,7 +252,7 @@ public class DAGRunner {
         dagInfo.setTasks(new LinkedHashMap<>());
         dagInfo.updateInvokeMsg(dagInvokeMsg);
         updateDAGInvokeEndTime(dagInfo);
-        dagInfoStorage.saveDAGInfo(executionId, dagInfo);
+        dagInfoStorage.updateDAGInfo(executionId, dagInfo);
         dagInfo.setTasks(tasks);
 
         DAGInfo wholeDagInfo = dagInfoStorage.getDAGInfo(executionId);
@@ -277,7 +287,7 @@ public class DAGRunner {
 
     private List<InvokeTimeInfo> getInvokeTimeInfoList(DAGInfo dagInfo) {
         DAGInvokeMsg dagInvokeMsg = Optional.ofNullable(dagInfo.getDagInvokeMsg()).orElseGet(() -> {
-            dagInfo.setDagInvokeMsg(new DAGInvokeMsg());
+            dagInfo.setDagInvokeMsg(DAGInvokeMsg.builder().build());
             return dagInfo.getDagInvokeMsg();
         });
 
@@ -317,7 +327,11 @@ public class DAGRunner {
                         if (dagInfo.getDagStatus().isCompleted()) {
                             updateDAGInvokeStartTime(dagInfo);
                         }
-                        dagInfo.setDagStatus(DAGStatus.RUNNING);
+                        redoTasks.forEach(taskInfo -> {
+                            taskInfo.setTaskStatus(TaskStatus.NOT_STARTED);
+                            taskInfo.setChildren(new LinkedHashMap<>());
+                            taskInfo.setSubGroupIndexToStatus(null);
+                        });
                         resetTaskStatus(1, redoTasks);
                         dagInfoStorage.clearDAGInfo(executionId, 0);
                         dagInfoStorage.saveDAGInfo(executionId, dagInfo);
@@ -337,7 +351,11 @@ public class DAGRunner {
             taskInfo.setTaskStatus(TaskStatus.NOT_STARTED);
             taskInfo.setChildren(new LinkedHashMap<>());
             taskInfo.setSubGroupIndexToStatus(null);
-            taskInfo.setSubGroupIndexToIdentity(null);
+            taskInfo.getNext().forEach(taskInfo1 -> {
+                taskInfo1.setTaskStatus(TaskStatus.NOT_STARTED);
+                taskInfo1.setChildren(new LinkedHashMap<>());
+                taskInfo1.setSubGroupIndexToStatus(null);
+            });
             resetTaskStatus(length + 1, taskInfo.getNext());
         });
     }

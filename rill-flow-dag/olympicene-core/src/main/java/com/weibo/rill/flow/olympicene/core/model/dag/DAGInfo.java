@@ -106,7 +106,7 @@ public class DAGInfo {
 
         DAGInfo dagInfoClone = new DAGInfo();
         dagInfoClone.setExecutionId(dagInfo.getExecutionId());
-        dagInfoClone.setDag(dagInfo.getDag());
+        dagInfoClone.setDag(DAG.cloneToSave(dagInfo.getDag()));
         dagInfoClone.setDagInvokeMsg(DAGInvokeMsg.cloneToSave(dagInfo.getDagInvokeMsg()));
         dagInfoClone.setDagStatus(dagInfo.getDagStatus());
         Map<String, TaskInfo> tasks = new LinkedHashMap<>();

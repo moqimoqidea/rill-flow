@@ -59,7 +59,7 @@ public class DAGInfoMaker {
         DAGInfo result = new DAGInfo();
         result.setExecutionId(executionId);
         result.setDag(Optional.ofNullable(dag).orElseThrow(() -> new DAGException(CoreErrorCode.DAG_STATE_NONSUPPORT.getCode(), "dag null")));
-        result.setDagInvokeMsg(dagInvokeMsg);
+        result.updateInvokeMsg(Optional.ofNullable(dagInvokeMsg).orElse(new DAGInvokeMsg()));
         result.setDagStatus(Optional.ofNullable(dagStatus).orElse(DAGStatus.NOT_STARTED));
         result.setTasks(TaskInfoMaker.getMaker().makeTaskInfos(dag.getTasks()));
         return result;

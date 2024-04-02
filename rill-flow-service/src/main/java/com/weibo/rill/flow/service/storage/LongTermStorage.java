@@ -48,7 +48,7 @@ public class LongTermStorage {
 
         String executionId = callbackInfo.getExecutionId();
         try {
-            boolean needStore = storageExist(executionId);
+            boolean needStore = ExecutionIdUtil.needStore(executionId, bizDConfs.getLongTermBusinessIdToReserveSecond());
             log.info("storeDAGInfoAndContext executionId:{} needStore:{}", executionId, needStore);
             if (!needStore) {
                 return;
@@ -118,7 +118,9 @@ public class LongTermStorage {
 
         try {
             String businessId = ExecutionIdUtil.getBusinessId(executionId);
-            return bizDConfs.getLongTermStorageBusinessIdToClientId().containsKey(businessId);
+            if (bizDConfs.getLongTermBusinessIdToReserveSecond().containsKey(businessId)) {
+                return true;
+            }
         } catch (Exception e) {
             log.warn("storageExist fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
             return false;

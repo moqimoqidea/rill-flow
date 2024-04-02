@@ -76,7 +76,8 @@ public class DAGResourceStatistic {
 
     public int getRuntimeRedisUsagePercent(String executionId, String serviceId) {
         try {
-            return usagePercentCache.get(serviceId, () -> redisUsagePercent(executionId));
+            return usagePercentCache.get(serviceId, () -> {
+            });
         } catch (Exception e) {
             log.warn("getRuntimeRedisUsagePercent fails, executionId:{}", executionId, e);
             return 0;
@@ -161,7 +162,16 @@ public class DAGResourceStatistic {
             }
 
             JSONObject urlRetJson = JSON.parseObject(urlRet);
-            updateUrlTypeResourceStatus(executionId, taskName, resourceName, urlRetJson);
+            if (urlRetJson.containsKey("data")) {
+                JSONObject data = urlRetJson.getJSONObject("data");
+                if (data.containsKey("sys_info")) {
+                    JSONObject sysInfo = data.getJSONObject("sys_info");
+                    if (sysInfo.containsKey("retry_interval_seconds")) {
+                        int retryIntervalSeconds = sysInfo.getInteger("retry_interval_seconds");
+                        updateUrlTypeResourceStatus(executionId, taskName, resourceName,retryIntervalSeconds);
+                    }
+                }
+            }
         } catch (Exception e) {
             log.warn("updateUrlTypeResourceStatus fails, executionId:{}, resourceName:{}, urlRet:{}, errorMsg:{}",
                     executionId, resourceName, urlRet, e.getMessage());
@@ -239,7 +249,16 @@ public class DAGResourceStatistic {
                         return 0L;
                     });
 
-            List<String> maxMemoryConfig = runtimeRedisClients.configGet(executionId, "maxmemory");
+            List<String> maxMemoryConfig = Arrays.stream(memory.split("\n"))
+                    .map(String::trim)
+                    .filter(it -> it.startsWith("maxmemory"))
+                    .map(it -> it.split(":"))
+                    .filter(array -> array.length > 1)
+                    .findFirst()
+                    .map(it -> Arrays.asList(it))
+                    .orElseGet(() -> {
+                        log.warn("redis memory check can not get maxmemory, executionId:{}", executionId);
+                    }
             long maxMemory = Optional.ofNullable(maxMemoryConfig)
                     .filter(it -> CollectionUtils.isNotEmpty(it) && it.size() > 1)
                     .map(it -> Long.parseLong(it.get(1)))
@@ -259,7 +278,7 @@ public class DAGResourceStatistic {
 
     private ResourceStatus getResourceStatus(String executionId, String taskName, String resourceName) throws ExecutionException {
         Map<String, ResourceStatus> taskNameToResourceStatus = serviceResourceCache.get(ExecutionIdUtil.getServiceId(executionId));
-        String cachedTaskName = String.format(CACHED_TASK_NAME_FORMAT, DAGWalkHelper.getInstance().getBaseTaskName(taskName), resourceName);
+        String cachedTaskName = ExecutionIdUtil.getExecutionIdFromBucketName(taskName);
         return taskNameToResourceStatus.computeIfAbsent(cachedTaskName, key -> ResourceStatus.builder().resourceName(resourceName).build());
     }
 }

@@ -63,7 +63,7 @@ public class PrometheusActions {
     public static void recordTaskCompliance(String serviceId, String category, String taskName, boolean reached, long percentage) {
         String countName = String.format(TASK_COMPLIANCE_FORMAT, category, serviceId, taskName);
         String percentageName = String.format(TASK_COMPLIANCE_PERCENTAGE_FORMAT, category, serviceId, taskName);
-        PrometheusUtil.statisticsTotalTime(METER_PREFIX + DAG + percentageName, percentage);
+        PrometheusUtil.count(METER_PREFIX + DAG + percentageName, percentage);
         PrometheusUtil.count(METER_PREFIX + DAG + countName + "_" + (reached ? REACHED : NOT_REACHED));
     }
 

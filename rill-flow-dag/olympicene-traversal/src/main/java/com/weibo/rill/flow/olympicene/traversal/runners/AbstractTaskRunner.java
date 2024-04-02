@@ -84,7 +84,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
         TaskCategory category = getCategory();
         try {
             String config = ResourceLoader.loadResourceAsText("metadata/fields/" + category.getValue() + ".json");
-            return JSON.parseObject(config, Feature.OrderedField);
+            return JSON.parseObject(config, JSONObject.class, Feature.OrderedField);
         } catch (Exception e) {
             log.warn("get fields error, category: {}", category.getValue(), e);
             throw new RuntimeException(e);
@@ -113,7 +113,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
             }
 
             updateTaskInvokeStartTime(taskInfo);
-            Map<String, Object> input = inputMappingCalculate(executionId, taskInfo, context);
+            Map<String, Object> input = inputOutputMapping.getInput(context, taskInfo.getTask().getInput(), taskInfo.getTask().getInputMappings());
 
             if (switcherManager.getSwitcherState("ENABLE_SET_INPUT_OUTPUT")) {
                 taskInfo.getTaskInvokeMsg().setInput(input);
@@ -123,7 +123,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
             long taskSuspenseTime = getSuspenseInterval(executionId, taskInfo, input);
             if (taskSuspenseTime > 0) {
                 log.info("task need wait, executionId:{}, taskName:{}, suspenseTime:{}", executionId, taskInfo.getName(), taskSuspenseTime);
-                dagInfoStorage.saveTaskInfos(executionId, Sets.newHashSet(taskInfo));
+                taskInfo.getTaskInvokeMsg().setSuspenseTime(taskSuspenseTime);
                 return ExecutionResult.builder().needRetry(true).retryIntervalInSeconds((int) taskSuspenseTime)
                         .taskStatus(taskInfo.getTaskStatus()).taskInfo(taskInfo).context(context).build();
             }
@@ -152,7 +152,12 @@ public abstract class AbstractTaskRunner implements TaskRunner {
             taskInfo.setTaskStatus(tolerance ? TaskStatus.SKIPPED : TaskStatus.FAILED);
 
             Map<String, TaskInfo> subTasks = taskInfo.getChildren();
-            taskInfo.setChildren(new LinkedHashMap<>());
+            if (CollectionUtils.isNotEmpty(subTasks.values())) {
+                subTasks.values().forEach(subTask -> {
+                    subTask.setTaskStatus(tolerance ? TaskStatus.SKIPPED : TaskStatus.FAILED);
+                    subTask.updateInvokeMsg(TaskInvokeMsg.builder().msg(NORMAL_SKIP_MSG).build());
+                });
+            }
             dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
             taskInfo.setChildren(subTasks);
 
@@ -164,7 +169,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
         log.info("skipCurrentAndFollowingTasks executionId:{} taskName:{}", executionId, taskInfo.getName());
         taskInfo.setTaskStatus(TaskStatus.SKIPPED);
         taskInfo.updateInvokeMsg(TaskInvokeMsg.builder().msg(NORMAL_SKIP_MSG).build());
-        Set<TaskInfo> taskInfosNeedToUpdate = Sets.newHashSet();
+        Set<TaskInfo> taskInfosNeedToUpdate = new HashSet<>();
         skipFollowingTasks(executionId, taskInfo, taskInfosNeedToUpdate);
         taskInfosNeedToUpdate.add(taskInfo);
         dagInfoStorage.saveTaskInfos(executionId, taskInfosNeedToUpdate);
@@ -183,8 +188,8 @@ public abstract class AbstractTaskRunner implements TaskRunner {
                                         dependentTask.getTaskStatus() == TaskStatus.SUCCEED) {
                                     return true;
                                 }
-                                if (Optional.ofNullable(dependentTask.getTask()).map(BaseTask::getDegrade).map(Degrade::getFollowings).orElse(false)) {
-                                    return true;
+                                if (dependentTask.getTaskStatus() == TaskStatus.FAILED) {
+                                    return false;
                                 }
                                 return dependentTask.getTaskStatus() == TaskStatus.SKIPPED &&
                                         Optional.ofNullable(dependentTask.getTaskInvokeMsg()).map(TaskInvokeMsg::getMsg).map(NORMAL_SKIP_MSG::equals).orElse(false);
@@ -209,7 +214,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
                     .map(it -> new Mapping(it.getSource(), "$.output." + it.getVariable()))
                     .toList();
 
-            Map<String, Object> output = Maps.newHashMap();
+            Map<String, Object> output = new HashMap<>();
             inputMappings(new HashMap<>(), input, output, mappings);
             taskInfo.getTaskInvokeMsg().setProgressArgs(output);
         } catch (Exception e) {
@@ -231,8 +236,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
                 return 0;
             }
 
-            Map<String, Object> output = Maps.newHashMap();
-            inputMappings(new HashMap<>(), input, output, timeMappings);
+            Map<String, Object> output = new HashMap<>();
 
             long taskInvokeTime = Optional.ofNullable(output.get("timestamp")).map(String::valueOf).map(Long::valueOf)
                     .orElse(Optional.ofNullable(output.get("interval"))
@@ -290,7 +294,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
 
         try {
             Map<String, Object> input = Maps.newHashMap();
-            inputMappings(context, input, new HashMap<>(), taskInfo.getTask().getInputMappings());
+            inputMappings(context, input, output, taskInfo.getTask().getInput());
             return input;
         } catch (Exception e) {
             log.warn("inputMappingCalculate fails, executionId={}, taskName={}", executionId, taskInfo.getName(), e);
@@ -388,7 +392,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
                 taskInfo.setTaskStatus(taskStatus);
                 updateTaskInvokeEndTime(taskInfo);
 
-                Map<String, Object> subTaskContext = getSubTaskContextMap(executionId, taskInfo);
+                Map<String, Object> subTaskContext = ContextHelper.getInstance().getSubContextList(dagContextStorage, executionId, taskInfo);
                 Map<String, Object> parentTaskContext = ContextHelper.getInstance().getContext(dagContextStorage, executionId, taskInfo);
                 if (MapUtils.isNotEmpty(subTaskContext) && CollectionUtils.isNotEmpty(taskInfo.getTask().getOutputMappings())) {
                     outputMappings(parentTaskContext, new HashMap<>(), subTaskContext, taskInfo.getTask().getOutputMappings());
@@ -405,7 +409,7 @@ public abstract class AbstractTaskRunner implements TaskRunner {
                             .findFirst()
                             .ifPresent(readyToRunGroupIndex -> {
                                 taskInfo.getSubGroupIndexToStatus().put(readyToRunGroupIndex, TaskStatus.RUNNING);
-                                String routName = DAGWalkHelper.getInstance().buildTaskInfoRouteName(taskInfo.getName(), readyToRunGroupIndex);
+                                String routName = DAGWalkHelper.getInstance().getRouteName(taskInfo.getName());
                                 String mockTaskName = DAGWalkHelper.getInstance().buildTaskInfoName(routName, "foreachMockName");
                                 executionResult.setTaskNameNeedToTraversal(mockTaskName);
                                 log.info("finishParentTask ready to execute group:{} executionId:{}, taskInfoName:{}",
@@ -430,7 +434,11 @@ public abstract class AbstractTaskRunner implements TaskRunner {
     protected Map<String, Object> getSubTaskContextMap(String executionId, TaskInfo taskInfo) {
         List<Map<String, Object>> subContextList = ContextHelper.getInstance().getSubContextList(dagContextStorage, executionId, taskInfo);
         Map<String, Object> output = Maps.newConcurrentMap();
-        output.put("sub_context", subContextList);
+        subContextList.forEach(subContext -> {
+            subContext.forEach((key, value) -> {
+                output.put(key, value);
+            });
+        });
         return output;
     }
 
@@ -472,7 +480,9 @@ public abstract class AbstractTaskRunner implements TaskRunner {
 
     protected void skipFollowingTasks(String executionId, TaskInfo taskInfo, Set<TaskInfo> skippedTasks) {
         Map<String, TaskInfo> siblingTaskInfos = getSiblingTaskInfoMap(executionId, taskInfo);
-        List<TaskInfo> currentTaskNext = Optional.ofNullable(siblingTaskInfos.get(taskInfo.getName())).map(TaskInfo::getNext).orElse(null);
+        List<TaskInfo> currentTaskNext = taskInfo.getNext().stream()
+                .filter(it -> !dependedTaskNames.contains(it.getName()))
+                .collect(Collectors.toList());
         setNextTaskSkipStatus(siblingTaskInfos.size(), skippedTasks, currentTaskNext, Sets.newHashSet(taskInfo.getName()));
     }
 

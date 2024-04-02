@@ -24,7 +24,6 @@ end
 local contentNameToContentRedisKey = redis.call("hgetall", KEYS[2])
 for index = 1, #contentNameToContentRedisKey, 2 do
     local contentName = contentNameToContentRedisKey[index];
-    local contentRedisKey = contentNameToContentRedisKey[index + 1];
     local subContent = {};
     table.insert(subContent, { "name", contentName});
     table.insert(subContent, redis.call("hgetall", contentRedisKey));

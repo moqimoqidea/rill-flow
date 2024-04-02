@@ -62,7 +62,7 @@ public class DAGInvokeMsg {
         }
 
         Optional.ofNullable(dagInvokeMsg.getExecutionRoutes()).ifPresent(this::setExecutionRoutes);
-        Optional.ofNullable(dagInvokeMsg.getMsg()).ifPresent(this::setMsg);
+        Optional.ofNullable(dagInvokeMsg.getCode()).ifPresent(this::setCode);
         Optional.ofNullable(dagInvokeMsg.getInvokeTimeInfos()).ifPresent(timeInfos -> {
             List<InvokeTimeInfo> timeInfoList = Lists.newArrayList(timeInfos);
             if (CollectionUtils.isNotEmpty(invokeTimeInfos)) {
@@ -75,7 +75,13 @@ public class DAGInvokeMsg {
     public void updateInvokeMsg(TaskInvokeMsg taskInvokeMsg) {
         Optional.ofNullable(taskInvokeMsg.getCode()).ifPresent(this::setCode);
         Optional.ofNullable(taskInvokeMsg.getMsg()).ifPresent(this::setMsg);
-        Optional.ofNullable(taskInvokeMsg.getExt()).ifPresent(this::setExt);
+        Optional.ofNullable(taskInvokeMsg.getInvokeTimeInfos()).ifPresent(timeInfos -> {
+            List<InvokeTimeInfo> timeInfoList = Lists.newArrayList(timeInfos);
+            if (CollectionUtils.isNotEmpty(invokeTimeInfos)) {
+                timeInfoList.addAll(invokeTimeInfos);
+            }
+            invokeTimeInfos = timeInfoList;
+        });
     }
 
     public static DAGInvokeMsg cloneToSave(DAGInvokeMsg dagInvokeMsg) {

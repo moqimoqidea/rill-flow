@@ -56,7 +56,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
 
         DAGInfoRedisDAO dagInfoRedisDAO = new DAGInfoRedisDAO(redisClient, bizDConfs, dagInfoDeserializeService, switcherManagerImpl);
         ContextRedisDAO contextRedisDAO = new ContextRedisDAO(redisClient, bizDConfs, switcherManagerImpl);
-        this.runtimeRedisStorage = new DAGRedisStorage(dagInfoRedisDAO, contextRedisDAO);
+        this.runtimeRedisStorage = new DAGRedisStorage(dagInfoRedisDAO, contextRedisDAO, switcherManagerImpl);
 
         this.runtimeSwapStorage = new RuntimeSwapStorage(redisClient, clientIdToRedisClient, bizDConfs);
     }
@@ -103,7 +103,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
         Supplier<DAGInfo> redisOperation = () -> runtimeRedisStorage.getBasicDAGInfo(executionId);
         Function<DAGInfo, Boolean> isValueAcquired = Objects::nonNull;
         Supplier<DAGInfo> swapOperation = () -> {
-            DAGInfo dagInfo = runtimeSwapStorage.getDAGInfo(executionId);
+            DAGInfo dagInfo = runtimeSwapStorage.getBasicDAGInfo(executionId);
             if (dagInfo != null) {
                 runtimeRedisStorage.saveDAGInfo(executionId, dagInfo);
                 Optional.ofNullable(dagInfo.getTasks()).map(Map::values)

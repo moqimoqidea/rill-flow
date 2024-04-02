@@ -55,7 +55,7 @@ public class DAGWalkHelper {
     public Set<TaskInfo> getReadyToRunTasks(Collection<TaskInfo> taskInfos) {
         Set<TaskInfo> readyToRunTasks = taskInfos.stream()
                 .filter(taskInfo -> taskInfo != null && taskInfo.getTaskStatus() == TaskStatus.NOT_STARTED)
-                .filter(taskInfo -> !taskInfo.getTask().isKeyCallback())
+                .filter(taskInfo -> taskInfo.getTask().isKeyMode())
                 .filter(taskInfo -> CollectionUtils.isEmpty(taskInfo.getDependencies()) || taskInfo.getDependencies().stream().allMatch(i -> i.getTaskStatus().isSuccessOrSkip()))
                 .collect(Collectors.toSet());
 
@@ -80,7 +80,7 @@ public class DAGWalkHelper {
                 taskInfos.stream().allMatch(taskInfo -> taskInfo.getTaskStatus().isSuccessOrSkip())) {
             return TaskStatus.SUCCEED;
         }
-        if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus().isFailed())) {
+        if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus() == TaskStatus.FAILED)) {
             return TaskStatus.FAILED;
         }
 
@@ -105,14 +105,14 @@ public class DAGWalkHelper {
             return TaskStatus.SUCCEED;
         }
 
-        if (isForeachTaskKeySucceed(parentTask)){
-            return TaskStatus.KEY_SUCCEED;
+        if (subGroupIndexToStatus.values().stream().anyMatch(it -> it == TaskStatus.FAILED)) {
+            return TaskStatus.FAILED;
         }
         if (subGroupIndexToStatus.values().stream().anyMatch(it -> it == TaskStatus.RUNNING || it == TaskStatus.READY)) {
             return TaskStatus.RUNNING;
         }
-        if (subGroupIndexToStatus.values().stream().anyMatch(TaskStatus::isFailed)) {
-            return TaskStatus.FAILED;
+        if (subGroupIndexToStatus.values().stream().anyMatch(it -> it == TaskStatus.NOT_STARTED)) {
+            return TaskStatus.NOT_STARTED;
         }
 
         return parentTask.getTaskStatus();
@@ -148,17 +148,16 @@ public class DAGWalkHelper {
             return DAGStatus.KEY_SUCCEED;
         }
 
-        if (CollectionUtils.isNotEmpty(runnableTaskNames) || CollectionUtils.isNotEmpty(runningTaskNames)) {
-            log.info("getDAGStatus dag has runnable task {}, running task {}", runnableTaskNames, runningTaskNames);
-            return DAGStatus.RUNNING;
+        if (CollectionUtils.isEmpty(runnableTaskNames) && CollectionUtils.isEmpty(runningTaskNames)) {
+            return DAGStatus.SUCCEED;
         }
 
         if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus().isFailed())) {
             return DAGStatus.FAILED;
         }
 
-        if (taskInfos.stream().allMatch(taskInfo -> taskInfo.getTaskStatus().isSuccessOrSkip())) {
-            return DAGStatus.SUCCEED;
+        if (taskInfos.stream().anyMatch(taskInfo -> taskInfo.getTaskStatus() == TaskStatus.RUNNING || taskInfo.getTaskStatus() == TaskStatus.READY)) {
+            return DAGStatus.RUNNING;
         }
 
         return dagInfo.getDagStatus();
@@ -229,7 +228,7 @@ public class DAGWalkHelper {
             return null;
         }
 
-        int index = taskInfoName.lastIndexOf(ReservedConstant.TASK_NAME_CONNECTOR);
+        int index = taskInfoName.lastIndexOf(ReservedConstant.ROUTE_NAME_CONNECTOR);
         return index < 0 ? null : taskInfoName.substring(0, index);
     }
 
@@ -308,7 +307,7 @@ public class DAGWalkHelper {
         Map<String, List<String>> resourceToTaskNameMap = Maps.newHashMap();
         getDependedResources(1, resourceToTaskNameMap, dag.getTasks());
         Optional.ofNullable(dag.getCallbackConfig()).map(CallbackConfig::getResourceName).ifPresent(resourceName -> {
-            List<String> names = resourceToTaskNameMap.computeIfAbsent(resourceName, it -> Lists.newArrayList());
+            List<String> names = resourceToTaskNameMap.computeIfAbsent(resourceName, k -> Lists.newArrayList());
             names.add("flow_completed_callback");
         });
         return resourceToTaskNameMap;
@@ -323,11 +322,13 @@ public class DAGWalkHelper {
                 .filter(task -> task instanceof FunctionTask)
                 .map(task -> (FunctionTask) task)
                 .forEach(task -> {
-                    List<String> taskNames = resourceToTaskNameMap.computeIfAbsent(task.getResourceName(), it -> Lists.newArrayList());
-                    taskNames.add(task.getName());
+                    task.getResourceName().ifPresent(resourceName -> {
+                        List<String> names = resourceToTaskNameMap.computeIfAbsent(resourceName, k -> Lists.newArrayList());
+                        names.add(task.getName());
+                    });
                 });
         tasks.stream()
-                .map(BaseTask::subTasks)
+                .map(BaseTask::getChildren)
                 .filter(CollectionUtils::isNotEmpty)
                 .forEach(it -> getDependedResources(depth + 1, resourceToTaskNameMap, it));
     }

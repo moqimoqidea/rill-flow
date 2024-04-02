@@ -55,7 +55,7 @@ public class ChatGPTDispatcherExtension implements DispatcherExtension {
 
         Map<String, Object> input = dispatchInfo.getInput();
 
-        FunctionTask functionTask = (FunctionTask) dispatchInfo.getTaskInfo().getTask();
+        FunctionTask functionTask = (FunctionTask) input.get("functionTask");
 
         if (MapUtils.isEmpty(input)) {
             throw new RuntimeException("parameters is empty");
@@ -108,7 +108,7 @@ public class ChatGPTDispatcherExtension implements DispatcherExtension {
             resultTye = "FAILED";
             logger.error("execute is failed. error:{}", e.getMessage());
         } finally {
-            callback(dispatchInfo, result, resultTye);
+            HttpParameter httpParameter = new HttpParameter();
         }
     }
 
@@ -124,7 +124,7 @@ public class ChatGPTDispatcherExtension implements DispatcherExtension {
                 jsonObject = new JSONObject();
             }
 
-            String callbackBody = JSON.toJSONString(ImmutableMap.of("result_type", resultType, "result", jsonObject));
+            String callbackBody = "{\"result\":{\"result_type\":\"" + resultType + "\",\"result\":\"" + jsonObject.toJSONString() + "\"}}";
             String callbackResponse = FLOW_WEB_HTTP_CLIENT.postWithBody(callbackUrl, null, null, callbackBody, null);
             logger.info("callback rill flow is success. callback url:{}, body:{}, response:{}", callbackUrl, callbackBody, callbackResponse);
         } catch (Exception e) {

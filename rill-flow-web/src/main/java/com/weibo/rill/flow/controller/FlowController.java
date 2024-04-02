@@ -92,7 +92,7 @@ public class FlowController {
         Supplier<Map<String, Object>> submitActions = () -> {
             ResourceCheckConfig resourceCheckConfig = submitChecker.getCheckConfig(resourceCheck);
             String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
-            Map<String, Object> context = dagContextInitializer.newSubmitContextBuilder(businessId).withData(data).withIdentity(descriptorId).build();
+            DAGContextInitializer.DAGContextBuilder context = dagContextInitializer.newSubmitContextBuilder(businessId);
 
             return olympiceneFacade.submit(flowUser, descriptorId, context, callback, resourceCheckConfig);
         };
@@ -116,7 +116,7 @@ public class FlowController {
             passThrough.put(EXECUTION_ID, executionId);
             passThrough.put(TASK_NAME, taskName);
             data.put("passthrough", passThrough);
-            return olympiceneFacade.finish(executionId, context, data);
+            return olympiceneFacade.finish(flowUser, context, data);
         };
         return profileRecordService.runNotifyAndRecordProfile("finish.json", executionId, finishActions);
     }
@@ -179,7 +179,19 @@ public class FlowController {
 
         long cursor = System.currentTimeMillis() - offsetInMinute * 60 * 1000;
 
-        olympiceneFacade.multiRedo(serviceId, dagStatus, code, cursor, count, taskNames, rate);
+        if (dagStatus == DAGStatus.RUNNING) {
+            List<String> executionIds = olympiceneFacade.getRunningExecutionIds(serviceId, cursor, count);
+            if (executionIds.isEmpty()) {
+                return Map.of("result", "ok");
+            }
+
+            executionIds.forEach(executionId -> {
+                try {
+                    Map<String, Object> context = dagContextInitializer.newRedoContextBuilder().withIdentity(executionId).build();
+                    olympiceneFacade.redo(executionId, taskNames, context);
+                }
+            }
+        }
 
         return Map.of("result", "ok");
     }
@@ -264,7 +276,7 @@ public class FlowController {
         String bucketExecutionId = Optional.ofNullable(executionId)
                 .filter(StringUtils::isNotBlank)
                 .orElse(ExecutionIdUtil.generateExecutionId(businessId, featureName));
-        String bucketName = ExecutionIdUtil.generateBucketName(bucketExecutionId);
+        bucketName = ExecutionIdUtil.generateBucketName(bucketExecutionId);
         Supplier<Map<String, Object>> initActions = () ->
                 olympiceneFacade.initBucket(bucketName, JSON.parseObject(fieldToValues.toJSONString()));
 
@@ -329,7 +341,7 @@ public class FlowController {
             @RequestParam(value = "id") String id,
             @RequestParam(value = "status") String status
     ) {
-        String result = redisClient.get(id);
+        String result = dagService.getDagDetails(id, status);
         if (StringUtils.isEmpty(result)) {
             return Map.of("data", "", "message", "", "success", true);
         }

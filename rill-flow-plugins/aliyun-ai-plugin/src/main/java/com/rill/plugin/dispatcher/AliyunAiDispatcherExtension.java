@@ -49,8 +49,7 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
         String apikey = input.get("apikey").toString();
         String model = Optional.ofNullable(input.get("model")).map(Object::toString).orElse(Conversation.Models.QWEN_PLUS);
 
-        String executionId = dispatchInfo.getExecutionId();
-        String taskInfoName = taskInfo.getName();
+        GenerationResult result = null;
 
         HttpParameter requestParams = HttpUtil.functionRequestParams(executionId, taskInfoName, input);
 
@@ -65,7 +64,7 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
                 prompt = prompt + messageSuffix;
             }
 
-            GenerationResult result = tokenizer(prompt, apikey,model);
+            result = Generation.create(apikey, model, GenerationParam.builder().prompt(prompt).build());
 
             return JsonUtils.toJson(result);
         } catch (Exception e) {
@@ -120,6 +119,6 @@ public class AliyunAiDispatcherExtension implements DispatcherExtension {
                 .prompt(prompt)
                 .apiKey(apikey)
                 .build();
-        return generation.call(param);
+        return generation.create(param);
     }
 }

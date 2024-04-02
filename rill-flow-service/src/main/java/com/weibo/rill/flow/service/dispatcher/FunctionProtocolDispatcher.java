@@ -60,7 +60,7 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
         MultiValueMap<String, String> header = dispatchInfo.getHeaders();
 
         try {
-            HttpParameter requestParams = httpInvokeHelper.functionRequestParams(executionId, taskInfoName, resource, input);
+            HttpParameter requestParams = httpInvokeHelper.buildHttpParameter(input, taskInfo);
             Optional.of(requestParams)
                     .map(it -> requestParams.getHeader())
                     .ifPresent(header::setAll);
@@ -86,7 +86,7 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
                     .map(it -> it.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                     .orElse(false);
             if (isApplicationFormUrlencodedValue) {
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                 requestParams.getBody().forEach((key, value) -> {
                     if (value instanceof String) {
                         params.add(key, (String) value);

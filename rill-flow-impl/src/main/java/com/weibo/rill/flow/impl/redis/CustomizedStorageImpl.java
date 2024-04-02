@@ -86,7 +86,7 @@ public class CustomizedStorageImpl implements CustomizedStorage {
         if (CollectionUtils.isEmpty(fields)) {
             return Collections.emptyMap();
         }
-        List<String> values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
+        List<String> values = hGetAll ? jedisFlowClient.hgetAll(bucketName).values().stream().toList() : jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));
         long nullValueCount = values.stream().filter(Objects::isNull).count();
         if (nullValueCount > 0) {
             values = jedisFlowClient.hmget(bucketName, fields.toArray(new String[0]));

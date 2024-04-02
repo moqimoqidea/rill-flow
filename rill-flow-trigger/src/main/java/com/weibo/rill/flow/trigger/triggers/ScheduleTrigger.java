@@ -88,7 +88,9 @@ public class ScheduleTrigger implements Trigger {
                 if (scheduledFuture == null || scheduledFuture.isCancelled()) {
                     return false;
                 }
-                scheduledFuture.cancel(false);
+                if (!scheduledFuture.cancel(true)) {
+                    return false;
+                }
                 return cancelScheduler(taskId);
             }
         } catch (Exception e) {
@@ -123,7 +125,7 @@ public class ScheduleTrigger implements Trigger {
             String callback = taskDetailObject.getString("callback");
             String resourceCheck = taskDetailObject.getString("resource_check");
             String descriptorId = taskDetailObject.getString("descriptor_id");
-            Long uid = taskDetailObject.getLong("uid");
+            Long uid = TriggerUtil.getUidFromContext(context);
             addCronTrigger(uid, descriptorId, callback, resourceCheck, context, taskId);
         }
     }

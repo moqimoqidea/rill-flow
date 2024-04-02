@@ -70,7 +70,7 @@ public class TimeCheckRunner {
             byte[] memberByte = timeCheckMember.getBytes(StandardCharsets.UTF_8);
             TimeCheckMember member = DAGTraversalSerializer.deserialize(memberByte, TimeCheckMember.class);
 
-            TimeCheckMember.CheckMemberType type = member.getCheckMemberType();
+            String type = member.getCheckMemberType().name();
             String executionId = member.getExecutionId();
 
             switch (type) {
@@ -127,7 +127,7 @@ public class TimeCheckRunner {
             Optional.ofNullable(dag)
                     .map(DAG::getTimeline)
                     .map(Timeline::getTimeoutInSeconds)
-                    .filter(StringUtils::isNotBlank)
+                    .filter(timeoutSeconds -> StringUtils.isNotBlank(timeoutSeconds))
                     .ifPresent(timeoutSeconds -> {
                         log.info("remDAGFromTimeoutCheck start executionId:{}", executionId);
                         String member = buildDAGTimeoutCheckMember(executionId);
@@ -156,7 +156,8 @@ public class TimeCheckRunner {
                 .checkMemberType(TimeCheckMember.CheckMemberType.TASK_TIMEOUT_CHECK)
                 .executionId(executionId)
                 .taskCategory(taskInfo.getTask().getCategory())
-                .taskInfoName(taskInfo.getName()).build();
+                .taskInfoName(taskInfo.getName())
+                .build();
         return DAGTraversalSerializer.serializeToString(member);
     }
 

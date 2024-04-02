@@ -74,7 +74,8 @@ public class DAGDescriptorFacade {
     private ApplicationEventPublisher applicationEventPublisher;
 
     public Map<String, Object> modifyBusiness(boolean add, String businessId) {
-        boolean ret = add ? descriptorManager.createBusiness(businessId) : descriptorManager.remBusiness(businessId);
+        boolean ret = add ?
+                descriptorManager.createBusiness(businessId) : descriptorManager.remBusiness(businessId);
         return ImmutableMap.of(RET, ret);
     }
 
@@ -153,7 +154,9 @@ public class DAGDescriptorFacade {
     public Map<String, Object> getFunctionAB(String businessId, String configKey) {
         Pair<String, Map<String, String>> functionAB = descriptorManager.getFunctionAB(businessId, configKey);
         Map<String, Object> ab = Maps.newHashMap();
-        ab.put("default_resource_name", functionAB.getLeft());
+        if (functionAB.getLeft() != null) {
+            ab.put("default_resource_name", functionAB.getLeft());
+        }
         ab.put("rules", functionAB.getRight().entrySet().stream()
                 .map(entry -> ImmutableMap.of("resource_name", entry.getKey(), "rule", entry.getValue()))
                 .collect(Collectors.toList())

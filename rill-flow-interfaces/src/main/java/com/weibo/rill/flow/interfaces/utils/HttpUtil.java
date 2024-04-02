@@ -28,7 +28,7 @@ public class HttpUtil {
     public static HttpParameter functionRequestParams(DispatchInfo dispatchInfo) {
         String executionId = dispatchInfo.getExecutionId();
         Map<String, Object> input = dispatchInfo.getInput();
-        String taskInfoName = dispatchInfo.getTaskInfo().getTask().getName();
+        String taskInfoName = dispatchInfo.getTaskInfo().getName();
 
         return functionRequestParams(executionId, taskInfoName, input);
     }

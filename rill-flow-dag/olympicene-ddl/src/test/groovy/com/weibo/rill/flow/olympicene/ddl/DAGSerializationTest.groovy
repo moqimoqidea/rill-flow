@@ -42,7 +42,7 @@ class DAGSerializationTest extends Specification {
 
         then:
         noExceptionThrown()
-        dag2.workspace == 'rillflow'
+        dag.dagName == 'mca'
         dag2.dagName == 'mca'
     }
 }

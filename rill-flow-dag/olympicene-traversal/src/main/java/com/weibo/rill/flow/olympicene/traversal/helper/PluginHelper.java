@@ -32,7 +32,6 @@ public class PluginHelper {
         if (CollectionUtils.isNotEmpty(plugins)) {
             for (int i = plugins.size() - 1; i >= 0; i--) {
                 BiConsumer<Runnable, Map<String, Object>> plugin = plugins.get(i);
-                Runnable previousRunnable = runnable;
                 runnable = () -> plugin.accept(previousRunnable, params);
             }
         }

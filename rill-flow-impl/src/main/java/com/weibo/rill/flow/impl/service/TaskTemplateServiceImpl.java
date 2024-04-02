@@ -158,7 +158,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         result.setName(taskTemplateDO.getName());
         result.setOutput(taskTemplateDO.getOutput());
         result.setSchema(taskTemplateDO.getSchema());
-        result.setType(taskTemplateDO.getType());
+        result.setType(taskTemplateType.getType());
         result.setEnable(taskTemplateDO.getEnable());
         result.setTypeStr(TaskTemplateTypeEnum.getEnumByType(taskTemplateDO.getType()).getDesc());
         result.setNodeType("template");
@@ -192,7 +192,7 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             TaskTemplateDO taskTemplateDO = JSONObject.parseObject(taskTemplate.toJSONString(), TaskTemplateDO.class);
             checkTaskTemplateDOValid(taskTemplateDO);
             // set default value if field is null
-            setTemplateDOBeforeCreate(taskTemplateDO);
+            taskTemplateDO.setEnable(1);
             return taskTemplateDAO.insert(taskTemplateDO);
         } catch (Exception e) {
             log.warn("create task template error", e);
@@ -205,7 +205,6 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
             throw new IllegalArgumentException("task_template can't be null");
         }
         String category = taskTemplateDO.getCategory();
-        TaskCategory taskCategory = TaskCategory.getEnumByValue(category);
         if (taskCategory == null) {
             log.warn("task_template category is invalid: {}", category);
             throw new IllegalArgumentException("task_template category is invalid: " + category);

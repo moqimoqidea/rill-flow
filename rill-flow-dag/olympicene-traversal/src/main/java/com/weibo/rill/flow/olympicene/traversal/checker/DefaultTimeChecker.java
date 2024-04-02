@@ -82,7 +82,7 @@ public class DefaultTimeChecker implements TimeChecker {
 
             String key = buildTimeCheckRedisKey(executionId);
             redisClient.zadd(key, time, member);
-            redisClient.zadd(timeCheckKey(), System.currentTimeMillis(), key);
+            timeCheckRunner.addTaskToWaitCheck(executionId, member, time);
 
             return true;
         } catch (Exception e) {
@@ -119,7 +119,7 @@ public class DefaultTimeChecker implements TimeChecker {
         try {
             log.info("timeCheck start");
 
-            Set<String> allKeys = redisClient.zrangeByScore(timeCheckKey(), 0, System.currentTimeMillis());
+            List<String> allKeys = redisClient.eval(REDIS_GET_TIMEOUT, Lists.newArrayList(timeCheckKey()), Lists.newArrayList());
             log.info("timeCheck keys size:{}", CollectionUtils.isEmpty(allKeys) ? 0 : allKeys.size());
             if (CollectionUtils.isEmpty(allKeys)) {
                 return;

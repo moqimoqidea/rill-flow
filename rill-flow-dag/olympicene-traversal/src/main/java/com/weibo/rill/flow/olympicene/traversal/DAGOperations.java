@@ -95,7 +95,7 @@ public class DAGOperations {
             TaskInfo taskInfo = taskInfoToContext.getLeft();
             try {
                 log.info("runTasks task begin to execute executionId:{} taskInfoName:{}", executionId, taskInfo.getName());
-                runTask(executionId, taskInfo, taskInfoToContext.getRight());
+                dagRunner.run(executionId, taskInfo, taskInfoToContext.getRight());
             } catch (Exception e) {
                 log.error("runTasks fails, executionId:{}, taskName:{}", executionId, taskInfo.getName(), e);
             }
@@ -157,7 +157,7 @@ public class DAGOperations {
             }
 
             List<Mapping> timeMappings = Lists.newArrayList();
-            timeMappings.add(new Mapping(timeline.getTimeoutInSeconds(), "$.output.timeout"));
+            timeMappings.addAll(timeline.
             Map<String, Object> output = Maps.newHashMap();
             taskRunners.get("function").inputMappings(context, input, output, timeMappings);
             return Optional.ofNullable(output.get("timeout"))
@@ -175,7 +175,7 @@ public class DAGOperations {
         log.info("runTaskWithTimeInterval task start to check executionId:{} taskInfoName:{} intervalInSeconds:{}",
                 executionId, taskInfo.getName(), intervalInSeconds);
         if (intervalInSeconds > 0) {
-            timeCheckRunner.addTaskToWaitCheck(executionId, taskInfo, intervalInSeconds);
+            timeCheckRunner.addTaskToTimeoutCheck(executionId, taskInfo, intervalInSeconds);
             return;
         }
         runTasks(executionId, Lists.newArrayList(Pair.of(taskInfo, context)));
@@ -254,7 +254,12 @@ public class DAGOperations {
         DAGInfo dagInfoRet = executionResult.getDagInfo();
         Map<String, Object> context = executionResult.getContext();
 
-        timeCheckRunner.remDAGFromTimeoutCheck(executionId, dagInfoRet.getDag());
+        if (executionResult.getTaskStatus() == TaskStatus.READY && executionResult.isNeedRetry()) {
+            timeCheckRunner.remDAGFromTimeoutCheck(executionId);
+            timeCheckRunner.addDAGToTimeoutCheck(executionId, executionResult.getRetryIntervalInSeconds());
+        } else {
+            timeCheckRunner.remDAGFromTimeoutCheck(executionId);
+        }
 
         List<ExecutionInfo> executionRoutes = Optional.ofNullable(dagInfoRet.getDagInvokeMsg())
                 .map(DAGInvokeMsg::getExecutionRoutes)
@@ -277,7 +282,9 @@ public class DAGOperations {
                     }
                 });
 
-        trialClose(executionId, dagStatus, dagInfoRet, context);
+        if (dagStatus == DAGStatus.SUCCEED || dagStatus == DAGStatus.KEY_SUCCEED) {
+            trialClose(executionId, dagStatus, dagInfoRet, context);
+        }
     }
 
     private TaskStatus calculateSubFlowTaskStatus(DAGInfo dagInfoRet) {
@@ -310,7 +317,11 @@ public class DAGOperations {
             log.info("setDAGResult dagResultHandler null");
             return;
         }
-        dagResultHandler.updateDAGResult(executionId, DAGResult.builder().dagInfo(dagInfo).context(context).build());
+        if (dagResultHandler.updateDAGResult(executionId, dagInfo)) {
+            log.info("setDAGResult updateDAGResult success executionId:{}", executionId);
+        } else {
+            log.info("setDAGResult updateDAGResult fail executionId:{}", executionId);
+        }
     }
 
     private void invokeTaskCallback(String executionId, TaskInfo taskInfo, Map<String, Object> context) {
@@ -322,7 +333,7 @@ public class DAGOperations {
         }
 
         DAGInfo dagInfoMock = new DAGInfo();
-        dagInfoMock.setExecutionId(executionId);
+        dagInfoMock.setDagStatus(dagInfo.getDagStatus());
 
         invokeCallback(executionId, dagEvent, dagInfoMock, taskInfo, context);
     }

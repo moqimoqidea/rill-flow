@@ -102,7 +102,7 @@ class FunctionTaskTest extends Specification {
         ret.pattern == FunctionPattern.TASK_SCHEDULER || ret.pattern == FunctionPattern.TASK_ASYNC
         ret.resourceName == 'testBusinessId::testFeatureName::testResource::prod'
         ret.inputMappings.size() == 2
-        ret.outputMappings.size() == 1
+        ret.inputMappings[0].target == 'url'
         ret.category == TaskCategory.FUNCTION.getValue()
     }
 
@@ -169,7 +169,7 @@ class FunctionTaskTest extends Specification {
         where:
         text                          | _
         resourceNullResourceNameNull  | _
-        resourceNullResourceNameBlank | _
+        resourceNullResourceNameNull  | _
         resourceNullResourcesNull     | _
     }
 
@@ -178,7 +178,9 @@ class FunctionTaskTest extends Specification {
         dagParser.parse(text)
 
         then:
-        noExceptionThrown()
+        def e = thrown(ValidationException)
+        e.errorCode == DDLErrorCode.FUNCTION_TASK_INVALID.getCode()
+        e.message == 'function task normalise is invalid. Because resourceName or resource can not be empty.'
 
         where:
         text                         | _

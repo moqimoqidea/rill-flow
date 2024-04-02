@@ -31,7 +31,7 @@ public class Resource {
     public Resource(String resourceName) {
         this.resourceName = resourceName;
         int connectorIndex = resourceName.indexOf(CONNECTOR);
-        this.schemeProtocol = connectorIndex == -1 ? "" : resourceName.substring(0, connectorIndex);
+        this.schemeProtocol = connectorIndex == -1 ? null : resourceName.substring(0, connectorIndex);
         this.schemeValue = connectorIndex == -1 ? resourceName : resourceName.substring(connectorIndex + CONNECTOR.length());
     }
 

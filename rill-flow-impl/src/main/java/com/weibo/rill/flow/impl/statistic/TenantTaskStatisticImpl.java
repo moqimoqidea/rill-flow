@@ -94,8 +94,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
         }
 
         String baseTaskName = DAGWalkHelper.getInstance().getBaseTaskName(taskInfoName);
-        String serviceId = ExecutionIdUtil.getServiceId(executionId);
-        String businessId = ExecutionIdUtil.getBusinessIdFromServiceId(serviceId);
+        String businessId = DAGWalkHelper.getInstance().getAncestorTaskName(taskInfoName);
 
         Optional.ofNullable(bizDConfs.getTenantDefinedTaskInvokeProfileLog())
                 .map(it -> it.get(businessId))
@@ -147,7 +146,11 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
 
             if (Objects.equals(taskCategory, TaskCategory.FUNCTION.getValue())) {
                 String resourceName = ((FunctionTask) taskInfo.getTask()).getResourceName();
-                businessResourceCount(resourceName, businessKey, serviceId);
+                if (StringUtils.isNotBlank(resourceName)) {
+                    String resourceCountField = buildBusinessResourceCountField(serviceId, resourceName);
+                    AtomicLong resourceCountIncr = getIncrValue(Pair.of(businessKey, resourceCountField));
+                    resourceCountIncr.incrementAndGet();
+                }
             }
         } catch (Exception e) {
             log.warn("taskRunCount fails, executionId:{}, taskName:{}, errorMsg:{}",
@@ -204,7 +207,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
                 return;
             }
             businessResourceTime(executionId, waitTime, executionTime);
-            flowResourceTime(executionId, waitTime, executionTime);
+            businessResourceCount(context.getString("resource_name"), businessKey, ExecutionIdUtil.getServiceId(executionId));
         } catch (Exception e) {
             log.warn("finishNotifyCount fails, executionId:{}", executionId, e);
         }

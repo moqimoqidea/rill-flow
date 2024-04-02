@@ -73,7 +73,7 @@ public class BeanPostConfig {
     public void setBusinessTimeCheckProperty(
             @Autowired BusinessTimeChecker businessTimeChecker,
             @Autowired TimeCheckRunner timeCheckRunner) {
-        businessTimeChecker.setTimeCheckRunner(timeCheckRunner);
+        businessTimeChecker.initCheckThread(SystemConfig.MEMBER_CHECK_PERIOD_IN_SECONDS);
     }
 
     @Autowired

@@ -57,7 +57,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         if (task != null && task.getTask() instanceof FunctionTask functionTask) {
             if (FunctionPattern.TASK_SCHEDULER.equals(functionTask.getPattern())
                     || FunctionPattern.TASK_ASYNC.equals(functionTask.getPattern())) {
-                httpHeaders.add("X-Mode", "async");
+                httpHeaders.add("X-Rill-Task-Name", task.getName());
             }
         }
     }
@@ -111,7 +111,6 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                             break;
                         case "header":
                             header.putAll((Map<String, String>) value);
-                            functionInput.remove("header");
                             break;
                         case "body":
                             body.putAll((Map<String, Object>) value);
@@ -161,7 +160,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                 if (method == HttpMethod.GET) {
                     result = restTemplate.getForObject(url, String.class);
                 } else {
-                    result = restTemplate.postForObject(new URI(url), requestEntity, String.class);
+                    result = restTemplate.postForObject(url, requestEntity, String.class);
                 }
                 return result;
             } catch (RestClientResponseException e) {

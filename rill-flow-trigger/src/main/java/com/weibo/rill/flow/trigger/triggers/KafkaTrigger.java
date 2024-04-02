@@ -120,7 +120,7 @@ public class KafkaTrigger implements Trigger {
         }
         // 2. create consumer
         Properties properties = createKafkaProperties(kafkaServer, groupId);
-        createConsumer(topic, uid, descriptorId, callback, resourceCheck, properties);
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
         taskInfos.put(taskKey, jsonDetails);
         return new JSONObject(Map.of("code", 0));
     }
@@ -135,7 +135,7 @@ public class KafkaTrigger implements Trigger {
                 continue;
             }
             String topic = keyInfos[0];
-            String descriptorId = keyInfos[1];
+            String descriptorId = DescriptorIdUtil.getDescriptorId(keyInfos[1]);
             JSONObject taskDetail = JSON.parseObject(entry.getValue());
             taskDetail.put("topic", topic);
             addTrigger(taskDetail.getLong("uid"), descriptorId, taskDetail.getString("callback"),
@@ -174,7 +174,11 @@ public class KafkaTrigger implements Trigger {
                         log.info("task canceled: {}", taskKey);
                         break;
                     }
-                    consumeRecords(topic, uid, descriptorId, callback, resourceCheck, consumer);
+                    try {
+                        consumeRecords(topic, uid, descriptorId, callback, resourceCheck, consumer);
+                    } catch (Exception e) {
+                        log.warn("kafka trigger consume error, topic: {}, descriptor_id: {}", topic, descriptorId, e);
+                    }
                 }
             });
             log.info("kafka trigger create consumer success, topic: {}, descriptor_id: {}", topic, descriptorId);
@@ -193,7 +197,7 @@ public class KafkaTrigger implements Trigger {
                     log.info("kafka trigger consume, topic: {}, descriptor_id: {}, message: {}", topic, descriptorId, message);
                     JSONObject context = JSON.parseObject(message);
                     ResourceCheckConfig resourceCheckConfig = JSON.parseObject(resourceCheck, ResourceCheckConfig.class);
-                    String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
+                    String businessId = ExecutionIdUtil.getBusinessId(context.getString("execution_id"));
                     Map<String, Object> contextMap = dagContextInitializer.newSubmitContextBuilder(businessId).withData(context).withIdentity(descriptorId).build();
 
                     Map<String, Object> result = olympiceneFacade.submit(new FlowUser(uid), descriptorId, contextMap, callback, resourceCheckConfig);

@@ -47,7 +47,7 @@ public class RestTemplateGenerator implements BeanGenerator<RestTemplate> {
 
     @Override
     public RestTemplate newInstance(BeanConfig beanConfig) {
-        int conTimeOutMs = Optional.ofNullable(beanConfig.getHttp()).map(BeanConfig.Http::getConTimeOutMs).orElse(500);
+        int conTimeOutMs = Optional.ofNullable(beanConfig.getHttp()).map(BeanConfig.Http::getConnectTimeoutMs).orElse(1500);
         int writeTimeoutMs = Optional.ofNullable(beanConfig.getHttp()).map(BeanConfig.Http::getWriteTimeoutMs).orElse(1500);
         int readTimeoutMs = Optional.ofNullable(beanConfig.getHttp()).map(BeanConfig.Http::getReadTimeoutMs).orElse(1500);
         int maxIdleConnections = Optional.ofNullable(beanConfig.getHttp()).map(BeanConfig.Http::getMaxIdleConnections).orElse(10);

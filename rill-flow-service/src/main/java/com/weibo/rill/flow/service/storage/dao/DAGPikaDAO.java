@@ -119,7 +119,7 @@ public class DAGPikaDAO {
         String descriptor = dagInfoJson.get(DAG).toString();
         String dagInfoKey = buildDagInfoKey(executionId);
         String descriptorKey = buildDescriptorKey(descriptor);
-        dagInfoJson.put(DAG, descriptorKey);
+        dagInfoJson.put(DAGRedisPrefix.DESCRIPTOR, descriptorKey);
 
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
@@ -147,7 +147,7 @@ public class DAGPikaDAO {
                 return null;
             }
 
-            ObjectNode dagInfoJson = (ObjectNode) DagStorageSerializer.MAPPER.readTree(dagInfoRaw);
+            ObjectNode dagInfoJson = DAGTraversalSerializer.MAPPER.readValue(dagInfoRaw, ObjectNode.class);
             String descriptorKey = dagInfoJson.get(DAG).asText();
             dagInfoJson.set(DAG, DagStorageSerializer.MAPPER.readTree(client.get(descriptorKey)));
 
@@ -217,7 +217,7 @@ public class DAGPikaDAO {
         String contextKey = buildContextKey(executionId);
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
-        client.set(contextKey, DagStorageSerializer.serializeToString(context));
+        client.hmset(contextKey, context);
         client.expire(contextKey, expireTime);
     }
 
@@ -239,7 +239,7 @@ public class DAGPikaDAO {
                 return Maps.newHashMap();
             }
 
-            JsonNode jsonNode = DagStorageSerializer.MAPPER.readTree(contextRaw);
+            ObjectNode jsonNode = DAGTraversalSerializer.MAPPER.readValue(contextRaw, ObjectNode.class);
             return DagStorageSerializer.MAPPER.convertValue(jsonNode, new TypeReference<>() {
             });
         } catch (Exception e) {

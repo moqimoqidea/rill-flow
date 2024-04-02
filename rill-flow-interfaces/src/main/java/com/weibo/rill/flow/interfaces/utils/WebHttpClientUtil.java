@@ -40,7 +40,7 @@ public class WebHttpClientUtil {
         if (param != null && !param.isEmpty()) {
             List<NameValuePair> pairs = new ArrayList<>();
             for (Map.Entry<String, Object> entry : param.entrySet()) {
-                pairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                pairs.add(new BasicNameValuePair(entry.getKey(), String.valueOf(entry.getValue())));
             }
             httpPost.setEntity(new UrlEncodedFormEntity(pairs));
         }

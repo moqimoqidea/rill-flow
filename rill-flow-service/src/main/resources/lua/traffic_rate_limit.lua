@@ -5,7 +5,7 @@ local incr_by_count = 1
 
 local result = redis.call('incrby', rate_limit_key, incr_by_count)
 if result == incr_by_count then
-    redis.call('expire', rate_limit_key, 1)
+    redis.call('expire', rate_limit_key, 60)
 end
 if tonumber(max_permits) >= result then
     return 1

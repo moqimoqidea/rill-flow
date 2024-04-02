@@ -105,7 +105,7 @@ public class OlympiceneFacade {
         Supplier<Map<String, Object>> submitActions = () -> {
             ResourceCheckConfig resourceCheckConfig = dagSubmitChecker.getCheckConfig(resourceCheck);
             String businessId = DescriptorIdUtil.changeDescriptorIdToBusinessId(descriptorId);
-            Map<String, Object> context = dagContextInitializer.newSubmitContextBuilder(businessId).withData(data).withIdentity(descriptorId).build();
+            Map<String, Object> context = dagContextInitializer.newSubmitContextBuilder(businessId).build(uid, descriptorId, data, callback, resourceCheckConfig);
 
             return submit(uid, descriptorId, context, callback, resourceCheckConfig);
         };
@@ -149,7 +149,7 @@ public class OlympiceneFacade {
                 .taskStatus(taskStatus)
                 .taskInvokeMsg(taskInvokeMsg)
                 .build();
-        olympicene.finish(executionId, DAGSettings.DEFAULT, data, notifyInfo);
+        olympicene.finish(executionId, taskName, taskStatus, taskInvokeMsg, notifyInfo);
         dagResourceStatistic.updateUrlTypeResourceStatus(executionId, taskName, passThrough.getString("resource_name"), rawCallbackData);
 
         return ImmutableMap.of(RESULT, "ok");
@@ -179,7 +179,7 @@ public class OlympiceneFacade {
     }
 
     public Map<String, Object> wakeup(String executionId, String taskName, Map<String, Object> data) {
-        olympicene.wakeup(executionId, data, NotifyInfo.builder().taskInfoName(taskName).build());
+        olympicene.wakeup(executionId, taskName, data);
         return ImmutableMap.of(RESULT, "ok");
     }
 
@@ -203,7 +203,7 @@ public class OlympiceneFacade {
             Map<String, Object> context = longTermStorage.getContext(executionId);
             log.info("redo reload dag runtime content, context size:{}, executionId:{}", context.size(), executionId);
             runtimeStorage.saveDAGInfo(executionId, dagInfo);
-            runtimeStorage.updateContext(executionId, context);
+            runtimeStorage.saveContext(executionId, context);
             olympicene.redo(executionId, data, notifyInfo);
         }
 
@@ -258,7 +258,7 @@ public class OlympiceneFacade {
             degrade.setCurrent(degradeCurrentTask);
             degrade.setFollowings(degradeFollowingTasks);
             baseTask.setDegrade(degrade);
-            runtimeStorage.updateDAGDescriptor(executionId, dag);
+            runtimeStorage.saveDAGDescriptor(executionId, dag);
         }
         return ImmutableMap.of(RESULT, "ok");
     }
@@ -340,7 +340,6 @@ public class OlympiceneFacade {
             throw new TaskException(BizError.ERROR_DATA_FORMAT.getCode(), "descriptorId:" + descriptorId + " format error");
         }
         String businessId = fields[0];
-        String featureName = fields[1];
         String serviceId = businessId + ReservedConstant.COLON + featureName;
 
         Map<String, Object> submitStatus = dagSubmitChecker.getCheckRet(businessId, serviceId, resourceCheckConfig);
@@ -367,7 +366,7 @@ public class OlympiceneFacade {
 
         JSONObject data = Optional.ofNullable(notifyData).map(JSONObject::parseObject).orElse(new JSONObject());
         String executionId = ExecutionIdUtil.getExecutionIdFromBucketName(bucketName);
-        TaskInfo taskInfo = runtimeStorage.getTaskInfo(executionId, notifyTaskName);
+        TaskInfo taskInfo = dagRuntimeFacade.getTaskInfo(executionId, notifyTaskName);
         String taskCategory = taskInfo.getTask().getCategory();
         if (Objects.equals(taskCategory, TaskCategory.FUNCTION.getValue())) {
             finish(executionId, data.getJSONObject("response"), data);

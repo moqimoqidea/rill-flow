@@ -47,7 +47,7 @@ public class RillFlowWebHttpClient implements FlowHttpClient {
     @Override
     public String get(String url, Map<String, String> header, Map<String, Object> param, Long uid) {
         try {
-            return executeGetRequest(url, param, header);
+            HttpGet httpGet = WebHttpClientUtil.httpGet(url, header, param);
         } catch (Exception e) {
             log.error("http get error. url:{}, header:{}, param:{}, uid:{}", url, header, param, uid, e);
         }

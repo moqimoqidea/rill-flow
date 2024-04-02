@@ -190,7 +190,7 @@ class OlympiceneFacadeTest extends Specification {
         runtimeStorage.getDAGDescriptor(_) >> dag
         runtimeStorage.updateDAGDescriptor(*_) >> null
         when:
-        facade.taskDegrade("testExecutionId", "testTaskName2", true, false)
+        facade.taskDegrade("testExecutionId", "testTaskName", true, false)
         then:
         thrown TaskException
     }

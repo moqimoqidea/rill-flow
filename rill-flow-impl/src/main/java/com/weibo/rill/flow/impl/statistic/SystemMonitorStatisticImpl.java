@@ -79,7 +79,6 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
             if (notifyType == NotifyType.SUBMIT) {
                 updateExecutionStatus(executionId);
             } else if (notifyType == NotifyType.REDO) {
-                initExecutionStatus(executionId, serviceId);
                 updateExecutionStatus(executionId);
             }
 
@@ -189,7 +188,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         }
 
         String totalCodeKey = totalCodeKey(serviceId);
-        Set<String> allCodes = runtimeRedisClients.zrange(totalCodeKey, totalCodeKey, 0, -1);
+        List<String> allCodes = runtimeRedisClients.zrange(totalCodeKey, 0, -1);
         if (CollectionUtils.isEmpty(allCodes)) {
             return ret;
         }
@@ -231,7 +230,7 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
         runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.SUCCEED), executionId);
         runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.FAILED), executionId);
         String serviceKey = executionServiceKey(serviceId, ExecutionIdUtil.getSubmitTime(executionId));
-        String failCode = getRuntimeClient(serviceKey).hget(serviceKey, executionId);
+        String failCode = runtimeRedisClients.hget(serviceKey, executionId);
         if (StringUtils.isNotBlank(failCode)) {
             runtimeRedisClients.zrem(executionCodeKey(serviceId, failCode), executionId);
             runtimeRedisClients.hdel(serviceKey, executionId);
@@ -261,7 +260,6 @@ public class SystemMonitorStatisticImpl implements SystemMonitorStatistic {
             if (dagStatus != DAGStatus.RUNNING) {
                 runtimeRedisClients.zrem(executionStatusKey(serviceId, DAGStatus.RUNNING), executionId);
             }
-            String statusKey = executionStatusKey(serviceId, dagStatus);
             JedisFlowClient jedisFlowClient = getRuntimeClient(statusKey);
             jedisFlowClient.pipelined().accept(pipeline -> {
                 pipeline.zadd(statusKey, submitTime, executionId);
