@@ -43,7 +43,7 @@ public class HttpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (body instanceof HttpResponse) {
             httpResponse = (HttpResponse) body;
         } else {
-            // FIXME: Code Completion From Here.
+            httpResponse = HttpResponse.data(body);
         }
 
         httpResponse.setRequestId(MDC.get("request_id"));

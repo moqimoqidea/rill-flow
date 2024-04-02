@@ -57,7 +57,7 @@ public class FunctionTaskDispatcher implements DAGDispatcher {
         protocolDispatcherMap.put("http", httpDispatcher);
         protocolDispatcherMap.put("https", httpDispatcher);
         protocolDispatcherMap.put("rillflow", flowDispatcher);
-        // FIXME: Code Completion From Here.
+        protocolDispatcherMap.put("resource", resourceDispatcher);
         protocolDispatcherMap.put("resourceRef", resourceRefDispatcher);
         this.descriptorManager = descriptorManager;
         this.httpInvokeHelper = httpInvokeHelper;
@@ -88,7 +88,7 @@ public class FunctionTaskDispatcher implements DAGDispatcher {
             if (functionTask.getResource() != null) {
                 log.info("handle task by function resource, executionId:{} taskName:{}",
                         dispatchInfo.getExecutionId(), dispatchInfo.getTaskInfo().getName());
-                // FIXME: Code Completion From Here.
+                return descriptorManager.calculateResourceName(dispatchInfo.getUid(), input, dispatchInfo.getExecutionId(), functionTask.getResource().getConfigKey());
             }
 
             return resourceNameProcess(dispatchInfo, functionTask);
@@ -109,7 +109,7 @@ public class FunctionTaskDispatcher implements DAGDispatcher {
             Long uid = Optional.ofNullable(input.get("uid"))
                     .map(it -> Long.parseLong(String.valueOf(it)))
                     .orElse(0L);
-            // FIXME: Code Completion From Here.
+            String calculatedResourceName = descriptorManager.calculateResourceName(uid, input, executionId, resource.getResourceName());
             resource = new Resource(calculatedResourceName);
             updateResourceName(executionId, calculatedResourceName, dispatchInfo.getTaskInfo());
         }
@@ -133,7 +133,7 @@ public class FunctionTaskDispatcher implements DAGDispatcher {
                 taskInvokeMsg.setExt(new HashMap<>());
                 return taskInvokeMsg.getExt();
             });
-            // FIXME: Code Completion From Here.
+            ext.put("resourceName", calculatedResourceName);
         } catch (Exception e) {
             log.warn("updateResourceName fails, executionId:{}, calculatedResourceName:{}, taskInfoName:{}, errorMsg:{}",
                     executionId, calculatedResourceName, Optional.ofNullable(taskInfo).map(TaskInfo::getName).orElse(null), e.getMessage());

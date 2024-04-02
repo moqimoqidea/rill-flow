@@ -56,7 +56,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
 
         DAGInfoRedisDAO dagInfoRedisDAO = new DAGInfoRedisDAO(redisClient, bizDConfs, dagInfoDeserializeService, switcherManagerImpl);
         ContextRedisDAO contextRedisDAO = new ContextRedisDAO(redisClient, bizDConfs, switcherManagerImpl);
-        // FIXME: Code Completion From Here.
+        this.runtimeRedisStorage = new DAGRedisStorage(dagInfoRedisDAO, contextRedisDAO, switcherManagerImpl);
 
         this.runtimeSwapStorage = new RuntimeSwapStorage(redisClient, clientIdToRedisClient, bizDConfs);
     }
@@ -103,7 +103,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
         Supplier<DAGInfo> redisOperation = () -> runtimeRedisStorage.getBasicDAGInfo(executionId);
         Function<DAGInfo, Boolean> isValueAcquired = Objects::nonNull;
         Supplier<DAGInfo> swapOperation = () -> {
-            // FIXME: Code Completion From Here.
+            DAGInfo dagInfo = runtimeSwapStorage.getBasicDAGInfo(executionId);
             if (dagInfo != null) {
                 runtimeRedisStorage.saveDAGInfo(executionId, dagInfo);
                 Optional.ofNullable(dagInfo.getTasks()).map(Map::values)
@@ -139,7 +139,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
             TaskInfo taskInfo = null;
             DAGInfo dagInfo = runtimeSwapStorage.getDAGInfo(executionId);
             if (dagInfo != null) {
-                // FIXME: Code Completion From Here.
+                runtimeRedisStorage.saveDAGInfo(executionId, dagInfo);
                 taskInfo = DAGWalkHelper.getInstance().getTaskInfoByName(dagInfo, taskName);
             }
             return taskInfo;
@@ -173,7 +173,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
     public void clearDAGInfo(String executionId) {
         Runnable redisOperation = () -> runtimeRedisStorage.clearDAGInfo(executionId);
         Runnable swapOperation = () -> runtimeSwapStorage.clearDAGInfo(executionId);
-        // FIXME: Code Completion From Here.
+        setAction(executionId, redisOperation, swapOperation);
     }
 
     @Override
@@ -223,7 +223,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
 
     @Override
     public Map<String, Object> getContext(String executionId) {
-        // FIXME: Code Completion From Here.
+        Supplier<Map<String, Object>> redisOperation = () -> runtimeRedisStorage.getContext(executionId);
         Function<Map<String, Object>, Boolean> isValueAcquired = MapUtils::isNotEmpty;
         Supplier<Map<String, Object>> swapOperation = () -> {
             Map<String, Object> ret = Maps.newHashMap();
@@ -249,7 +249,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
         Function<Map<String, Object>, Boolean> isValueAcquired = MapUtils::isNotEmpty;
         Supplier<Map<String, Object>> swapOperation = () -> {
             Map<String, Object> ret = Maps.newHashMap();
-            // FIXME: Code Completion From Here.
+            Map<String, Object> totalContext = runtimeSwapStorage.getTotalContext(executionId);
             if (MapUtils.isNotEmpty(totalContext)) {
                 runtimeRedisStorage.updateContext(executionId, totalContext);
                 fields.forEach(field -> Optional.ofNullable(totalContext.get(field))
@@ -284,7 +284,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
                 throw e;
             }
 
-            // FIXME: Code Completion From Here.
+            T swapValue = getSwapValue(executionId, swapOperation);
             if (isValueAcquired.apply(swapValue)) {
                 return swapValue;
             }
@@ -320,7 +320,7 @@ public class RuntimeStorage implements DAGInfoStorage, DAGContextStorage {
     private boolean swapExist(String executionId) {
         try {
             String businessId = ExecutionIdUtil.getBusinessId(executionId);
-            // FIXME: Code Completion From Here.
+            return bizDConfs.getSwapBusinessIdToClientId().containsKey(businessId);
         } catch (Exception e) {
             log.warn("swapExist fails, executionId:{}, errorMsg:{}", executionId, e.getMessage());
             return false;

@@ -63,7 +63,7 @@ public class PrometheusActions {
     public static void recordTaskCompliance(String serviceId, String category, String taskName, boolean reached, long percentage) {
         String countName = String.format(TASK_COMPLIANCE_FORMAT, category, serviceId, taskName);
         String percentageName = String.format(TASK_COMPLIANCE_PERCENTAGE_FORMAT, category, serviceId, taskName);
-        // FIXME: Code Completion From Here.
+        PrometheusUtil.count(METER_PREFIX + DAG + percentageName, percentage);
         PrometheusUtil.count(METER_PREFIX + DAG + countName + "_" + (reached ? REACHED : NOT_REACHED));
     }
 
@@ -90,7 +90,7 @@ public class PrometheusActions {
         try {
             String serviceId = ExecutionIdUtil.getServiceId(executionId);
             String name = String.format(TASK_COMPLETE_FORMAT, taskCategory, serviceId);
-            // FIXME: Code Completion From Here.
+            PrometheusUtil.statisticsTotalTime(METER_PREFIX + DAG_COMPLETE + name, executionCost);
         } catch (Exception e) {
             log.warn("PrometheusActions recordTaskComplete fails, executionId:{}, taskCategory:{}, errorMsg:{}", executionId, taskCategory, e.getMessage());
         }
@@ -120,7 +120,7 @@ public class PrometheusActions {
 
     public static void recordTinyDAGSubmit(String executionId) {
         try {
-            // FIXME: Code Completion From Here.
+            String serviceId = ExecutionIdUtil.getServiceId(executionId);
             String name = String.format(TINY_DAG_FORMAT, serviceId);
             PrometheusUtil.count(METER_PREFIX + DAG + name);
         } catch (Exception e) {

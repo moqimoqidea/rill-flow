@@ -97,7 +97,7 @@ public class DAGPikaDAO {
                 rawTaskInfo.update(taskInfo);
             }
         });
-        // FIXME: Code Completion From Here.
+        saveDAGInfo(executionId, dagInfo);
     }
 
     public void updateDAGDescriptor(String executionId, DAG dag) {
@@ -119,7 +119,7 @@ public class DAGPikaDAO {
         String descriptor = dagInfoJson.get(DAG).toString();
         String dagInfoKey = buildDagInfoKey(executionId);
         String descriptorKey = buildDescriptorKey(descriptor);
-        // FIXME: Code Completion From Here.
+        dagInfoJson.put(DAGRedisPrefix.DESCRIPTOR, descriptorKey);
 
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
@@ -147,7 +147,7 @@ public class DAGPikaDAO {
                 return null;
             }
 
-            // FIXME: Code Completion From Here.
+            ObjectNode dagInfoJson = DAGTraversalSerializer.MAPPER.readValue(dagInfoRaw, ObjectNode.class);
             String descriptorKey = dagInfoJson.get(DAG).asText();
             dagInfoJson.set(DAG, DagStorageSerializer.MAPPER.readTree(client.get(descriptorKey)));
 
@@ -175,7 +175,7 @@ public class DAGPikaDAO {
             return null;
         }
 
-        // FIXME: Code Completion From Here.
+        TaskInfo taskInfo = DAGWalkHelper.getInstance().getTaskInfoByName(dagInfo, taskName);
         if (taskInfo != null && MapUtils.isNotEmpty(taskInfo.getChildren()) && StringUtils.isNotBlank(subGroupIndex)) {
             String routeName = DAGWalkHelper.getInstance().buildTaskInfoRouteName(taskName, subGroupIndex);
             Map<String, TaskInfo> currentGroupTasks = taskInfo.getChildren().entrySet().stream()
@@ -217,7 +217,7 @@ public class DAGPikaDAO {
         String contextKey = buildContextKey(executionId);
         RedisClient client = getClient(executionId);
         int expireTime = getUnfinishedReserveTimeInSecond(executionId);
-        // FIXME: Code Completion From Here.
+        client.hmset(contextKey, context);
         client.expire(contextKey, expireTime);
     }
 
@@ -239,7 +239,7 @@ public class DAGPikaDAO {
                 return Maps.newHashMap();
             }
 
-            // FIXME: Code Completion From Here.
+            ObjectNode jsonNode = DAGTraversalSerializer.MAPPER.readValue(contextRaw, ObjectNode.class);
             return DagStorageSerializer.MAPPER.convertValue(jsonNode, new TypeReference<>() {
             });
         } catch (Exception e) {
@@ -284,7 +284,7 @@ public class DAGPikaDAO {
         String clientId = getClientId(businessId);
         log.debug("getClient businessId:{}, clientId:{}", businessId, clientId);
 
-        // FIXME: Code Completion From Here.
+        RedisClient client = clientIdToRedisClient.get(clientId);
         if (client == null) {
             log.warn("getClient clientId:{} not found in config", clientId);
             throw new TaskException(BizError.ERROR_DATA_RESTRICTION, "client:" + clientId + "not found");
@@ -321,6 +321,6 @@ public class DAGPikaDAO {
     }
 
     private String buildContextKey(String executionId) {
-        // FIXME: Code Completion From Here.
+        return keyPrefix + DAGRedisPrefix.PREFIX_CONTEXT.getValue() + executionId;
     }
 }

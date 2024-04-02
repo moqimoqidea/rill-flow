@@ -76,7 +76,8 @@ public class DAGResourceStatistic {
 
     public int getRuntimeRedisUsagePercent(String executionId, String serviceId) {
         try {
-            // FIXME: Code Completion From Here.
+            return usagePercentCache.get(serviceId, () -> {
+            });
         } catch (Exception e) {
             log.warn("getRuntimeRedisUsagePercent fails, executionId:{}", executionId, e);
             return 0;
@@ -108,7 +109,7 @@ public class DAGResourceStatistic {
     public Map<String, Map<String, ResourceStatus>> orderDependentResources(String serviceId) {
         Map<String, Map<String, ResourceStatus>> resourceOrder = Maps.newHashMap();
 
-        // FIXME: Code Completion From Here.
+        Map<String, ResourceStatus> taskNameToResourceStatus = getDependentResources(serviceId);
         resourceOrder.put("task_name_order", taskNameToResourceStatus);
 
         Map<String, ResourceStatus> resourceNameToResourceStatus = taskNameToResourceStatus.entrySet().stream()
@@ -140,7 +141,7 @@ public class DAGResourceStatistic {
                 Map<String, ResourceStatus> resources = serviceResourceCache.getIfPresent(serviceId);
                 if (MapUtils.isNotEmpty(resources) && CollectionUtils.isNotEmpty(resourceNames)) {
                     resources.values().stream()
-                            // FIXME: Code Completion From Here.
+                            .filter(resourceStatus -> resourceNames.contains(resourceStatus.getResourceName()))
                             .forEach(resourceStatus -> {
                                 resourceStatus.setResourceLimitedTime(0L);
                                 resourceStatus.setUpdateTime(System.currentTimeMillis());
@@ -161,7 +162,16 @@ public class DAGResourceStatistic {
             }
 
             JSONObject urlRetJson = JSON.parseObject(urlRet);
-            // FIXME: Code Completion From Here.
+            if (urlRetJson.containsKey("data")) {
+                JSONObject data = urlRetJson.getJSONObject("data");
+                if (data.containsKey("sys_info")) {
+                    JSONObject sysInfo = data.getJSONObject("sys_info");
+                    if (sysInfo.containsKey("retry_interval_seconds")) {
+                        int retryIntervalSeconds = sysInfo.getInteger("retry_interval_seconds");
+                        updateUrlTypeResourceStatus(executionId, taskName, resourceName,retryIntervalSeconds);
+                    }
+                }
+            }
         } catch (Exception e) {
             log.warn("updateUrlTypeResourceStatus fails, executionId:{}, resourceName:{}, urlRet:{}, errorMsg:{}",
                     executionId, resourceName, urlRet, e.getMessage());
@@ -204,7 +214,7 @@ public class DAGResourceStatistic {
             }
 
             long updateTime = System.currentTimeMillis();
-            // FIXME: Code Completion From Here.
+            ResourceStatus resourceStatus = getResourceStatus(executionId, taskName, resourceName);
             resourceStatus.setUpdateTime(updateTime);
 
             String flowServiceId = ExecutionIdUtil.generateServiceId(dag);
@@ -239,7 +249,16 @@ public class DAGResourceStatistic {
                         return 0L;
                     });
 
-            // FIXME: Code Completion From Here.
+            List<String> maxMemoryConfig = Arrays.stream(memory.split("\n"))
+                    .map(String::trim)
+                    .filter(it -> it.startsWith("maxmemory"))
+                    .map(it -> it.split(":"))
+                    .filter(array -> array.length > 1)
+                    .findFirst()
+                    .map(it -> Arrays.asList(it))
+                    .orElseGet(() -> {
+                        log.warn("redis memory check can not get maxmemory, executionId:{}", executionId);
+                    }
             long maxMemory = Optional.ofNullable(maxMemoryConfig)
                     .filter(it -> CollectionUtils.isNotEmpty(it) && it.size() > 1)
                     .map(it -> Long.parseLong(it.get(1)))
@@ -259,7 +278,7 @@ public class DAGResourceStatistic {
 
     private ResourceStatus getResourceStatus(String executionId, String taskName, String resourceName) throws ExecutionException {
         Map<String, ResourceStatus> taskNameToResourceStatus = serviceResourceCache.get(ExecutionIdUtil.getServiceId(executionId));
-        // FIXME: Code Completion From Here.
+        String cachedTaskName = ExecutionIdUtil.getExecutionIdFromBucketName(taskName);
         return taskNameToResourceStatus.computeIfAbsent(cachedTaskName, key -> ResourceStatus.builder().resourceName(resourceName).build());
     }
 }

@@ -48,7 +48,7 @@ public class ShareMdcFeatureDecoratorAssembler implements TaskDecoratorAssembler
             if (context == null) {
                 MDC.clear();
             } else {
-                // FIXME: Code Completion From Here.
+                MDC.setContextMap(context);
             }
 
             try {

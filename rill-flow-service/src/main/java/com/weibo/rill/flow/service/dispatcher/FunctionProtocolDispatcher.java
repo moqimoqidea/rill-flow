@@ -60,7 +60,7 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
         MultiValueMap<String, String> header = dispatchInfo.getHeaders();
 
         try {
-            // FIXME: Code Completion From Here.
+            HttpParameter requestParams = httpInvokeHelper.buildHttpParameter(input, taskInfo);
             Optional.of(requestParams)
                     .map(it -> requestParams.getHeader())
                     .ifPresent(header::setAll);
@@ -69,7 +69,7 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
             HttpMethod method = Optional.ofNullable(requestType).map(String::toUpperCase).map(HttpMethod::resolve).orElse(HttpMethod.POST);
             HttpEntity<?> requestEntity = buildHttpEntity(method, header, requestParams);
             String ret = httpInvokeHelper.invokeRequest(executionId, taskInfoName, url, requestEntity, method, maxInvokeTime);
-            // FIXME: Code Completion From Here.
+            dagResourceStatistic.updateUrlTypeResourceStatus(executionId, taskInfoName, resource.getResourceName(), ret);
             return ret;
         } catch (RestClientResponseException e) {
             String responseBody = e.getResponseBodyAsString();
@@ -86,7 +86,7 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
                     .map(it -> it.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                     .orElse(false);
             if (isApplicationFormUrlencodedValue) {
-                // FIXME: Code Completion From Here.
+                LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                 requestParams.getBody().forEach((key, value) -> {
                     if (value instanceof String) {
                         params.add(key, (String) value);
