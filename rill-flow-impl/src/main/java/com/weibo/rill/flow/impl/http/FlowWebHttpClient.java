@@ -49,7 +49,7 @@ public class FlowWebHttpClient implements FlowHttpClient {
     public String postWithBody(String url, Map<String, String> header, Map<String, Object> param, String body, Long uid) {
         try {
             HttpPost httpPost = WebHttpClientUtil.httpPost(url, header, param, body);
-            // FIXME: Code Completion From Here.
+            CloseableHttpResponse response = httpClient.execute(httpPost);
             return response.toString();
         } catch (Exception e) {
             log.error("http post with body error. url:{}, header:{}, param:{}, body:{}, uid:{}", url, header, param, body, uid, e);
@@ -73,7 +73,7 @@ public class FlowWebHttpClient implements FlowHttpClient {
     }
 
     private String executeGetRequest(String url, Map<String, Object> param, Map<String, String> header) throws IOException {
-        // FIXME: Code Completion From Here.
+        HttpGet httpGet = WebHttpClientUtil.httpGet(url, header, param);
         CloseableHttpResponse response = httpClient.execute(httpGet);
         return response.toString();
     }

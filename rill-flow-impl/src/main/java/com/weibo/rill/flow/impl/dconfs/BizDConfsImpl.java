@@ -159,7 +159,7 @@ public class BizDConfsImpl implements BizDConfs {
         }
         resourceCheckIdToConfig.forEach((key, value) -> {
             try {
-                // FIXME: Code Completion From Here.
+                resourceCheckIdToConfigBean.put(key, JSONObject.parseObject(value, ResourceCheckConfig.class));
             } catch (Exception e) {
                 log.warn("BizDConfs resourceCheckIdToConfigBean fails, key:{}, value:{}", key, value);
             }

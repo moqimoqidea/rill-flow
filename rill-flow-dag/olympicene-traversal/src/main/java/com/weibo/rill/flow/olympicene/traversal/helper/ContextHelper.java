@@ -52,7 +52,7 @@ public class ContextHelper {
             String filed = DAGWalkHelper.getInstance().buildSubTaskContextFieldName(taskInfo.getRouteName());
             Map<String, Object> subContext = dagContextStorage.getContext(executionId, ImmutableSet.of(filed));
 
-            // FIXME: Code Completion From Here.
+            context = subContext.get(filed) != null ? (Map<String, Object>) subContext.get(filed) : Maps.newHashMap();
         } else {
             context = dagContextStorage.getContext(executionId);
         }
@@ -81,7 +81,7 @@ public class ContextHelper {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             } else {
                 context = Maps.newHashMap();
-                // FIXME: Code Completion From Here.
+                String field = DAGWalkHelper.getInstance().buildSubTaskContextFieldName(taskInfo.getRouteName());
                 Optional.ofNullable(gContext.get(field)).map(it -> (Map<String, Object>) it).ifPresent(context::putAll);
             }
             return Pair.of(taskInfo, context);
@@ -106,7 +106,7 @@ public class ContextHelper {
         if (CollectionUtils.isNotEmpty(ancestorTasks)) {
             Map<String, Object> ancestorContext = gContext.entrySet().stream()
                     .filter(entry -> !DAGWalkHelper.getInstance().isSubContextFieldName(entry.getKey()))
-                    // FIXME: Code Completion From Here.
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             ret.addAll(calculateIndependentContext(ancestorTasks, ancestorContext));
         }
         fieldToSubTasks.forEach((field, subTaskInfos) -> {
@@ -142,7 +142,7 @@ public class ContextHelper {
             return Lists.newArrayList();
         }
 
-        // FIXME: Code Completion From Here.
+        Map<String, Object> groupedContext = dagContextStorage.getContext(executionId, subContextFields);
         return groupedContext.values().stream().map(context -> (Map<String, Object>) context).toList();
     }
 
@@ -164,7 +164,7 @@ public class ContextHelper {
         }
 
         if (allTaskInfos.size() != subTaskInfos.size()) {
-            // FIXME: Code Completion From Here.
+            groupedContext.putAll(dagContextStorage.getContext(executionId, DAGWalkHelper.getInstance().buildSubTaskContextFieldNameInCurrentTask(allTaskInfos)));
         }
 
         return groupedContext;
