@@ -22,7 +22,7 @@ class DAGContextInitializerTest extends Specification {
         given:
         bizDConfs.getRuntimeSubmitContextMaxSize() >> maxSize
         expect:
-        // FIXME: Code Completion From Here.
+        result == initializer.newSubmitContextBuilder().withData(data).build()
         where:
         data                        | maxSize   | result
         null                        | 1024      | [:]
@@ -63,7 +63,7 @@ class DAGContextInitializerTest extends Specification {
         when:
         bizDConfs.getRuntimeSubmitContextMaxSize() >> maxSize
         bizDConfs.getRedisBusinessIdToRuntimeSubmitContextMaxSize() >> ['testBusiness01':4096, 'testBusiness02':8192]
-        // FIXME: Code Completion From Here.
+        DAGContextInitializer.DAGContextBuilder builder = initializer.newSubmitContextBuilder(businessId)
         then:
         maxContextSize == builder.maxSize
         where:
@@ -99,7 +99,7 @@ class DAGContextInitializerTest extends Specification {
 
     def "test newCallbackContextBuilder with businessId"() {
         when:
-        // FIXME: Code Completion From Here.
+        bizDConfs.getRuntimeCallbackContextMaxSize() >> maxSize
         bizDConfs.getRedisBusinessIdToRuntimeCallbackContextMaxSize() >> ['testBusiness01':3188, 'testBusiness02':9216]
         DAGContextInitializer.DAGContextBuilder builder = initializer.newCallbackContextBuilder(businessId)
         then:
@@ -139,7 +139,7 @@ class DAGContextInitializerTest extends Specification {
         when:
         bizDConfs.getRuntimeCallbackContextMaxSize() >> maxSize
         bizDConfs.getRedisBusinessIdToRuntimeCallbackContextMaxSize() >> ['testBusiness01':3188, 'testBusiness02':9216]
-        // FIXME: Code Completion From Here.
+        DAGContextInitializer.DAGContextBuilder builder = initializer.newWakeupContextBuilder(businessId)
         then:
         maxContextSize == builder.maxSize
         where:
@@ -194,7 +194,7 @@ class DAGContextInitializerTest extends Specification {
         bizDConfs.getRedisBusinessIdToRuntimeCallbackContextMaxSize() >> null
         DAGContextInitializer.DAGContextBuilder builder = initializer.newRedoContextBuilder(businessId)
         then:
-        // FIXME: Code Completion From Here.
+        maxContextSize == builder.maxSize
         where:
         maxSize | businessId       | maxContextSize
         1024    | null             | 1024

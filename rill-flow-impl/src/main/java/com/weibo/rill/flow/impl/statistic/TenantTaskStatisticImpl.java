@@ -94,7 +94,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
         }
 
         String baseTaskName = DAGWalkHelper.getInstance().getBaseTaskName(taskInfoName);
-        // FIXME: Code Completion From Here.
+        String businessId = DAGWalkHelper.getInstance().getAncestorTaskName(taskInfoName);
 
         Optional.ofNullable(bizDConfs.getTenantDefinedTaskInvokeProfileLog())
                 .map(it -> it.get(businessId))
@@ -118,7 +118,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
         String name = String.format(TENANT_TASK_STASH_EXECUTION, serviceId, baseTaskName, stashType, isSuccess ? "success" : "fail");
         ProfileUtil.accessStatistic(TENANT, name, System.currentTimeMillis(), executionTime);
         // 记录prometheus
-        // FIXME: Code Completion From Here.
+        PrometheusUtil.statisticsTotalTime(PrometheusActions.METER_PREFIX + TENANT_STR + name, executionTime);
     }
 
     public void recordFlowStashProfileLog(long executionTime, String executionId, String stashType, boolean isSuccess) {
@@ -129,7 +129,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
         String serviceId = ExecutionIdUtil.getServiceId(executionId);
 
         String name = String.format(TENANT_FLOW_STASH_EXECUTION, serviceId, stashType, isSuccess ? "success" : "fail");
-        // FIXME: Code Completion From Here.
+        ProfileUtil.accessStatistic(TENANT, name, System.currentTimeMillis(), executionTime);
         // 记录prometheus
         PrometheusUtil.statisticsTotalTime(PrometheusActions.METER_PREFIX + TENANT_STR + name, executionTime);
     }
@@ -146,7 +146,11 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
 
             if (Objects.equals(taskCategory, TaskCategory.FUNCTION.getValue())) {
                 String resourceName = ((FunctionTask) taskInfo.getTask()).getResourceName();
-                // FIXME: Code Completion From Here.
+                if (StringUtils.isNotBlank(resourceName)) {
+                    String resourceCountField = buildBusinessResourceCountField(serviceId, resourceName);
+                    AtomicLong resourceCountIncr = getIncrValue(Pair.of(businessKey, resourceCountField));
+                    resourceCountIncr.incrementAndGet();
+                }
             }
         } catch (Exception e) {
             log.warn("taskRunCount fails, executionId:{}, taskName:{}, errorMsg:{}",
@@ -182,7 +186,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
             String serviceId = ExecutionIdUtil.getServiceId(executionId);
             String dagSubmitField = String.format("%s_dag_submit_count", serviceId);
 
-            // FIXME: Code Completion From Here.
+            AtomicLong submitCountIncr = getIncrValue(Pair.of(businessKey, dagSubmitField));
             submitCountIncr.incrementAndGet();
         } catch (Exception e) {
             log.warn("dagSubmitCount fails, executionId:{}", executionId, e);
@@ -203,7 +207,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
                 return;
             }
             businessResourceTime(executionId, waitTime, executionTime);
-            // FIXME: Code Completion From Here.
+            businessResourceCount(context.getString("resource_name"), businessKey, ExecutionIdUtil.getServiceId(executionId));
         } catch (Exception e) {
             log.warn("finishNotifyCount fails, executionId:{}", executionId, e);
         }
@@ -252,7 +256,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
                             pipeline.expire(businessKey, BUSINESS_AGGREGATE_EXPIRE_TIME_IN_SECOND);
                         }
                 );
-                // FIXME: Code Completion From Here.
+                pipeline.sync();
             });
         } catch (Exception e) {
             log.warn("setBusinessValue fails, ", e);
@@ -270,7 +274,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
 
         String executeTimeField = buildBusinessResourceExecuteTimeField(serviceId, resourceType);
         AtomicLong executeTimeIncr = getIncrValue(Pair.of(businessKey, executeTimeField));
-        // FIXME: Code Completion From Here.
+        executeTimeIncr.addAndGet(executionTime);
     }
 
     private void flowResourceTime(String executionId, long waitTime, long executionTime) {
@@ -291,7 +295,7 @@ public class TenantTaskStatisticImpl implements TenantTaskStatistic {
             if (executionTime > 0L) {
                 pipeline.hincrBy(flowKey, buildFlowResourceExecuteTimeField(resourceType), executionTime);
             }
-            // FIXME: Code Completion From Here.
+            pipeline.expire(flowKey, reserveTime);
             pipeline.sync();
         });
     }

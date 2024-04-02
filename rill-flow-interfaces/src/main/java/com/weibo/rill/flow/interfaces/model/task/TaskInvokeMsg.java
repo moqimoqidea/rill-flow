@@ -67,7 +67,7 @@ public class TaskInvokeMsg {
         Optional.ofNullable(taskInvokeMsg.getInvokeId()).ifPresent(this::setInvokeId);
         Optional.ofNullable(taskInvokeMsg.getCode()).ifPresent(this::setCode);
         Optional.ofNullable(taskInvokeMsg.getMsg()).ifPresent(this::setMsg);
-        // FIXME: Code Completion From Here.
+        Optional.ofNullable(taskInvokeMsg.getInput()).filter(it -> !it.isEmpty()).ifPresent(this::setInput);
         Optional.ofNullable(taskInvokeMsg.getReferencedDAGExecutionId()).ifPresent(this::setReferencedDAGExecutionId);
         Optional.ofNullable(taskInvokeMsg.getInvokeTimeInfos()).ifPresent(timeInfos -> {
             List<InvokeTimeInfo> timeInfoList = new ArrayList<>(timeInfos);
@@ -90,7 +90,7 @@ public class TaskInvokeMsg {
                 .invokeId(invokeId)
                 .code(code)
                 .msg(msg)
-                // FIXME: Code Completion From Here.
+                .input(input)
                 .invokeTimeInfos(invokeTimeInfos)
                 .ext(ext)
                 .build();
