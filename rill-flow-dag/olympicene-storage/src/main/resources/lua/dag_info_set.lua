@@ -12,7 +12,7 @@ for keyIndex = 1, #KEYS, 1 do
         then
             break ;
         else
-            -- FIXME: Code Completion From Here.
+            table.insert(args, arg);
         end
     end
 
@@ -20,6 +20,6 @@ for keyIndex = 1, #KEYS, 1 do
         redis.call("set", key, args[1]);
     else
         redis.call("hmset", key, unpack(args));
-        -- FIXME: Code Completion From Here.
+        redis.call("expire", key, expireTime);
     end
 end

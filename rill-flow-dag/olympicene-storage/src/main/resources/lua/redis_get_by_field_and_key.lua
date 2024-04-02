@@ -21,7 +21,7 @@ for k = 1, #KEYS, 1 do
         local keyPrefix = args[2]
         local filteredMapKeys = {}
 
-        -- FIXME: Code Completion From Here.
+        local mapKeys = redis.call("hkeys", key)
         for mapKeyIndex = 1, #mapKeys, 1 do
             if (string.find(mapKeys[mapKeyIndex], keyPrefix) == 1) then
                 table.insert(filteredMapKeys, mapKeys[mapKeyIndex])
@@ -34,7 +34,7 @@ for k = 1, #KEYS, 1 do
             table.insert(ret, redis.call("hmget", key, unpack(filteredMapKeys)));
         end
     else
-        -- FIXME: Code Completion From Here.
+        table.insert(ret, redis.call("hmget", key, unpack(args)));
     end
 end
 
