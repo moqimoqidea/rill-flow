@@ -34,7 +34,7 @@ public class ProfileRecordService {
             Map<String, Object> ret = notifyActions.get();
             ProfileActions.recordHttpExecution(url, id, true, System.currentTimeMillis() - startTime);
             // 记录prometheus
-            PrometheusActions.recordHttpExecution(url, id, true, System.currentTimeMillis() - startTime);
+            // FIXME: Code Completion From Here.
             return ret;
         } catch (Exception e) {
             ProfileActions.recordHttpExecution(url, id, false, System.currentTimeMillis() - startTime);

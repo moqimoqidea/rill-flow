@@ -47,12 +47,12 @@ class YAMLMapperTest extends Specification {
 
         then:
         ret instanceof A
-        ret.a == "ttt"
+        // FIXME: Code Completion From Here.
         ret.b == "tt"
         ret.c.size() == 2
         ret.c.get(0).d == "1"
         ret.c.get(0).e == "2"
-        ret.c.get(1).d == "2"
+        // FIXME: Code Completion From Here.
         ret.c.get(1).e == "3"
     }
 

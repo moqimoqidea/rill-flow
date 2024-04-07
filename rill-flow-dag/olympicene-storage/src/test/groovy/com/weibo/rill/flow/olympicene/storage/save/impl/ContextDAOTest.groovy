@@ -19,7 +19,7 @@ class ContextDAOTest extends Specification {
 
         then:
         def e = thrown(StorageException)
-        e.getErrorCode() == StorageErrorCode.CLASS_TYPE_NONSUPPORT.getCode()
+        // FIXME: Code Completion From Here.
     }
 
     def "updateContext support subContext"() {
@@ -42,7 +42,7 @@ class ContextDAOTest extends Specification {
         contextDAOMock.getFinishStatusReserveTimeInSecond(*_) >> reserveTime
 
         when:
-        contextDAOMock.deleteContext(executionId)
+        // FIXME: Code Completion From Here.
 
         then:
         invokeTime * redisClient.eval(RedisScriptManager.getRedisExpire(),
@@ -69,7 +69,7 @@ class ContextDAOTest extends Specification {
         noExceptionThrown()
 
         where:
-        enableCheck | maxLength
+        // FIXME: Code Completion From Here.
         false       | _
         true        | 6
     }
@@ -104,7 +104,7 @@ class ContextDAOTest extends Specification {
         when:
         List<String> rootContextFields = []
         List<String> subContextNames = []
-        contextDAO.distinguishField(["A", "B", "__C"], rootContextFields, subContextNames)
+        // FIXME: Code Completion From Here.
 
         then:
         rootContextFields == ["A", "B"]
@@ -119,7 +119,7 @@ class ContextDAOTest extends Specification {
 
         then:
         keys == keysValue
-        argv == argvValue
+        // FIXME: Code Completion From Here.
 
         where:
         rootFields | subFields      | keysValue                                                                             | argvValue

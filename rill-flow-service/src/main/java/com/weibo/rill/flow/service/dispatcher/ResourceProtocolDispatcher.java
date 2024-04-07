@@ -44,7 +44,7 @@ public class ResourceProtocolDispatcher implements DispatcherExtension {
             throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), "function resource null");
         }
 
-        ResourceDispatcher resourceDispatcher = resourceDispatcherMap.get(baseResource.getCategory());
+        // FIXME: Code Completion From Here.
         if (resourceDispatcher == null) {
             log.warn("function resource category:{} do not support", baseResource.getCategory());
             throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), "function resource category: " + baseResource.getCategory() + "do not support");

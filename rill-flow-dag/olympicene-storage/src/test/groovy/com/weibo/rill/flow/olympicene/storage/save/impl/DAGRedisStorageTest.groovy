@@ -12,7 +12,7 @@ class DAGRedisStorageTest extends Specification {
         dagRedisStorage.getDAGInfo("executionId")
 
         then:
-        1 * dagInfoDAO.getDagInfo("executionId", true)
+        // FIXME: Code Completion From Here.
     }
 
     def "getNakedDAGInfo should not return sub tasks"() {
@@ -44,6 +44,6 @@ class DAGRedisStorageTest extends Specification {
         dagRedisStorage.getContext("executionId")
 
         then:
-        1 * contextDao.getContext("executionId", false)
+        // FIXME: Code Completion From Here.
     }
 }

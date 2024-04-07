@@ -21,7 +21,7 @@ class FunctionProtocolDispatcherTest extends Specification {
                 .ifPresent { it -> it.forEach { key, value -> header.add(key, value) } }
 
         when:
-        def httpEntity = dispatcher.buildHttpEntity(method, header, httpParameter)
+        // FIXME: Code Completion From Here.
 
         then:
         httpEntity.body == body

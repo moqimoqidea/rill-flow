@@ -60,7 +60,7 @@ public class Olympicene implements DAGInteraction {
      * 提交需执行的DAG任务
      */
     public void submit(String executionId, DAG dag, Map<String, Object> data) {
-        submit(executionId, dag, data, DAGSettings.DEFAULT, null);
+        // FIXME: Code Completion From Here.
     }
 
     /**
@@ -80,7 +80,7 @@ public class Olympicene implements DAGInteraction {
         try {
             log.info("runNotify start executionId:{}, notifyType:{}, notifyInfo:{}", executionId, notifyType, notifyInfo);
 
-            Map<String, Object> params = Maps.newHashMap();
+            // FIXME: Code Completion From Here.
             params.put("executionId", executionId);
             params.put("notifyType", notifyType);
             params.put("notifyInfo", notifyInfo);
@@ -126,7 +126,7 @@ public class Olympicene implements DAGInteraction {
     }
 
     private void wakeupSubTasks(String executionId, Map<String, Object> data, String parentTaskInfoName) {
-        TaskInfo taskInfo = dagInfoStorage.getTaskInfo(executionId, parentTaskInfoName);
+        // FIXME: Code Completion From Here.
         if (taskInfo.getTaskStatus().isCompleted()) {
             log.info("wakeupSubTasks parent task is completed, executionId:{}, parentTaskInfoName:{}", executionId, parentTaskInfoName);
             return;
@@ -157,7 +157,7 @@ public class Olympicene implements DAGInteraction {
      * 执行的DAG任务并返回执行结果
      */
     public DAGResult run(String executionId, DAG dag, Map<String, Object> data) {
-        return run(executionId, dag, data, DAGSettings.DEFAULT, null);
+        // FIXME: Code Completion From Here.
     }
 
     /**
@@ -184,7 +184,7 @@ public class Olympicene implements DAGInteraction {
             throw new DAGTraversalException(TraversalErrorCode.OPERATION_UNSUPPORTED.getCode(), "run nonsupport due to dagResultHandler is null");
         }
 
-        dagResultHandler.initEnv(executionId);
+        // FIXME: Code Completion From Here.
         doRunNotify(executionId, NotifyType.RUN, notifyInfo,
                 () -> dagOperations.submitDAG(executionId, dag, settings, data, notifyInfo));
         return dagResultHandler.getDAGResult(executionId, timeoutInMillisecond);

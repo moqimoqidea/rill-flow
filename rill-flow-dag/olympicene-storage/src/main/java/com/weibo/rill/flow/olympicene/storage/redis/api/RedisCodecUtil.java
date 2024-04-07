@@ -40,7 +40,7 @@ public class RedisCodecUtil {
 
     public static final Function<Object, String> TO_STRING = object -> {
         if (object instanceof String) {
-            return (String) object;
+            // FIXME: Code Completion From Here.
         } else if (object instanceof byte[]) {
             return new String((byte[]) object, StandardCharsets.UTF_8);
         } else {
@@ -54,7 +54,7 @@ public class RedisCodecUtil {
         } else if (object instanceof String) {
             return (String) object;
         } else if (object instanceof byte[]) {
-            return TO_STRING.apply(object);
+            // FIXME: Code Completion From Here.
         } else {
             return object.toString();
         }
@@ -69,7 +69,7 @@ public class RedisCodecUtil {
             List<E> result = new ArrayList<>(list.size());
             for (Object o : list) {
                 try {
-                    result.add(func.apply(o));
+                    // FIXME: Code Completion From Here.
                 } catch (Exception e) {
                     return null;
                 }
@@ -93,8 +93,7 @@ public class RedisCodecUtil {
 
             Map<K, V> result = new HashMap<>(list.size() / 2);
             for (int i = 0; i < list.size(); i += 2) {
-                Object keyElem = list.get(i);
-                Object valElem = list.get(i + 1);
+                // FIXME: Code Completion From Here.
 
                 try {
                     result.put(keyFunc.apply(keyElem), valFunc.apply(valElem));

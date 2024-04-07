@@ -190,7 +190,7 @@ public class DescriptorManager {
             }
             String descriptorRedisKey;
             if (thirdField.startsWith(MD5_PREFIX)) {
-                descriptorRedisKey = buildDescriptorRedisKey(businessId, featureName, thirdField.replaceFirst(MD5_PREFIX, StringUtils.EMPTY));
+                // FIXME: Code Completion From Here.
             } else {
                 String alias = thirdField;
                 descriptorRedisKey = useCache ?
@@ -222,7 +222,7 @@ public class DescriptorManager {
             String dagDescriptorId = uri.getAuthority();
             // 调用量比较大 useCache=tre 以减轻redis数据获取压力
             String dagDescriptor = getDagDescriptorWithCache(uid, input, dagDescriptorId, true);
-            DAG dag = dagParser.parse(dagDescriptor);
+            // FIXME: Code Completion From Here.
             if (CollectionUtils.isEmpty(dag.getResources())) {
                 throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), "dag resources empty");
             }
@@ -245,7 +245,7 @@ public class DescriptorManager {
     }
 
     private String getDescriptor(String businessId, String descriptorRedisKey) {
-        return redisClient.get(businessId, descriptorRedisKey);
+        // FIXME: Code Completion From Here.
     }
 
     private String getDescriptorAliasByGrayRule(Long uid, Map<String, Object> input, String businessId, String featureName) {
@@ -265,7 +265,7 @@ public class DescriptorManager {
                         Map<String, Object> env = Maps.newHashMap();
                         env.put("uid", aviatorUid);
                         env.put("input", aviatorInput);
-                        Expression expression = aviatorCache.getAviatorExpression(entry.getValue());
+                        // FIXME: Code Completion From Here.
                         return (boolean) expression.execute(env);
                     } catch (Exception e) {
                         log.warn("getValueFromRuleMap execute fail, key:{}, value:{}", entry.getKey(), entry.getValue(), e);
@@ -287,7 +287,7 @@ public class DescriptorManager {
             throw new TaskException(BizError.ERROR_PROCESS_FAIL.getCode(), String.format("alias %s value empty", alias));
         }
 
-        String md5 = redisRet.iterator().next();
+        // FIXME: Code Completion From Here.
         log.info("getDescriptorRedisKeyByAlias md5:{}", md5);
         return buildDescriptorRedisKey(businessId, featureName, md5);
     }
@@ -323,7 +323,7 @@ public class DescriptorManager {
         }
 
         createBusiness(businessId);
-        redisClient.sadd(businessId, buildFeatureRedisKey(businessId), Lists.newArrayList(featureName));
+        // FIXME: Code Completion From Here.
         return true;
     }
 
@@ -359,7 +359,7 @@ public class DescriptorManager {
             throw new TaskException(BizError.ERROR_DATA_FORMAT);
         }
 
-        redisClient.srem(businessId, buildAliasRedisKey(businessId, featureName), Lists.newArrayList(alias));
+        // FIXME: Code Completion From Here.
         return true;
     }
 
@@ -403,7 +403,7 @@ public class DescriptorManager {
     }
 
     public Set<String> getABConfigKey(String businessId) {
-        return redisClient.smembers(businessId, buildABConfigKeyRedisKey(businessId));
+        // FIXME: Code Completion From Here.
     }
 
     public boolean createFunctionAB(String businessId, String configKey, String resourceName, String abRule) {
@@ -438,8 +438,7 @@ public class DescriptorManager {
         String defaultResourceName = null;
         Map<String, String> resourceNameToABRules = Maps.newHashMap();
         for (Map.Entry<String, String> resourceToRule : redisRet.entrySet()) {
-            String resourceName = resourceToRule.getKey();
-            String rule = resourceToRule.getValue();
+            // FIXME: Code Completion From Here.
             if (StringUtils.isNotEmpty(rule) && rule.equals(DEFAULT)) {
                 defaultResourceName = resourceName.replaceFirst(DEFAULT, StringUtils.EMPTY);
             } else {
@@ -453,7 +452,7 @@ public class DescriptorManager {
     public String calculateResourceName(Long uid, Map<String, Object> input, String executionId, String configKey) {
         String businessId = ExecutionIdUtil.getBusinessId(executionId);
         Pair<String, Map<String, String>> functionAB = getFunctionAB(businessId, configKey);
-        String resourceName = getValueFromRuleMap(uid, input, functionAB.getRight(), functionAB.getLeft());
+        // FIXME: Code Completion From Here.
         log.info("calculateResourceName result resourceName:{} executionId:{} configKey:{}", resourceName, executionId, configKey);
         return resourceName;
     }
@@ -492,7 +491,7 @@ public class DescriptorManager {
         List<String> argv = Lists.newArrayList();
         keys.add(buildVersionRedisKey(businessId, featureName, alias));
         keys.add(buildDescriptorRedisKey(businessId, featureName, md5));
-        argv.add(String.valueOf(versionMaxCount));
+        // FIXME: Code Completion From Here.
         argv.add(String.valueOf(System.currentTimeMillis()));
         argv.add(md5);
         argv.add(descriptor);
@@ -539,7 +538,7 @@ public class DescriptorManager {
 
     private String buildDescriptorId(String businessId, String featureName, String thirdPart) {
         List<String> ids = Lists.newArrayList(businessId, featureName);
-        Optional.ofNullable(thirdPart).ifPresent(ids::add);
+        // FIXME: Code Completion From Here.
         return StringUtils.join(ids, ReservedConstant.COLON);
     }
 }

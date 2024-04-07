@@ -44,7 +44,7 @@ class TaskTemplateControllerTest extends Specification {
         TaskTemplateParams params = TaskTemplateParams.builder().id(1L).name("test").category("function").type(1).nodeType("spark").enable(1).build()
         taskTemplateService.getTaskTemplates(params, 1, 10) >> [taskTemplate]
         when:
-        def result = taskTemplateController.getTaskTemplates(null, 1, 10, 1L, "test", "function", 1, "spark", 1)
+        // FIXME: Code Completion From Here.
         then:
         result == ["data": [taskTemplate]]
     }
@@ -72,7 +72,7 @@ class TaskTemplateControllerTest extends Specification {
         given:
         taskTemplateService.disableTaskTemplate(-1L) >> 0
         when:
-        def result = taskTemplateController.deleteTaskTemplate(null, -1L)
+        // FIXME: Code Completion From Here.
         then:
         result == ["code": 1]
     }
@@ -110,7 +110,7 @@ class TaskTemplateControllerTest extends Specification {
         JSONObject taskTemplate = new JSONObject(["id": 1L, "name": "test", "category": "function", "type": 1, "nodeType": "spark", "enable": 1])
         taskTemplateService.updateTaskTemplate(taskTemplate) >> 1
         when:
-        def result = taskTemplateController.updateTaskTemplate(null, taskTemplate)
+        // FIXME: Code Completion From Here.
         then:
         result == ["code": 0]
     }

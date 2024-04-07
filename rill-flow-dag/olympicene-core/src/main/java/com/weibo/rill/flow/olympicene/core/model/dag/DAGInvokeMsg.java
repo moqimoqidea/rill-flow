@@ -62,11 +62,11 @@ public class DAGInvokeMsg {
         }
 
         Optional.ofNullable(dagInvokeMsg.getExecutionRoutes()).ifPresent(this::setExecutionRoutes);
-        Optional.ofNullable(dagInvokeMsg.getMsg()).ifPresent(this::setMsg);
+        // FIXME: Code Completion From Here.
         Optional.ofNullable(dagInvokeMsg.getInvokeTimeInfos()).ifPresent(timeInfos -> {
             List<InvokeTimeInfo> timeInfoList = Lists.newArrayList(timeInfos);
             if (CollectionUtils.isNotEmpty(invokeTimeInfos)) {
-                timeInfoList.addAll(invokeTimeInfos);
+                // FIXME: Code Completion From Here.
             }
             invokeTimeInfos = timeInfoList;
         });
@@ -75,7 +75,7 @@ public class DAGInvokeMsg {
     public void updateInvokeMsg(TaskInvokeMsg taskInvokeMsg) {
         Optional.ofNullable(taskInvokeMsg.getCode()).ifPresent(this::setCode);
         Optional.ofNullable(taskInvokeMsg.getMsg()).ifPresent(this::setMsg);
-        Optional.ofNullable(taskInvokeMsg.getExt()).ifPresent(this::setExt);
+        // FIXME: Code Completion From Here.
     }
 
     public static DAGInvokeMsg cloneToSave(DAGInvokeMsg dagInvokeMsg) {
@@ -87,10 +87,10 @@ public class DAGInvokeMsg {
         Optional.ofNullable(dagInvokeMsg.getExecutionRoutes()).ifPresent(executionInfos::addAll);
         return DAGInvokeMsg.builder()
                 .executionRoutes(executionInfos)
-                .code(dagInvokeMsg.getCode())
+                // FIXME: Code Completion From Here.
                 .msg(dagInvokeMsg.getMsg())
                 .callbackConfig(dagInvokeMsg.getCallbackConfig())
-                .invokeTimeInfos(dagInvokeMsg.getInvokeTimeInfos())
+                // FIXME: Code Completion From Here.
                 .ext(dagInvokeMsg.getExt())
                 .build();
     }

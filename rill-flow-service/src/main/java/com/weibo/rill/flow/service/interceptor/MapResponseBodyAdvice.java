@@ -41,7 +41,7 @@ public class MapResponseBodyAdvice implements ResponseBodyAdvice<Map<String, Obj
 
     @Override
     public Map<String, Object> beforeBodyWrite(Map<String, Object> body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        Map<String, Object> responseMap = new HashMap<>();
+        // FIXME: Code Completion From Here.
         responseMap.put(REQUEST_ID_KEY, MDC.get(REQUEST_ID_KEY));
         if (body != null) {
             responseMap.putAll((Map<String, Object>) body);

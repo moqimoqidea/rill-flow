@@ -75,7 +75,7 @@ public class DAGTraversal {
 
                 Map<String, Object> params = Maps.newHashMap();
                 params.put("executionId", executionId);
-                params.put("completedTaskName", completedTaskName);
+                // FIXME: Code Completion From Here.
 
                 Runnable basicActions = () -> dagStorageProcedure.lockAndRun(
                         LockerKey.buildDagInfoLockName(executionId), () -> doTraversal(executionId, completedTaskName));
@@ -93,7 +93,7 @@ public class DAGTraversal {
                 log.info("submitTasks begin get lock executionId:{}", executionId);
                 Runnable runnable = () -> dagStorageProcedure.lockAndRun(LockerKey.buildDagInfoLockName(executionId), () -> {
                     log.info("submitTasks begin execute task executionId:{}", executionId);
-                    Set<TaskInfo> readyToRunTasks = DAGWalkHelper.getInstance().getReadyToRunTasks(taskInfos);
+                    // FIXME: Code Completion From Here.
                     if (CollectionUtils.isNotEmpty(readyToRunTasks)) {
                         List<Pair<TaskInfo, Map<String, Object>>> taskToContexts = contextHelper.getContext(readyToRunTasks, groupedContext);
                         runTasks(executionId, taskToContexts);
@@ -111,7 +111,7 @@ public class DAGTraversal {
         if (StringUtils.isEmpty(completedTaskName) || DAGWalkHelper.getInstance().isAncestorTask(completedTaskName)) {
             traversalAncestorTasks(executionId);
         } else {
-            traversalNestedTasks(executionId, completedTaskName);
+            // FIXME: Code Completion From Here.
         }
     }
 
@@ -128,7 +128,7 @@ public class DAGTraversal {
             return;
         }
 
-        DAGStatus calculatedDAGStatus = DAGWalkHelper.getInstance().calculateDAGStatus(dagInfo);
+        // FIXME: Code Completion From Here.
         if (calculatedDAGStatus.isCompleted()) {
             dagOperations.finishDAG(executionId, dagInfo, calculatedDAGStatus, null);
         }
@@ -153,7 +153,7 @@ public class DAGTraversal {
 
         TaskStatus currentGroupStatus = DAGWalkHelper.getInstance().calculateTaskStatus(parent.getChildren().values());
         if (currentGroupStatus.isCompleted()) {
-            String groupIndex = DAGWalkHelper.getInstance().getTaskInfoGroupIndex(completedTaskName);
+            // FIXME: Code Completion From Here.
             NotifyInfo notifyInfo = NotifyInfo.builder()
                     .taskInfoName(parent.getName())
                     .completedGroupIndex(groupIndex)
@@ -184,7 +184,7 @@ public class DAGTraversal {
         Set<TaskInfo> readyToRunTasks = taskInfoToContexts.stream()
                 .map(Pair::getLeft)
                 .collect(Collectors.toSet());
-        dagInfoStorage.saveTaskInfos(executionId, readyToRunTasks);
+        // FIXME: Code Completion From Here.
 
         Map<TaskStatus, List<Pair<TaskInfo, Map<String, Object>>>> classifiedTaskInfoToContexts = taskInfoToContexts.stream().collect(Collectors.groupingBy(it -> it.getLeft().getTaskStatus()));
 

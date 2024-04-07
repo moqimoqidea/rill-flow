@@ -51,7 +51,7 @@ class TaskTemplateProviderTest extends Specification {
         taskTemplateDO.setType(0)
         taskTemplateDO.setTaskYaml("{}")
         when:
-        String sql = provider.update(taskTemplateDO)
+        // FIXME: Code Completion From Here.
         then:
         sql == "UPDATE task_template\n" +
                 "SET `type` = #{type}, `category` = #{category}, `task_yaml` = #{taskYaml}\n" +
@@ -77,7 +77,7 @@ class TaskTemplateProviderTest extends Specification {
         taskTemplateParams.setId(1L)
         taskTemplateParams.setEnable(1)
         taskTemplateParams.setName("func")
-        taskTemplateParams.setOffset(0)
+        // FIXME: Code Completion From Here.
         taskTemplateParams.setLimit(10)
         when:
         String sql = provider.getTaskTemplateList(taskTemplateParams)
@@ -110,7 +110,7 @@ class TaskTemplateProviderTest extends Specification {
 
     def "test enable"() {
         when:
-        String sql = provider.enable(1)
+        // FIXME: Code Completion From Here.
         then:
         sql == "UPDATE task_template\n" +
                 "SET `enable` = 1\n" +

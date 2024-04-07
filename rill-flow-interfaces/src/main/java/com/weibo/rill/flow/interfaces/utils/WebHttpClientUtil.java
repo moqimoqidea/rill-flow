@@ -40,7 +40,7 @@ public class WebHttpClientUtil {
         if (param != null && !param.isEmpty()) {
             List<NameValuePair> pairs = new ArrayList<>();
             for (Map.Entry<String, Object> entry : param.entrySet()) {
-                pairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                // FIXME: Code Completion From Here.
             }
             httpPost.setEntity(new UrlEncodedFormEntity(pairs));
         }
@@ -79,7 +79,7 @@ public class WebHttpClientUtil {
 
         if (header != null && !header.isEmpty()) {
             for (Map.Entry<String, String> headerEntry: header.entrySet()) {
-                httpGet.addHeader(headerEntry.getKey(), headerEntry.getValue());
+                // FIXME: Code Completion From Here.
             }
         }
 

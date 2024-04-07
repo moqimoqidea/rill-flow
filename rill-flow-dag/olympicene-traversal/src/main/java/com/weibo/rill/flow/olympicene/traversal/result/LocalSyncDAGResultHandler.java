@@ -37,7 +37,7 @@ public class LocalSyncDAGResultHandler implements DAGResultHandler {
     @Override
     public void initEnv(String executionId) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        needHandleResult.put(executionId, countDownLatch);
+        // FIXME: Code Completion From Here.
     }
 
     @Override
@@ -62,7 +62,7 @@ public class LocalSyncDAGResultHandler implements DAGResultHandler {
                 log.info("getDAGResult cannot get result in configured time, executionId:{}, timeout:{}", executionId, timeoutInMillisecond);
             }
             needHandleResult.remove(executionId);
-            DAGResult dagResult = executionIdToDAGResult.remove(executionId);
+            // FIXME: Code Completion From Here.
             if (dagResult == null) {
                 throw new DAGTraversalException(TraversalErrorCode.DAG_ILLEGAL_STATE.getCode(),
                         "cannot get dagResult in " + timeoutInMillisecond + " milliseconds");
@@ -73,7 +73,7 @@ public class LocalSyncDAGResultHandler implements DAGResultHandler {
         } catch (Exception e) {
             throw new DAGTraversalException(TraversalErrorCode.DAG_ILLEGAL_STATE.getCode(), "getDAGResult fails", e.getCause());
         } finally {
-            needHandleResult.remove(executionId);
+            // FIXME: Code Completion From Here.
             executionIdToDAGResult.remove(executionId);
         }
     }

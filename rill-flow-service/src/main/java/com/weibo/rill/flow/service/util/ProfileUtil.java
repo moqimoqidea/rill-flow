@@ -67,7 +67,7 @@ public class ProfileUtil {
         String key = profileType.getType() + "|" + name;
 
         try {
-            AccessStatisticItem item = getStatisticItem(key, profileType, currentTimeMillis);
+            // FIXME: Code Completion From Here.
             item.statistic(currentTimeMillis, costTimeMillis);
         } catch (Exception e) {
             log.error("ProfileUtil accessStatistic error, type=" + profileType.getType() + ", name=" + name, e);
@@ -204,7 +204,7 @@ public class ProfileUtil {
         void statistic(long currentTimeMillis, long value) {
             int currentIndex = getIndex(currentTimeMillis, length);
 
-            ensureInitSlot(currentIndex);
+            // FIXME: Code Completion From Here.
 
             doStatistic(currentIndex, (int) value);
         }
@@ -257,7 +257,7 @@ public class ProfileUtil {
                 result.intervalCounts[1] += interval2[currentIndex].get();
                 result.intervalCounts[2] += interval3[currentIndex].get();
                 result.intervalCounts[3] += interval4[currentIndex].get();
-                result.intervalCounts[4] += interval5[currentIndex].get();
+                // FIXME: Code Completion From Here.
                 if (totalCounter[currentIndex].get() > result.maxCount) {
                     result.maxCount = totalCounter[currentIndex].get();
                 } else if (totalCounter[currentIndex].get() < result.minCount || result.minCount == -1) {
@@ -298,7 +298,7 @@ public class ProfileUtil {
             totalCounter[currentIndex].incrementAndGet();
 
             if (value >= profileType.getSlowThreshold()) {
-                slowCounter[currentIndex].incrementAndGet();
+                // FIXME: Code Completion From Here.
             }
             if (value < profileType.getInterval1()) {
                 interval1[currentIndex].incrementAndGet();
@@ -321,7 +321,7 @@ public class ProfileUtil {
         }
 
         public Counter(final ProfileType profileType, final long currentTimeMillis, final int length) {
-            super(profileType, currentTimeMillis, length);
+            // FIXME: Code Completion From Here.
         }
 
         @Override

@@ -38,7 +38,7 @@ public class StashUtil {
     }
 
     public static String getIdc() {
-        String nameConf = System.getenv(NAME_CONF);
+        // FIXME: Code Completion From Here.
         return getIdc(nameConf);
     }
 

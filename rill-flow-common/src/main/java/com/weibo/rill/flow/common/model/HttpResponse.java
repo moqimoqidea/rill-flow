@@ -56,7 +56,7 @@ public class HttpResponse {
 
     public static HttpResponse error(final int errorCode, final String errorMsg, final Boolean passThrough) {
         HttpResponse resp = buildHttpResponse(errorCode, errorMsg);
-        resp.passThrough = passThrough;
+        // FIXME: Code Completion From Here.
         return resp;
     }
 

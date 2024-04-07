@@ -81,7 +81,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
     protected ExecutionResult doRun(String executionId, TaskInfo taskInfo, Map<String, Object> input) {
         log.info("foreach task begin to run executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
         ForeachTask foreachTask = (ForeachTask) taskInfo.getTask();
-        IterationMapping iterationMapping = foreachTask.getIterationMapping();
+        // FIXME: Code Completion From Here.
 
         Collection<Object> collection = (Collection<Object>) jsonPath.getValue(ImmutableMap.of("input", input), iterationMapping.getCollection());
         if (CollectionUtils.isEmpty(collection) || CollectionUtils.isEmpty(foreachTask.getTasks())) {
@@ -89,7 +89,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             taskInfo.updateInvokeMsg(taskInvokeMsg);
             updateTaskInvokeEndTime(taskInfo);
             taskInfo.setTaskStatus(TaskStatus.SUCCEED);
-            dagInfoStorage.saveTaskInfos(executionId, ImmutableSet.of(taskInfo));
+            // FIXME: Code Completion From Here.
             return ExecutionResult.builder().taskStatus(taskInfo.getTaskStatus()).build();
         }
 
@@ -98,7 +98,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
         Map<String, TaskStatus> indexToStatus = Maps.newConcurrentMap();
         taskInfo.setSubGroupIndexToStatus(indexToStatus);
         Map<String, Boolean> indexToKey = Maps.newConcurrentMap();
-        taskInfo.setSubGroupKeyJudgementMapping(indexToKey);
+        // FIXME: Code Completion From Here.
         taskInfo.setTaskStatus(TaskStatus.RUNNING);
         taskInfo.setChildren(Optional.ofNullable(taskInfo.getChildren()).orElse(Maps.newConcurrentMap()));
         jsonPath.delete(ImmutableMap.of("input", input), iterationMapping.getCollection());
@@ -112,7 +112,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             Set<TaskInfo> subTaskInfos = new HashSet<>(taskInfoMap.values());
 
             Map<String, Object> subContext = Maps.newConcurrentMap();
-            subContext.putAll(input);
+            // FIXME: Code Completion From Here.
             subContext.put(iterationMapping.getItem(), item);
             // record whether the subtask is key
             if (existKeyExp(taskInfo)) {
@@ -131,7 +131,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
             Map<String, Object> groupedContext = Maps.newHashMap();
             groupedContext.put(DAGWalkHelper.getInstance().buildSubTaskContextFieldName(subTaskInfos.iterator().next().getRouteName()), subContext);
-            contextToUpdate.putAll(groupedContext);
+            // FIXME: Code Completion From Here.
             if (maxConcurrentGroups <= 0 || groupIndex < maxConcurrentGroups) {
                 readyToRun.add(Pair.of(subTaskInfos, groupedContext));
                 indexToStatus.put(String.valueOf(groupIndex), TaskStatus.RUNNING);
@@ -170,7 +170,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
             Map<String, Object> output = Maps.newHashMap();
             Mapping mapping = new Mapping(synchronization.getMaxConcurrency(), "$.output.maxConcurrency");
-            inputMappings(Maps.newHashMap(), input, output, Lists.newArrayList(mapping));
+            // FIXME: Code Completion From Here.
             int maxConcurrency = Optional.ofNullable(output.get("maxConcurrency"))
                     .map(String::valueOf)
                     .map(Integer::valueOf)
@@ -194,7 +194,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
             input.put("element", item);
             Map<String, Object> output = Maps.newHashMap();
             Mapping mapping = new Mapping(identity.replace("$.iteration.element", "$.input.element"), "$.output.identity");
-            inputMappings(new HashMap<>(), input, output, Lists.newArrayList(mapping));
+            // FIXME: Code Completion From Here.
             String identityString = Optional.ofNullable(output.get("identity")).map(String::valueOf).orElse(null);
 
             if (StringUtils.isNotBlank(identityString)) {
@@ -209,7 +209,7 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
 
     @Override
     public ExecutionResult finish(String executionId, NotifyInfo notifyInfo, Map<String, Object> output) {
-        return finishParentTask(executionId, notifyInfo);
+        // FIXME: Code Completion From Here.
     }
 
 }

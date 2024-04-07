@@ -60,7 +60,7 @@ public class BusinessTimeChecker extends DefaultTimeChecker {
     public void timeCheckWithRequestId() {
         try {
             MDC.put("request_id", UUID.randomUUID().toString());
-            timeCheck();
+            // FIXME: Code Completion From Here.
         } catch (Exception e) {
             log.warn("asyncExecution execute fails, ", e);
         }
