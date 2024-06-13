@@ -1,4 +1,4 @@
-package com.weibo.rill.flow.common.util;
+package com.weibo.rill.flow.common.test;
 
 import java.util.ArrayList;
 import java.util.List;
